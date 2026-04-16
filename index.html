@@ -362,11 +362,10 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 </div>
 
 <script>
-// ══ CONFIGURAÇÃO — edite só esta linha após criar o Worker ══
+// ══ CONFIGURAÇÃO ══
 const WORKER_URL = 'https://proxy-ml.dediner20.workers.dev';
 // ════════════════════════════════════════════════════════════
 
-const ML_API = 'https://api.mercadolibre.com';
 let mlAccessToken = '', mlSellerId = '';
 
 // ── Navegação ──
@@ -440,7 +439,7 @@ function atualizarPill() {
 
 // ── Helper de fetch para API do ML ──
 async function mlGet(path) {
-  const r = await fetch(ML_API + path, { headers: { Authorization: 'Bearer ' + mlAccessToken } });
+  const r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + mlAccessToken } });
   return r.json();
 }
 
