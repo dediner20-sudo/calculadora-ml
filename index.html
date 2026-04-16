@@ -601,43 +601,53 @@ async function calcularAnuncio(btn) {
 }
 
 async function processarCalculo(item, custo, embal, impPct) {
-  const preco = item.price || 0;
-  const mlbId = item.id;
-  const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+  const preco       = item.price || 0;
+  const mlbId       = item.id;
+  const categoryId  = item.category_id;
+  const listingType = item.listing_type_id || 'gold_special';
+  const tipoLabel   = listingType === 'gold_pro' ? 'Premium' : 'Clássico';
+  const logisticType = item.shipping?.logistic_type || 'not_specified';
+  const shippingMode = item.shipping?.mode || 'not_specified';
+  const freeShipping = item.shipping?.free_shipping || false;
 
-  // Tarifa REAL via sale_fees
-  let tarifaVal = 0, tarifaFonte = 'estimada (13%)';
+  // ── Tarifa e frete REAIS via /sites/MLB/listing_prices ──
+  // Endpoint oficial que retorna sale_fee_details.percentage_fee (comissão real)
+  // e sale_fee_details.fixed_fee (custo fixo de frete para o vendedor)
+  let tarifaVal = null, tarifaPct = null, freteFixo = null;
+  let tarifaFonte = '', freteFonte = '';
+
   try {
-    const fees = await mlGet(`/items/${mlbId}/sale_fees`);
-    if (Array.isArray(fees)) {
-      const taxa = fees.find(f => f.type === 'sale_fee_amount' || f.id === 'sale_fee_amount');
-      if (taxa?.value) { tarifaVal = taxa.value; tarifaFonte = `real — ${tipoLabel}`; }
+    const params = new URLSearchParams({
+      price: preco,
+      category_id: categoryId,
+      listing_type_id: listingType,
+      logistic_type: logisticType,
+      shipping_modes: shippingMode
+    });
+    const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
+
+    if (lp && lp.sale_fee_amount !== undefined) {
+      tarifaVal   = lp.sale_fee_amount;
+      tarifaPct   = lp.sale_fee_details?.percentage_fee || (preco > 0 ? (tarifaVal / preco) * 100 : 0);
+      freteFixo   = lp.sale_fee_details?.fixed_fee || 0;
+      tarifaFonte = `${tipoLabel} — ${tarifaPct.toFixed(1)}%`;
+      freteFonte  = freeShipping ? 'custo fixo vendedor (API)' : 'comprador paga';
     }
-    if (!tarifaVal && fees?.sale_fee_amount) { tarifaVal = fees.sale_fee_amount; tarifaFonte = `real — ${tipoLabel}`; }
   } catch {}
-  if (!tarifaVal) tarifaVal = preco * 0.13;
 
-  // Frete REAL — campo vazio se não encontrado
-  let freteVal = null, freteFonte = '';
-  if (item.shipping?.free_shipping) {
-    try {
-      const fr = await mlGet(`/items/${mlbId}/shipping_options`);
-      const opts = fr?.options || fr?.shipping_options || [];
-      if (opts.length) {
-        const menor = opts.reduce((a, b) => (a.list_cost || 0) < (b.list_cost || 0) ? a : b);
-        if (menor.list_cost > 0) { freteVal = menor.list_cost; freteFonte = 'ML Envios (real)'; }
-      }
-    } catch {}
-  } else {
-    freteVal = 0;
-    freteFonte = 'comprador paga';
-  }
+  // Se o endpoint não retornou, deixa nulo — sem estimativa
+  const tarifaOk = tarifaVal !== null;
+  const freteOk  = freteFixo !== null;
 
-  const frete = freteVal !== null ? freteVal : 0;
+  // Custo de frete: só cobra do vendedor se frete grátis; senão é 0
+  const freteVal = freeShipping ? (freteFixo || 0) : 0;
+  if (!freeShipping) freteFonte = 'comprador paga';
+
   const impVal = preco * (impPct / 100);
-  const lucro  = preco - custo - embal - frete - impVal - tarifaVal;
-  const margem = preco > 0 ? (lucro / preco) * 100 : 0;
-  const tarifaPct = preco > 0 ? (tarifaVal / preco) * 100 : 0;
+  const lucro  = tarifaOk
+    ? preco - custo - embal - freteVal - impVal - tarifaVal
+    : null;
+  const margem = (lucro !== null && preco > 0) ? (lucro / preco) * 100 : null;
 
   // Preenche resultado
   document.getElementById('ml-result-titulo-api').textContent = item.title.substring(0, 55) + (item.title.length > 55 ? '…' : '');
@@ -647,26 +657,26 @@ async function processarCalculo(item, custo, embal, impPct) {
   const addTag = (txt, cls) => { const t = document.createElement('span'); t.className = `itag ${cls}`; t.textContent = txt; tagsEl.appendChild(t); };
   addTag(mlbId, 'itag-info');
   addTag(tipoLabel, 'itag-info');
-  addTag(`Tarifa: ${tarifaPct.toFixed(1)}% (${tarifaFonte})`, tarifaFonte.includes('estimada') ? 'itag-warn' : 'itag-ok');
-  if (freteVal !== null) addTag(`Frete: ${brl(frete)} (${freteFonte})`, freteFonte === 'comprador paga' ? 'itag-info' : 'itag-ok');
-  else addTag('Frete: informe manualmente', 'itag-warn');
+  if (tarifaOk) addTag(`Comissão: ${tarifaPct.toFixed(1)}% = ${brl(tarifaVal)}`, 'itag-ok');
+  else addTag('Tarifa: não retornada pela API', 'itag-warn');
+  addTag(`Frete: ${freeShipping ? brl(freteVal) + ' (' + freteFonte + ')' : 'comprador paga'}`, freeShipping ? 'itag-ok' : 'itag-info');
 
-  document.getElementById('label-tarifa-tipo').textContent = `(-) Tarifa ML — ${tipoLabel}`;
-  document.getElementById('ml-ra-preco').textContent    = brl(preco);
-  document.getElementById('ml-ra-custo').textContent    = '- ' + brl(custo);
+  document.getElementById('label-tarifa-tipo').textContent = `(-) Comissão ML — ${tipoLabel}`;
+  document.getElementById('ml-ra-preco').textContent     = brl(preco);
+  document.getElementById('ml-ra-custo').textContent     = '- ' + brl(custo);
   document.getElementById('ml-ra-embalagem').textContent = '- ' + brl(embal);
-  document.getElementById('ml-ra-frete').textContent    = freteVal !== null ? '- ' + brl(frete) : '—';
-  document.getElementById('ml-ra-imposto').textContent  = '- ' + brl(impVal);
-  document.getElementById('ml-ra-tarifa').textContent   = '- ' + brl(tarifaVal);
+  document.getElementById('ml-ra-frete').textContent     = '- ' + brl(freteVal);
+  document.getElementById('ml-ra-imposto').textContent   = '- ' + brl(impVal);
+  document.getElementById('ml-ra-tarifa').textContent    = tarifaOk ? '- ' + brl(tarifaVal) : '—';
 
   const big = document.getElementById('ml-big-api');
-  big.className = 'big-result ' + (lucro >= 0 ? 'positive' : 'negative');
-  document.getElementById('ml-ra-lucro').textContent  = (lucro < 0 ? '- ' : '') + brl(lucro);
-  document.getElementById('ml-ra-margem').textContent = pct(margem) + ' de margem';
+  big.className = 'big-result ' + (lucro !== null ? (lucro >= 0 ? 'positive' : 'negative') : 'positive');
+  document.getElementById('ml-ra-lucro').textContent  = lucro !== null ? (lucro < 0 ? '- ' : '') + brl(lucro) : '—';
+  document.getElementById('ml-ra-margem').textContent = margem !== null ? pct(margem) + ' de margem' : 'informe o custo';
 
   const minEl = document.getElementById('ml-ra-precomin');
-  if (custo > 0) {
-    const precoMin = (custo + embal + frete + tarifaVal + impVal);
+  if (custo > 0 && tarifaOk) {
+    const precoMin = custo + embal + freteVal + impVal + tarifaVal;
     minEl.textContent = `💡 Preço mínimo para não ter prejuízo: ${brl(precoMin)}`;
     minEl.style.display = 'block';
   } else { minEl.style.display = 'none'; }
