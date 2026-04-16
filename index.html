@@ -603,8 +603,7 @@ async function processarCalculo(item, custo, embal, impPct) {
   const freeShipping = item.shipping?.free_shipping || false;
 
   // ── 1. Tarifa de Venda via /sites/MLB/listing_prices ──
-  // Retorna sale_fee_amount (comissão real + custo fixo, se aplicável)
-  let tarifaVal = null, tarifaPct = null;
+  let tarifaVal = null, tarifaPct = null, freteFixo = 0;
   let tarifaFonte = '';
 
   try {
@@ -618,13 +617,59 @@ async function processarCalculo(item, custo, embal, impPct) {
     const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
 
     if (lp && lp.sale_fee_amount !== undefined) {
-      tarifaVal   = lp.sale_fee_amount; // Já contém a tarifa % e o custo fixo do ML
-      tarifaPct   = lp.sale_fee_details?.percentage_fee || (preco > 0 ? (tarifaVal / preco) * 100 : 0);
+      // Extrai a Taxa Fixa (ex: R$ 6,00) que o ML cobra em itens < 79
+      freteFixo = lp.sale_fee_details?.fixed_fee || 0; 
+      
+      // A tarifaVal agora guarda APENAS a comissão percentual do ML
+      tarifaVal = lp.sale_fee_amount - freteFixo;
+      tarifaPct = lp.sale_fee_details?.percentage_fee || (preco > 0 ? (tarifaVal / preco) * 100 : 0);
       tarifaFonte = `${tipoLabel} — ${tarifaPct.toFixed(1)}%`;
     }
   } catch {}
 
   const tarifaOk = tarifaVal !== null;
+
+  // ── 2. Frete do vendedor via /shipping_options/free ──
+  let freteVal = 0;
+  let freteFonte = 'comprador paga';
+
+  if (freeShipping) {
+    try {
+      // TENTATIVA 1: Busca o frete logístico pelo ID do anúncio
+      let shipUrl = `/users/${mlSellerId}/shipping_options/free?item_id=${mlbId}`;
+      let shipRes = await mlGet(shipUrl);
+      console.log("[DEBUG ML] Frete via item_id:", shipRes);
+      
+      if (shipRes?.coverage?.all_country?.list_cost) {
+        freteVal = shipRes.coverage.all_country.list_cost;
+        freteFonte = 'frete ME2';
+      } else if (item.shipping?.dimensions) {
+        // TENTATIVA 2: Se falhar ou vir zerado, calcula usando as dimensões cadastradas no anúncio
+        shipUrl = `/users/${mlSellerId}/shipping_options/free?dimensions=${item.shipping.dimensions}&item_price=${preco}&listing_type_id=${listingType}`;
+        shipRes = await mlGet(shipUrl);
+        console.log("[DEBUG ML] Frete via dimensões (Fallback):", shipRes);
+        
+        if (shipRes?.coverage?.all_country?.list_cost) {
+          freteVal = shipRes.coverage.all_country.list_cost;
+          freteFonte = 'frete ME2 (dimensões)';
+        } else {
+          freteFonte = 'sem cobertura ML';
+        }
+      }
+    } catch(e) {
+      console.warn('Erro ao buscar frete:', e);
+      freteFonte = 'erro API';
+    }
+  } else if (freteFixo > 0) {
+    // Se o item NÃO tem frete grátis, mas cobra o Custo Fixo unitário (< R$79)
+    freteVal = freteFixo;
+    freteFonte = 'custo fixo (< R$79)';
+  }
+
+  const impVal = preco * (impPct / 100);
+  const lucro  = tarifaOk
+    ? preco - custo - embal - freteVal - impVal - tarifaVal
+    : null;
 
   // ── 2. Frete do vendedor via /shipping_options/free ──
   let freteVal = 0;
