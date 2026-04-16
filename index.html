@@ -9,13 +9,12 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ml-yellow:#FFE600;--ml-blue:#3483FA;--ml-dark:#1A1A2E;
-  --sh-orange:#EE4D2D;--sh-orange2:#FF6633;
+  --sh-orange:#EE4D2D;
   --gray1:#F7F7F9;--gray2:#EDEDF2;--gray3:#C5C5D0;--gray4:#888899;
   --text:#1A1A2E;--shadow:0 8px 32px rgba(0,0,0,0.10);
 }
 body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:var(--text);}
 
-/* HOME */
 #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem 2rem;background:#F0F0F6;position:relative;overflow:hidden;}
 #home::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(52,131,250,0.07),transparent 70%);top:-200px;left:-200px;pointer-events:none;}
 #home::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(238,77,45,0.07),transparent 70%);bottom:-150px;right:-150px;pointer-events:none;}
@@ -36,7 +35,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .card-ml .card-btn{background:var(--ml-blue);color:#fff;}
 .card-sh .card-btn{background:var(--sh-orange);color:#fff;}
 
-/* SCREEN */
 .screen{display:none;min-height:100vh;padding:0 0 3rem;}
 .screen.active{display:block}
 .topbar{padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);}
@@ -47,7 +45,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .topbar-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;}
 .topbar-ml .topbar-title{color:var(--ml-dark)}.topbar-sh .topbar-title{color:#fff}
 .topbar-ml .back-btn{color:var(--ml-dark)}.topbar-sh .back-btn{color:#fff}
-.content{max-width:540px;margin:0 auto;padding:1.5rem 1rem;}
+.content{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
 .sec-label{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray4);margin:1.6rem 0 .7rem;}
 .sec-label:first-child{margin-top:0}
 .field{margin-bottom:.8rem;}
@@ -63,7 +61,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .calc-btn{width:100%;padding:.9rem;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:1.2rem;letter-spacing:.01em;transition:opacity .15s,transform .12s,box-shadow .15s;}
 .calc-btn:active{transform:scale(.98);opacity:.9}
 .ml-screen .calc-btn{background:var(--ml-blue);color:#fff;box-shadow:0 4px 20px rgba(52,131,250,.35)}
-.ml-screen .calc-btn:hover{box-shadow:0 6px 28px rgba(52,131,250,.45)}
 .sh-screen .calc-btn{background:var(--sh-orange);color:#fff;box-shadow:0 4px 20px rgba(238,77,45,.35)}
 .result-card{background:#fff;border-radius:18px;padding:1.4rem 1.5rem;margin-top:1.4rem;box-shadow:var(--shadow);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
 .result-card.show{display:block}
@@ -91,7 +88,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
 @media(max-width:400px){.fields-grid{grid-template-columns:1fr}}
 
-/* BANNER */
 .banner{width:100%;background:linear-gradient(100deg,#1346B0 0%,#1A6FFF 55%,#0FA3FF 100%);overflow:hidden;position:relative;flex-shrink:0;}
 .banner-inner{max-width:900px;margin:0 auto;padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative;z-index:1;}
 .banner-left{display:flex;align-items:center;gap:.9rem;}
@@ -123,13 +119,11 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .modal-security-note{background:#F7F7F9;border-radius:10px;padding:.65rem .85rem;margin-top:1rem;font-size:.75rem;color:var(--gray4);font-weight:600;line-height:1.55;}
 .modal-security-note b{color:#555}
 
-/* API PILL */
 .api-pill{margin-left:auto;display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.3);border-radius:20px;padding:.25rem .75rem;font-size:.75rem;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif;color:var(--ml-dark);transition:background .15s;}
 .api-pill:hover{background:rgba(255,255,255,.5)}
 .pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .pill-dot.green{background:#38A169}.pill-dot.gray{background:#aaa}
 
-/* BUSCA */
 .search-box{background:#fff;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:2px solid var(--gray2);}
 .search-row{display:flex;gap:.6rem;align-items:flex-end;}
 .search-row .field{flex:1;margin-bottom:0;}
@@ -138,16 +132,48 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .search-btn:disabled{opacity:.4;cursor:not-allowed}
 .search-status{margin-top:.65rem;font-size:.8rem;font-weight:700;min-height:16px;}
 .search-status.ok{color:#22543D}.search-status.err{color:#C53030}.search-status.loading{color:var(--gray4)}
-.fetched-tag{display:inline-flex;align-items:center;gap:.4rem;background:#EBF8F1;border-radius:8px;padding:.25rem .7rem;font-size:.75rem;font-weight:700;color:#22543D;}
-.fetched-tag-warn{background:#FFF8E1;color:#7B5800;}
+
 .mode-tabs{display:flex;gap:.5rem;margin-bottom:1rem;}
 .mode-tab{flex:1;padding:.55rem;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--gray4);cursor:pointer;text-align:center;transition:all .15s;}
 .mode-tab.active{border-color:var(--ml-blue);background:#EBF2FF;color:var(--ml-blue);}
+
+/* LISTAGEM DE ANÚNCIOS */
+.anuncios-lista{display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem;}
+.anuncio-card{background:#fff;border:2px solid var(--gray2);border-radius:12px;padding:.9rem 1rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.anuncio-card:hover{border-color:var(--ml-blue);box-shadow:0 2px 12px rgba(52,131,250,.15);}
+.anuncio-card.selected{border-color:var(--ml-blue);background:#EBF2FF;}
+.anuncio-titulo{font-size:.88rem;font-weight:800;color:var(--text);margin-bottom:.35rem;line-height:1.3;}
+.anuncio-meta{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;}
+.anuncio-badge{font-size:.72rem;font-weight:800;padding:.2rem .6rem;border-radius:6px;}
+.badge-ativo{background:#EBF8F1;color:#22543D;}
+.badge-pausado{background:#FFF0F0;color:#C53030;}
+.badge-classico{background:#EBF2FF;color:#0C447C;}
+.badge-premium{background:#FFF8E1;color:#7B5800;}
+.anuncio-preco{font-size:.88rem;font-weight:800;color:var(--ml-blue);margin-left:auto;}
+
+/* CUSTO INLINE */
+.custo-inline{margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--gray2);display:none;}
+.anuncio-card.selected .custo-inline{display:block;}
+.custo-inline-row{display:flex;gap:.5rem;align-items:flex-end;}
+.custo-inline .field{flex:1;margin-bottom:0;}
+.custo-inline .field label{font-size:.75rem;}
+.custo-inline-btn{flex-shrink:0;padding:.6rem .9rem;border:none;border-radius:8px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;}
+
+/* INFO TAGS */
+.info-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.itag{display:inline-flex;align-items:center;gap:.3rem;border-radius:8px;padding:.22rem .65rem;font-size:.75rem;font-weight:700;}
+.itag-ok{background:#EBF8F1;color:#22543D;}
+.itag-warn{background:#FFF8E1;color:#7B5800;}
+.itag-info{background:#EBF2FF;color:#0C447C;}
+
+/* NOTA INFORMATIVA */
+.nota{font-size:.76rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;margin-top:.6rem;line-height:1.5;}
+.nota-warn{background:#FFF8E1;color:#7B5800;}
 </style>
 </head>
 <body>
 
-<!-- ══ MODAL CREDENCIAIS ══ -->
+<!-- MODAL CREDENCIAIS -->
 <div id="modal-cred">
   <div class="modal-box">
     <div class="modal-logo">
@@ -164,13 +190,11 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
     <button class="modal-btn" id="modal-connect-btn" onclick="conectarML()">Conectar</button>
     <div class="modal-status" id="modal-status"></div>
     <button class="modal-skip" onclick="usarSemAPI()">Usar sem API (modo manual)</button>
-    <div class="modal-security-note">
-      🔒 <b>Segurança:</b> suas credenciais são enviadas apenas para o Cloudflare Worker (proxy intermediário) e para a API oficial do Mercado Livre. Nada é armazenado em servidor. Ao fechar a aba, tudo é apagado.
-    </div>
+    <div class="modal-security-note">🔒 <b>Segurança:</b> suas credenciais passam pelo Cloudflare Worker e vão apenas para a API oficial do ML. Nada é armazenado.</div>
   </div>
 </div>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <div id="home">
   <div class="banner" style="width:calc(100% + 2rem);margin-left:-1rem;margin-right:-1rem;align-self:stretch;">
     <div class="banner-inner">
@@ -199,7 +223,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       </div>
       <div class="card-body">
         <h3>Mercado Livre</h3>
-        <p>Busque seu anúncio via API — tarifa, frete e lucro calculados automaticamente.</p>
+        <p>Busque seus anúncios via API — tarifa real, frete e lucro calculados automaticamente.</p>
         <button class="card-btn">Calculadora Mercado Livre</button>
       </div>
     </div>
@@ -221,7 +245,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
-<!-- ══ MERCADO LIVRE ══ -->
+<!-- MERCADO LIVRE -->
 <div id="screen-ml" class="screen ml-screen">
   <div class="topbar topbar-ml">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -233,7 +257,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
   <div class="content">
     <div class="mode-tabs">
-      <div class="mode-tab active" id="tab-api" onclick="setTab('api')">🔗 Buscar pelo MLB / SKU</div>
+      <div class="mode-tab active" id="tab-api" onclick="setTab('api')">🔗 Buscar pelo SKU</div>
       <div class="mode-tab" id="tab-manual" onclick="setTab('manual')">✏️ Inserir manualmente</div>
     </div>
 
@@ -241,31 +265,22 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
     <div id="section-api">
       <div class="search-box">
         <div class="search-row">
-          <div class="field"><label>MLB do anúncio ou SKU interno</label><input type="text" id="ml-mlb" placeholder="MLB1234567890 ou SKU-001"/></div>
+          <div class="field"><label>SKU interno ou MLB do anúncio</label><input type="text" id="ml-mlb" placeholder="SKU-001 ou MLB1234567890"/></div>
           <button class="search-btn" id="search-btn" onclick="buscarAnuncio()">Buscar</button>
         </div>
         <div class="search-status" id="search-status"></div>
-        <div id="fetched-tags" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;"></div>
       </div>
-      <div class="sec-label">Custo do produto</div>
-      <div class="fields-grid">
-        <div class="field"><label>Custo do produto</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-custo-api" placeholder="0,00" min="0" step="0.01"/></div></div>
-        <div class="field"><label>Custo de embalagem</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-embalagem-api" placeholder="0,00" min="0" step="0.01"/></div></div>
+
+      <!-- LISTAGEM DE ANÚNCIOS -->
+      <div id="anuncios-wrap" style="display:none">
+        <div class="sec-label" id="anuncios-label">Anúncios encontrados</div>
+        <div class="anuncios-lista" id="anuncios-lista"></div>
       </div>
-      <div class="sec-label">Imposto &amp; Margem</div>
-      <div class="fields-grid">
-        <div class="field"><label>Imposto sobre venda</label><div class="field-row has-suffix"><input type="number" id="ml-imposto-api" placeholder="0" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
-        <div class="field"><label>Margem desejada</label><div class="field-row has-suffix"><input type="number" id="ml-margem-api" placeholder="ex: 20" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
-      </div>
-      <div class="sec-label" id="label-dados-ml">Dados do anúncio (via API)</div>
-      <div class="fields-grid">
-        <div class="field"><label>Preço de venda</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-preco-api" placeholder="0,00" min="0" step="0.01"/></div></div>
-        <div class="field"><label>Tarifa ML (%)</label><div class="field-row has-suffix"><input type="number" id="ml-tarifa-api" placeholder="ex: 14" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
-        <div class="field"><label>Frete (custo vendedor)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-frete-api" placeholder="0,00" min="0" step="0.01"/></div></div>
-      </div>
-      <button class="calc-btn" onclick="calcMLApi()">Calcular Lucro</button>
+
+      <!-- RESULTADO DO CÁLCULO -->
       <div class="result-card" id="ml-result-api">
         <div class="result-title" id="ml-result-titulo-api">Demonstrativo</div>
+        <div class="info-tags" id="ml-info-tags" style="margin-bottom:.75rem;"></div>
         <div class="result-rows">
           <div class="result-row"><span class="label">Preço de venda</span><span class="val" id="ml-ra-preco">—</span></div>
           <div class="result-divider"></div>
@@ -273,14 +288,14 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
           <div class="result-row deduction"><span class="label">(-) Custo de embalagem</span><span class="val" id="ml-ra-embalagem">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Frete (vendedor)</span><span class="val" id="ml-ra-frete">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Imposto</span><span class="val" id="ml-ra-imposto">—</span></div>
-          <div class="result-row deduction"><span class="label">(-) Tarifa ML</span><span class="val" id="ml-ra-tarifa">—</span></div>
+          <div class="result-row deduction"><span class="label" id="label-tarifa-tipo">(-) Tarifa ML</span><span class="val" id="ml-ra-tarifa">—</span></div>
         </div>
         <div class="big-result" id="ml-big-api">
           <div><div class="br-label">Lucro líquido</div><div class="br-pct" id="ml-ra-margem">—</div></div>
           <div class="br-value" id="ml-ra-lucro">—</div>
         </div>
-        <div id="ml-ra-precomin" style="display:none;margin-top:.75rem;font-size:.8rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;"></div>
-        <button class="reset-btn" onclick="resetMLApi()">Limpar campos</button>
+        <div id="ml-ra-precomin" style="display:none;" class="nota"></div>
+        <button class="reset-btn" onclick="resetMLApi()">Nova busca</button>
       </div>
     </div>
 
@@ -323,7 +338,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
-<!-- ══ SHOPEE ══ -->
+<!-- SHOPEE -->
 <div id="screen-sh" class="screen sh-screen">
   <div class="topbar topbar-sh">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -362,11 +377,9 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 </div>
 
 <script>
-// ══ CONFIGURAÇÃO ══
 const WORKER_URL = 'https://proxy-ml.dediner20.workers.dev';
-// ════════════════════════════════════════════════════════════
-
 let mlAccessToken = '', mlSellerId = '';
+let anuncioSelecionado = null;
 
 // ── Navegação ──
 function goto(page) {
@@ -401,19 +414,13 @@ async function conectarML() {
   const seller   = document.getElementById('cred-sellerid').value.trim();
   const st  = document.getElementById('modal-status');
   const btn = document.getElementById('modal-connect-btn');
-
-  if (!clientId || !secret || !refresh || !seller) {
-    st.className = 'modal-status err'; st.textContent = 'Preencha todos os campos.'; return;
-  }
-
+  if (!clientId || !secret || !refresh || !seller) { st.className='modal-status err'; st.textContent='Preencha todos os campos.'; return; }
   btn.disabled = true;
   st.className = 'modal-status loading'; st.textContent = 'Conectando...';
-
   try {
     const body = new URLSearchParams({ grant_type:'refresh_token', client_id:clientId, client_secret:secret, refresh_token:refresh }).toString();
     const r = await fetch(WORKER_URL + '/token', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
     const d = await r.json();
-
     if (d.access_token) {
       mlAccessToken = d.access_token;
       mlSellerId    = seller;
@@ -427,7 +434,7 @@ async function conectarML() {
     }
   } catch (e) {
     st.className = 'modal-status err';
-    st.textContent = 'Erro ao conectar. Verifique se o Worker está publicado.';
+    st.textContent = 'Erro ao conectar: ' + e.message;
   }
   btn.disabled = false;
 }
@@ -437,127 +444,252 @@ function atualizarPill() {
   document.getElementById('pill-label').textContent = mlAccessToken ? 'API conectada' : 'Sem API';
 }
 
-// ── Helper de fetch para API do ML ──
 async function mlGet(path) {
   const r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + mlAccessToken } });
   return r.json();
 }
 
-// ── Busca anúncio ──
+// ── Busca anúncios pelo SKU (pode retornar vários) ──
 async function buscarAnuncio() {
   if (!mlAccessToken) { abrirModal(); return; }
-  const mlbRaw = document.getElementById('ml-mlb').value.trim();
-  const st     = document.getElementById('search-status');
-  const tags   = document.getElementById('fetched-tags');
-  const btn    = document.getElementById('search-btn');
+  const skuRaw = document.getElementById('ml-mlb').value.trim();
+  const st   = document.getElementById('search-status');
+  const btn  = document.getElementById('search-btn');
+  const wrap = document.getElementById('anuncios-wrap');
+  const lista = document.getElementById('anuncios-lista');
 
-  if (!mlbRaw) { st.className='search-status err'; st.textContent='Informe o MLB ou SKU.'; return; }
-  btn.disabled = true; tags.innerHTML = '';
-  st.className = 'search-status loading'; st.textContent = 'Buscando anúncio...';
+  if (!skuRaw) { st.className='search-status err'; st.textContent='Informe o SKU ou MLB.'; return; }
+  btn.disabled = true;
+  st.className = 'search-status loading'; st.textContent = 'Buscando anúncios...';
+  wrap.style.display = 'none';
+  lista.innerHTML = '';
+  document.getElementById('ml-result-api').classList.remove('show');
+  anuncioSelecionado = null;
 
   try {
-    let mlbId = mlbRaw.toUpperCase().startsWith('MLB') ? mlbRaw.toUpperCase() : null;
+    let mlbIds = [];
 
-    if (!mlbId) {
+    if (skuRaw.toUpperCase().startsWith('MLB')) {
+      mlbIds = [skuRaw.toUpperCase()];
+    } else {
       st.textContent = 'Buscando pelo SKU...';
-      const sr = await mlGet(`/users/${mlSellerId}/items/search?seller_sku=${encodeURIComponent(mlbRaw)}&limit=1`);
-      mlbId = sr.results?.[0] || null;
-      if (!mlbId) { st.className='search-status err'; st.textContent='SKU não encontrado. Tente o MLB diretamente.'; btn.disabled=false; return; }
+      const sr = await mlGet(`/users/${mlSellerId}/items/search?seller_sku=${encodeURIComponent(skuRaw)}&limit=20`);
+      mlbIds = sr.results || [];
     }
 
-    st.textContent = 'Buscando dados e tarifas...';
-    const [item, fees] = await Promise.all([
-      mlGet(`/items/${mlbId}`),
-      mlGet(`/items/${mlbId}/sale_fees`).catch(() => null)
-    ]);
-
-    if (!item || item.error) { st.className='search-status err'; st.textContent='Erro: '+(item?.message||'item não encontrado'); btn.disabled=false; return; }
-
-    document.getElementById('ml-preco-api').value = item.price || '';
-
-    // Tarifa
-    let tarifaPct = 0, tarifaFonte = 'estimada';
-    if (Array.isArray(fees)) {
-      const taxa = fees.find(f => f.type==='sale_fee_amount'||f.id==='sale_fee_amount');
-      if (taxa?.value && item.price) { tarifaPct = +((taxa.value/item.price)*100).toFixed(2); tarifaFonte = 'real (API)'; }
+    if (!mlbIds.length) {
+      st.className = 'search-status err';
+      st.textContent = 'Nenhum anúncio encontrado para esse SKU.';
+      btn.disabled = false; return;
     }
-    if (!tarifaPct) { tarifaPct = 14; tarifaFonte = 'estimada 14%'; }
-    document.getElementById('ml-tarifa-api').value = tarifaPct;
 
-    // Frete
-    let freteVal = 0, freteFonte = 'comprador paga';
-    if (item.shipping?.free_shipping) {
-      st.textContent = 'Buscando custo de frete...';
-      try {
-        const fr   = await mlGet(`/items/${mlbId}/shipping_options`);
-        const opts = fr?.options || fr?.shipping_options || [];
-        if (opts.length) {
-          const menor = opts.reduce((a,b) => (a.list_cost||0)<(b.list_cost||0)?a:b);
-          freteVal = menor.list_cost||0; freteFonte = 'ML Envios (real)';
-        } else { freteVal = +(item.price*0.06).toFixed(2); freteFonte = 'estimado ~6%'; }
-      } catch { freteVal = +(item.price*0.06).toFixed(2); freteFonte = 'estimado ~6%'; }
+    st.textContent = `Carregando ${mlbIds.length} anúncio(s)...`;
+
+    // Busca dados de todos os anúncios em paralelo (max 20)
+    const itens = await Promise.all(
+      mlbIds.slice(0, 20).map(id => mlGet(`/items/${id}`).catch(() => null))
+    );
+
+    const validos = itens.filter(i => i && !i.error);
+    if (!validos.length) {
+      st.className = 'search-status err'; st.textContent = 'Erro ao carregar anúncios.';
+      btn.disabled = false; return;
     }
-    document.getElementById('ml-frete-api').value = freteVal;
 
-    // Tags de confirmação
-    const addTag = (txt, warn) => {
-      const t = document.createElement('span');
-      t.className = 'fetched-tag'+(warn?' fetched-tag-warn':''); t.textContent = txt; tags.appendChild(t);
-    };
-    addTag('✓ '+mlbId);
-    addTag('✓ Preço: R$ '+(item.price||0).toLocaleString('pt-BR',{minimumFractionDigits:2}));
-    addTag((tarifaFonte.includes('estimada')?'⚠ ':'✓ ')+'Tarifa: '+tarifaPct+'% ('+tarifaFonte+')', tarifaFonte.includes('estimada'));
-    addTag((freteFonte.includes('estimado')?'⚠ ':'✓ ')+'Frete: R$ '+freteVal.toLocaleString('pt-BR',{minimumFractionDigits:2})+' ('+freteFonte+')', freteFonte.includes('estimado'));
-    addTag('✓ Status: '+item.status);
+    document.getElementById('anuncios-label').textContent =
+      validos.length === 1 ? 'Anúncio encontrado' : `${validos.length} anúncios encontrados — selecione um`;
 
-    document.getElementById('label-dados-ml').textContent = 'Dados: '+(item.title||mlbId).substring(0,50);
-    st.className = 'search-status ok'; st.textContent = '✓ Anúncio encontrado! Confira os valores e calcule.';
-  } catch(e) { st.className='search-status err'; st.textContent='Erro: '+e.message; }
+    validos.forEach(item => {
+      const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+      const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
+      const statusCls = item.status === 'active' ? 'badge-ativo' : 'badge-pausado';
+      const statusLabel = item.status === 'active' ? 'Ativo' : 'Pausado';
+
+      const card = document.createElement('div');
+      card.className = 'anuncio-card';
+      card.innerHTML = `
+        <div class="anuncio-titulo">${item.title}</div>
+        <div class="anuncio-meta">
+          <span class="anuncio-badge ${statusCls}">${statusLabel}</span>
+          <span class="anuncio-badge ${tipoCls}">${tipoLabel}</span>
+          <span style="font-size:.75rem;font-weight:700;color:var(--gray4);">${item.id}</span>
+          <span class="anuncio-preco">${brl(item.price)}</span>
+        </div>
+        <div class="custo-inline">
+          <div class="custo-inline-row">
+            <div class="field">
+              <label>Custo do produto (R$)</label>
+              <div class="field-row has-prefix">
+                <span class="prefix">R$</span>
+                <input type="number" class="custo-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
+              </div>
+            </div>
+            <div class="field">
+              <label>Embalagem (R$)</label>
+              <div class="field-row has-prefix">
+                <span class="prefix">R$</span>
+                <input type="number" class="embal-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
+              </div>
+            </div>
+            <div class="field">
+              <label>Imposto (%)</label>
+              <input type="number" class="imp-input" placeholder="0" min="0" max="100" step="0.01" style="width:100%;padding:.55rem .75rem;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
+            </div>
+            <button class="custo-inline-btn" onclick="calcularAnuncio(this)">Calcular</button>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+        document.querySelectorAll('.anuncio-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        anuncioSelecionado = item;
+        card.querySelector('.custo-input').focus();
+      });
+
+      lista.appendChild(card);
+    });
+
+    wrap.style.display = 'block';
+    st.className = 'search-status ok';
+    st.textContent = validos.length === 1
+      ? '✓ Anúncio carregado! Informe o custo e calcule.'
+      : `✓ ${validos.length} anúncios encontrados! Clique em um para calcular.`;
+
+  } catch(e) {
+    st.className = 'search-status err'; st.textContent = 'Erro: ' + e.message;
+  }
   btn.disabled = false;
 }
 
-// ── Cálculo ML (API) ──
-function calcMLApi() {
-  const preco=+document.getElementById('ml-preco-api').value||0, custo=+document.getElementById('ml-custo-api').value||0;
-  const embal=+document.getElementById('ml-embalagem-api').value||0, frete=+document.getElementById('ml-frete-api').value||0;
-  const impPct=+document.getElementById('ml-imposto-api').value||0, tarPct=+document.getElementById('ml-tarifa-api').value||0;
-  const marPct=+document.getElementById('ml-margem-api').value||0;
-  if(preco<=0){alert('Informe o preço de venda.');return;}
-  const impVal=preco*(impPct/100),tarVal=preco*(tarPct/100);
-  const lucro=preco-custo-embal-frete-impVal-tarVal, margem=preco>0?(lucro/preco)*100:0;
-  document.getElementById('ml-ra-preco').textContent='R$ '+preco.toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('ml-ra-custo').textContent='- '+brl(custo);
-  document.getElementById('ml-ra-embalagem').textContent='- '+brl(embal);
-  document.getElementById('ml-ra-frete').textContent='- '+brl(frete);
-  document.getElementById('ml-ra-imposto').textContent='- '+brl(impVal);
-  document.getElementById('ml-ra-tarifa').textContent='- '+brl(tarVal);
-  const big=document.getElementById('ml-big-api');
-  big.className='big-result '+(lucro>=0?'positive':'negative');
-  document.getElementById('ml-ra-lucro').textContent=(lucro<0?'- ':'')+brl(lucro);
-  document.getElementById('ml-ra-margem').textContent=pct(margem)+' de margem';
-  const minEl=document.getElementById('ml-ra-precomin');
-  const den=1-impPct/100-tarPct/100-marPct/100;
-  if(marPct>0&&den>0){
-    const meta=(custo+embal+frete)/den;
-    minEl.textContent='💡 Para '+marPct+'% de margem, vender por no mínimo R$ '+meta.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    minEl.style.display='block';
-  } else { minEl.style.display='none'; }
-  const rc=document.getElementById('ml-result-api');rc.classList.remove('show');void rc.offsetWidth;rc.classList.add('show');
+// ── Calcular anúncio selecionado ──
+async function calcularAnuncio(btn) {
+  const card  = btn.closest('.anuncio-card');
+  const item  = anuncioSelecionado || JSON.parse(card.dataset.item || 'null');
+
+  // Garante que este card está selecionado
+  document.querySelectorAll('.anuncio-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  // Encontra o item correspondente pelo MLB no título
+  const mlbEl = card.querySelector('.anuncio-meta span:nth-child(3)');
+  const mlbId = mlbEl ? mlbEl.textContent.trim() : null;
+
+  const custo = parseFloat(card.querySelector('.custo-input').value) || 0;
+  const embal = parseFloat(card.querySelector('.embal-input').value) || 0;
+  const impPct = parseFloat(card.querySelector('.imp-input').value) || 0;
+
+  // Busca o item correto da lista renderizada
+  const lista = document.getElementById('anuncios-lista');
+  const cards = Array.from(lista.querySelectorAll('.anuncio-card'));
+  const idx   = cards.indexOf(card);
+
+  // Pega o item da busca anterior via atributo data
+  let itemData = null;
+  try { itemData = JSON.parse(card.dataset.itemJson || 'null'); } catch {}
+
+  if (!itemData && mlbId) {
+    btn.disabled = true; btn.textContent = '...';
+    try { itemData = await mlGet(`/items/${mlbId}`); } catch {}
+    btn.disabled = false; btn.textContent = 'Calcular';
+  }
+
+  if (!itemData) { alert('Não foi possível carregar os dados do anúncio.'); return; }
+
+  await processarCalculo(itemData, custo, embal, impPct);
 }
 
-function resetMLApi(){
-  ['ml-mlb','ml-custo-api','ml-embalagem-api','ml-imposto-api','ml-tarifa-api','ml-frete-api','ml-preco-api','ml-margem-api'].forEach(id=>document.getElementById(id).value='');
+async function processarCalculo(item, custo, embal, impPct) {
+  const preco = item.price || 0;
+  const mlbId = item.id;
+  const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+
+  // Tarifa REAL via sale_fees
+  let tarifaVal = 0, tarifaFonte = 'estimada (13%)';
+  try {
+    const fees = await mlGet(`/items/${mlbId}/sale_fees`);
+    if (Array.isArray(fees)) {
+      const taxa = fees.find(f => f.type === 'sale_fee_amount' || f.id === 'sale_fee_amount');
+      if (taxa?.value) { tarifaVal = taxa.value; tarifaFonte = `real — ${tipoLabel}`; }
+    }
+    if (!tarifaVal && fees?.sale_fee_amount) { tarifaVal = fees.sale_fee_amount; tarifaFonte = `real — ${tipoLabel}`; }
+  } catch {}
+  if (!tarifaVal) tarifaVal = preco * 0.13;
+
+  // Frete REAL — campo vazio se não encontrado
+  let freteVal = null, freteFonte = '';
+  if (item.shipping?.free_shipping) {
+    try {
+      const fr = await mlGet(`/items/${mlbId}/shipping_options`);
+      const opts = fr?.options || fr?.shipping_options || [];
+      if (opts.length) {
+        const menor = opts.reduce((a, b) => (a.list_cost || 0) < (b.list_cost || 0) ? a : b);
+        if (menor.list_cost > 0) { freteVal = menor.list_cost; freteFonte = 'ML Envios (real)'; }
+      }
+    } catch {}
+  } else {
+    freteVal = 0;
+    freteFonte = 'comprador paga';
+  }
+
+  const frete = freteVal !== null ? freteVal : 0;
+  const impVal = preco * (impPct / 100);
+  const lucro  = preco - custo - embal - frete - impVal - tarifaVal;
+  const margem = preco > 0 ? (lucro / preco) * 100 : 0;
+  const tarifaPct = preco > 0 ? (tarifaVal / preco) * 100 : 0;
+
+  // Preenche resultado
+  document.getElementById('ml-result-titulo-api').textContent = item.title.substring(0, 55) + (item.title.length > 55 ? '…' : '');
+
+  const tagsEl = document.getElementById('ml-info-tags');
+  tagsEl.innerHTML = '';
+  const addTag = (txt, cls) => { const t = document.createElement('span'); t.className = `itag ${cls}`; t.textContent = txt; tagsEl.appendChild(t); };
+  addTag(mlbId, 'itag-info');
+  addTag(tipoLabel, 'itag-info');
+  addTag(`Tarifa: ${tarifaPct.toFixed(1)}% (${tarifaFonte})`, tarifaFonte.includes('estimada') ? 'itag-warn' : 'itag-ok');
+  if (freteVal !== null) addTag(`Frete: ${brl(frete)} (${freteFonte})`, freteFonte === 'comprador paga' ? 'itag-info' : 'itag-ok');
+  else addTag('Frete: informe manualmente', 'itag-warn');
+
+  document.getElementById('label-tarifa-tipo').textContent = `(-) Tarifa ML — ${tipoLabel}`;
+  document.getElementById('ml-ra-preco').textContent    = brl(preco);
+  document.getElementById('ml-ra-custo').textContent    = '- ' + brl(custo);
+  document.getElementById('ml-ra-embalagem').textContent = '- ' + brl(embal);
+  document.getElementById('ml-ra-frete').textContent    = freteVal !== null ? '- ' + brl(frete) : '—';
+  document.getElementById('ml-ra-imposto').textContent  = '- ' + brl(impVal);
+  document.getElementById('ml-ra-tarifa').textContent   = '- ' + brl(tarifaVal);
+
+  const big = document.getElementById('ml-big-api');
+  big.className = 'big-result ' + (lucro >= 0 ? 'positive' : 'negative');
+  document.getElementById('ml-ra-lucro').textContent  = (lucro < 0 ? '- ' : '') + brl(lucro);
+  document.getElementById('ml-ra-margem').textContent = pct(margem) + ' de margem';
+
+  const minEl = document.getElementById('ml-ra-precomin');
+  if (custo > 0) {
+    const precoMin = (custo + embal + frete + tarifaVal + impVal);
+    minEl.textContent = `💡 Preço mínimo para não ter prejuízo: ${brl(precoMin)}`;
+    minEl.style.display = 'block';
+  } else { minEl.style.display = 'none'; }
+
+  const rc = document.getElementById('ml-result-api');
+  rc.classList.remove('show'); void rc.offsetWidth; rc.classList.add('show');
+  rc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetMLApi() {
+  document.getElementById('ml-mlb').value = '';
+  document.getElementById('search-status').textContent = '';
+  document.getElementById('anuncios-wrap').style.display = 'none';
+  document.getElementById('anuncios-lista').innerHTML = '';
   document.getElementById('ml-result-api').classList.remove('show');
-  document.getElementById('search-status').textContent='';
-  document.getElementById('fetched-tags').innerHTML='';
-  document.getElementById('label-dados-ml').textContent='Dados do anúncio (via API)';
+  anuncioSelecionado = null;
 }
 
-// ── Cálculo ML (manual) ──
-function calcML(){
-  const custo=+document.getElementById('ml-custo').value||0,embal=+document.getElementById('ml-embalagem').value||0;
-  const impPct=+document.getElementById('ml-imposto').value||0,tarPct=+document.getElementById('ml-tarifa').value||0;
-  const frete=+document.getElementById('ml-frete').value||0,preco=+document.getElementById('ml-preco').value||0;
+// ── Calc ML manual ──
+function calcML() {
+  const custo=+document.getElementById('ml-custo').value||0, embal=+document.getElementById('ml-embalagem').value||0;
+  const impPct=+document.getElementById('ml-imposto').value||0, tarPct=+document.getElementById('ml-tarifa').value||0;
+  const frete=+document.getElementById('ml-frete').value||0, preco=+document.getElementById('ml-preco').value||0;
   if(preco<=0){alert('Informe o preço de venda.');return;}
   const impVal=preco*(impPct/100),tarVal=preco*(tarPct/100),lucro=preco-custo-embal-frete-impVal-tarVal,margem=preco>0?(lucro/preco)*100:0;
   document.getElementById('ml-r-preco').textContent=brl(preco);
