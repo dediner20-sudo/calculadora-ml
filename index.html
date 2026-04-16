@@ -173,7 +173,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 </head>
 <body>
 
-<!-- MODAL CREDENCIAIS -->
 <div id="modal-cred">
   <div class="modal-box">
     <div class="modal-logo">
@@ -194,7 +193,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
-<!-- HOME -->
 <div id="home">
   <div class="banner" style="width:calc(100% + 2rem);margin-left:-1rem;margin-right:-1rem;align-self:stretch;">
     <div class="banner-inner">
@@ -245,7 +243,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
-<!-- MERCADO LIVRE -->
 <div id="screen-ml" class="screen ml-screen">
   <div class="topbar topbar-ml">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -261,7 +258,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <div class="mode-tab" id="tab-manual" onclick="setTab('manual')">✏️ Inserir manualmente</div>
     </div>
 
-    <!-- TAB API -->
     <div id="section-api">
       <div class="search-box">
         <div class="search-row">
@@ -271,13 +267,11 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <div class="search-status" id="search-status"></div>
       </div>
 
-      <!-- LISTAGEM DE ANÚNCIOS -->
       <div id="anuncios-wrap" style="display:none">
         <div class="sec-label" id="anuncios-label">Anúncios encontrados</div>
         <div class="anuncios-lista" id="anuncios-lista"></div>
       </div>
 
-      <!-- RESULTADO DO CÁLCULO -->
       <div class="result-card" id="ml-result-api">
         <div class="result-title" id="ml-result-titulo-api">Demonstrativo</div>
         <div class="info-tags" id="ml-info-tags" style="margin-bottom:.75rem;"></div>
@@ -299,7 +293,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       </div>
     </div>
 
-    <!-- TAB MANUAL -->
     <div id="section-manual" style="display:none">
       <div class="sec-label">Custos do produto</div>
       <div class="fields-grid">
@@ -338,7 +331,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
-<!-- SHOPEE -->
 <div id="screen-sh" class="screen sh-screen">
   <div class="topbar topbar-sh">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -397,7 +389,7 @@ function goto(page) {
 function setTab(tab) {
   document.getElementById('tab-api').classList.toggle('active', tab === 'api');
   document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
-  document.getElementById('section-api').style.display   = tab === 'api'    ? '' : 'none';
+  document.getElementById('section-api').style.display    = tab === 'api'    ? '' : 'none';
   document.getElementById('section-manual').style.display = tab === 'manual' ? '' : 'none';
 }
 
@@ -610,11 +602,10 @@ async function processarCalculo(item, custo, embal, impPct) {
   const shippingMode = item.shipping?.mode || 'not_specified';
   const freeShipping = item.shipping?.free_shipping || false;
 
-  // ── Tarifa e frete REAIS via /sites/MLB/listing_prices ──
-  // Endpoint oficial que retorna sale_fee_details.percentage_fee (comissão real)
-  // e sale_fee_details.fixed_fee (custo fixo de frete para o vendedor)
-  let tarifaVal = null, tarifaPct = null, freteFixo = null;
-  let tarifaFonte = '', freteFonte = '';
+  // ── 1. Tarifa de Venda via /sites/MLB/listing_prices ──
+  // Retorna sale_fee_amount (comissão real + custo fixo, se aplicável)
+  let tarifaVal = null, tarifaPct = null;
+  let tarifaFonte = '';
 
   try {
     const params = new URLSearchParams({
@@ -627,21 +618,36 @@ async function processarCalculo(item, custo, embal, impPct) {
     const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
 
     if (lp && lp.sale_fee_amount !== undefined) {
-      tarifaVal   = lp.sale_fee_amount;
+      tarifaVal   = lp.sale_fee_amount; // Já contém a tarifa % e o custo fixo do ML
       tarifaPct   = lp.sale_fee_details?.percentage_fee || (preco > 0 ? (tarifaVal / preco) * 100 : 0);
-      freteFixo   = lp.sale_fee_details?.fixed_fee || 0;
       tarifaFonte = `${tipoLabel} — ${tarifaPct.toFixed(1)}%`;
-      freteFonte  = freeShipping ? 'custo fixo vendedor (API)' : 'comprador paga';
     }
   } catch {}
 
-  // Se o endpoint não retornou, deixa nulo — sem estimativa
   const tarifaOk = tarifaVal !== null;
-  const freteOk  = freteFixo !== null;
 
-  // Custo de frete: só cobra do vendedor se frete grátis; senão é 0
-  const freteVal = freeShipping ? (freteFixo || 0) : 0;
-  if (!freeShipping) freteFonte = 'comprador paga';
+  // ── 2. Frete do vendedor via /shipping_options/free ──
+  let freteVal = 0;
+  let freteFonte = 'comprador paga';
+
+  if (freeShipping) {
+    try {
+      const shipRes = await mlGet(`/users/${mlSellerId}/shipping_options/free?item_id=${mlbId}`);
+      
+      if (shipRes && shipRes.coverage && shipRes.coverage.all_country) {
+        // Usa o 'cost' (que já traz o desconto de MercadoLíder/Loja Oficial, se houver)
+        // ou o 'list_cost' como valor cheio (fallback)
+        const countryData = shipRes.coverage.all_country;
+        freteVal = countryData.cost !== undefined ? countryData.cost : (countryData.list_cost || 0);
+        freteFonte = 'custo vendedor (API)';
+      } else {
+        freteFonte = 'custo não retornado';
+      }
+    } catch(e) {
+      console.warn('Erro ao buscar frete do vendedor:', e);
+      freteFonte = 'erro API Frete';
+    }
+  }
 
   const impVal = preco * (impPct / 100);
   const lucro  = tarifaOk
