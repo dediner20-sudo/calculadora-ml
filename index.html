@@ -346,7 +346,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <div class="field" style="min-width:160px;">
         <label>Margem desejada (%)</label>
         <div class="field-row has-suffix">
-          <input type="number" id="painel-margem" placeholder="ex: 20" min="0" max="100" step="1" value="20" oninput="recalcularPainel()"/>
+          <input type="number" id="painel-margem" placeholder="ex: 20 (padrão)" min="0" max="100" step="1" oninput="recalcularPainel()"/>
           <span class="suffix">%</span>
         </div>
       </div>
@@ -689,7 +689,7 @@ function carregarERP(input) {
 // ══════════════════════════════════════════
 // CACHE — localStorage
 // ══════════════════════════════════════════
-const CACHE_KEY = 'ml_painel_cache_v2';
+const CACHE_KEY = 'ml_painel_cache_v3';
 
 function salvarCache(itens, tarifas) {
   try {
@@ -846,8 +846,10 @@ async function carregarPainel(forcarAtualizacao = false) {
 // ── Renderiza a tabela com os dados (cache ou API) ──
 // Usa EXATAMENTE a mesma logica da calculadora individual (processarCalculo)
 function renderizarTabela(itens, tarifas) {
-  const margemDesejada = parseFloat(document.getElementById('painel-margem').value) || 20;
-  const impostoPct     = parseFloat(document.getElementById('painel-imposto').value) || 0;
+  const margemInput    = document.getElementById('painel-margem').value;
+  const impostoInput   = document.getElementById('painel-imposto').value;
+  const margemDesejada = margemInput === '' ? 20 : parseFloat(margemInput) || 0;
+  const impostoPct     = impostoInput === '' ? 0 : parseFloat(impostoInput) || 0;
 
   const tableWrap = document.getElementById('painel-table-wrap');
   const empty     = document.getElementById('painel-empty');
@@ -898,15 +900,16 @@ function renderizarTabela(itens, tarifas) {
     // 0 = P - custo - freteVal - P*impFrac - P*comFrac
     // P*(1 - impFrac - comFrac) = custo + freteVal
     // P = (custo + freteVal) / (1 - impFrac - comFrac)
+    // Preco minimo = igual calculadora individual
+    // custo + frete + imposto(sobre preco atual) + comissao(sobre preco atual)
     let precoMin = null;
-    if (custo !== null && tarifaOk && preco > 0) {
-      const impFrac = impostoPct / 100;
-      const comFrac = tarifaPct / 100;
-      const den = 1 - impFrac - comFrac;
-      precoMin = den > 0 ? (custo + freteVal) / den : null;
+    if (custo !== null && tarifaOk) {
+      const impValAtual = preco * (impostoPct / 100);
+      precoMin = custo + freteVal + impValAtual + tarifaVal;
     }
 
-    // preco minimo com margem desejada
+    // Preco meta = preco minimo para atingir margem desejada
+    // Resolve: P = (custo + freteVal) / (1 - impFrac - comFrac - marFrac)
     let precoMeta = null;
     if (custo !== null && tarifaOk && preco > 0) {
       const impFrac = impostoPct / 100;
