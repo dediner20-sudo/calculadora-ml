@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Calculadora de Precificação</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -12,9 +13,14 @@
   --sh-orange:#EE4D2D;
   --gray1:#F7F7F9;--gray2:#EDEDF2;--gray3:#C5C5D0;--gray4:#888899;
   --text:#1A1A2E;--shadow:0 8px 32px rgba(0,0,0,0.10);
+  --green:#22543D;--green-bg:#EBF8F1;
+  --yellow:#7B5800;--yellow-bg:#FFF8E1;
+  --red:#C53030;--red-bg:#FFF0F0;
+  --blue:#0C447C;--blue-bg:#EBF2FF;
 }
 body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:var(--text);}
 
+/* HOME */
 #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem 2rem;background:#F0F0F6;position:relative;overflow:hidden;}
 #home::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(52,131,250,0.07),transparent 70%);top:-200px;left:-200px;pointer-events:none;}
 #home::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(238,77,45,0.07),transparent 70%);bottom:-150px;right:-150px;pointer-events:none;}
@@ -26,6 +32,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .card-header{height:130px;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
 .card-ml .card-header{background:var(--ml-yellow);}
 .card-sh .card-header{background:var(--sh-orange);}
+.card-painel .card-header{background:linear-gradient(135deg,#1A1A2E,#3483FA);}
 .logo-ml{width:160px;height:auto}.logo-sh{width:130px;height:auto}
 .card-body{padding:1.4rem 1.5rem 1.6rem;border-top:1px solid var(--gray2);}
 .card-body h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.35rem;}
@@ -34,18 +41,24 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .card-btn:active{transform:scale(.97);opacity:.9}
 .card-ml .card-btn{background:var(--ml-blue);color:#fff;}
 .card-sh .card-btn{background:var(--sh-orange);color:#fff;}
+.card-painel .card-btn{background:#1A1A2E;color:#fff;}
 
+/* SCREEN */
 .screen{display:none;min-height:100vh;padding:0 0 3rem;}
 .screen.active{display:block}
 .topbar{padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);}
 .topbar-ml{background:rgba(255,230,0,0.92);border-bottom:1px solid rgba(0,0,0,0.06);}
 .topbar-sh{background:rgba(238,77,45,0.93);border-bottom:1px solid rgba(0,0,0,0.06);}
+.topbar-painel{background:rgba(26,26,46,0.95);border-bottom:1px solid rgba(255,255,255,0.08);}
+.topbar-painel .topbar-title{color:#fff;}
+.topbar-painel .back-btn{color:#fff;}
 .back-btn{background:rgba(255,255,255,.35);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:background .15s;flex-shrink:0;}
 .back-btn:hover{background:rgba(255,255,255,.5)}
 .topbar-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;}
 .topbar-ml .topbar-title{color:var(--ml-dark)}.topbar-sh .topbar-title{color:#fff}
 .topbar-ml .back-btn{color:var(--ml-dark)}.topbar-sh .back-btn{color:#fff}
-.content{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
+.content{max-width:900px;margin:0 auto;padding:1.5rem 1rem;}
+.content-narrow{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
 .sec-label{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray4);margin:1.6rem 0 .7rem;}
 .sec-label:first-child{margin-top:0}
 .field{margin-bottom:.8rem;}
@@ -87,7 +100,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .reset-btn:hover{border-color:var(--gray3);color:var(--text)}
 .fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
 @media(max-width:400px){.fields-grid{grid-template-columns:1fr}}
-
 .banner{width:100%;background:linear-gradient(100deg,#1346B0 0%,#1A6FFF 55%,#0FA3FF 100%);overflow:hidden;position:relative;flex-shrink:0;}
 .banner-inner{max-width:900px;margin:0 auto;padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative;z-index:1;}
 .banner-left{display:flex;align-items:center;gap:.9rem;}
@@ -109,35 +121,26 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .modal-field input{width:100%;padding:.65rem .75rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color .15s;}
 .modal-field input:focus{border-color:var(--ml-blue)}
 .modal-btn{width:100%;padding:.85rem;border:none;border-radius:12px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-top:.5rem;transition:opacity .15s,transform .12s,box-shadow .15s;box-shadow:0 4px 20px rgba(52,131,250,.35);}
-.modal-btn:hover{box-shadow:0 6px 28px rgba(52,131,250,.45)}
-.modal-btn:active{transform:scale(.98);opacity:.9}
 .modal-btn:disabled{opacity:.5;cursor:not-allowed}
 .modal-status{margin-top:.75rem;font-size:.82rem;font-weight:700;text-align:center;min-height:18px;}
 .modal-status.ok{color:#22543D}.modal-status.err{color:#C53030}.modal-status.loading{color:var(--gray4)}
 .modal-skip{display:block;text-align:center;margin-top:.75rem;font-size:.8rem;font-weight:700;color:var(--gray4);cursor:pointer;text-decoration:underline;background:none;border:none;}
-.modal-skip:hover{color:var(--text)}
 .modal-security-note{background:#F7F7F9;border-radius:10px;padding:.65rem .85rem;margin-top:1rem;font-size:.75rem;color:var(--gray4);font-weight:600;line-height:1.55;}
 .modal-security-note b{color:#555}
-
 .api-pill{margin-left:auto;display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.3);border-radius:20px;padding:.25rem .75rem;font-size:.75rem;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif;color:var(--ml-dark);transition:background .15s;}
 .api-pill:hover{background:rgba(255,255,255,.5)}
 .pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .pill-dot.green{background:#38A169}.pill-dot.gray{background:#aaa}
-
 .search-box{background:#fff;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:2px solid var(--gray2);}
 .search-row{display:flex;gap:.6rem;align-items:flex-end;}
 .search-row .field{flex:1;margin-bottom:0;}
-.search-btn{flex-shrink:0;padding:.65rem 1.1rem;border:none;border-radius:10px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:opacity .15s,transform .12s;white-space:nowrap;}
-.search-btn:active{transform:scale(.97);opacity:.9}
+.search-btn{flex-shrink:0;padding:.65rem 1.1rem;border:none;border-radius:10px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap;}
 .search-btn:disabled{opacity:.4;cursor:not-allowed}
 .search-status{margin-top:.65rem;font-size:.8rem;font-weight:700;min-height:16px;}
 .search-status.ok{color:#22543D}.search-status.err{color:#C53030}.search-status.loading{color:var(--gray4)}
-
 .mode-tabs{display:flex;gap:.5rem;margin-bottom:1rem;}
 .mode-tab{flex:1;padding:.55rem;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--gray4);cursor:pointer;text-align:center;transition:all .15s;}
 .mode-tab.active{border-color:var(--ml-blue);background:#EBF2FF;color:var(--ml-blue);}
-
-/* LISTAGEM DE ANÚNCIOS */
 .anuncios-lista{display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem;}
 .anuncio-card{background:#fff;border:2px solid var(--gray2);border-radius:12px;padding:.9rem 1rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
 .anuncio-card:hover{border-color:var(--ml-blue);box-shadow:0 2px 12px rgba(52,131,250,.15);}
@@ -150,29 +153,93 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .badge-classico{background:#EBF2FF;color:#0C447C;}
 .badge-premium{background:#FFF8E1;color:#7B5800;}
 .anuncio-preco{font-size:.88rem;font-weight:800;color:var(--ml-blue);margin-left:auto;}
-
-/* CUSTO INLINE */
 .custo-inline{margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--gray2);display:none;}
 .anuncio-card.selected .custo-inline{display:block;}
-.custo-inline-row{display:flex;gap:.5rem;align-items:flex-end;}
-.custo-inline .field{flex:1;margin-bottom:0;}
+.custo-inline-row{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;}
+.custo-inline .field{flex:1;min-width:100px;margin-bottom:0;}
 .custo-inline .field label{font-size:.75rem;}
 .custo-inline-btn{flex-shrink:0;padding:.6rem .9rem;border:none;border-radius:8px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;}
-
-/* INFO TAGS */
 .info-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
 .itag{display:inline-flex;align-items:center;gap:.3rem;border-radius:8px;padding:.22rem .65rem;font-size:.75rem;font-weight:700;}
 .itag-ok{background:#EBF8F1;color:#22543D;}
 .itag-warn{background:#FFF8E1;color:#7B5800;}
 .itag-info{background:#EBF2FF;color:#0C447C;}
-
-/* NOTA INFORMATIVA */
 .nota{font-size:.76rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;margin-top:.6rem;line-height:1.5;}
-.nota-warn{background:#FFF8E1;color:#7B5800;}
+
+/* ═══════════════════════════════════
+   PAINEL DE ANÚNCIOS
+═══════════════════════════════════ */
+.painel-toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem;background:#fff;border-radius:14px;padding:1rem 1.2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.painel-toolbar .field{margin-bottom:0;flex:1;min-width:120px;}
+.painel-toolbar label{font-size:.75rem;}
+.toolbar-btn{padding:.6rem 1.1rem;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .12s;}
+.toolbar-btn:active{transform:scale(.97);opacity:.9}
+.btn-primary{background:var(--ml-blue);color:#fff;}
+.btn-secondary{background:var(--gray1);color:var(--text);border:1.5px solid var(--gray2);}
+.btn-danger{background:#FFF0F0;color:#C53030;border:1.5px solid #F7C1C1;}
+
+.erp-status-bar{border-radius:12px;padding:.75rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;}
+.erp-status-bar.ok{background:var(--green-bg);color:var(--green);}
+.erp-status-bar.warn{background:var(--yellow-bg);color:var(--yellow);}
+.erp-status-bar.none{background:var(--gray1);color:var(--gray4);}
+
+.legenda{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;}
+.legenda-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:700;color:var(--gray4);}
+.legenda-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:#38A169;}.dot-yellow{background:#D69E2E;}.dot-red{background:#E53E3E;}.dot-blue{background:#3483FA;}
+
+/* TABELA DE ANÚNCIOS */
+.painel-table-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--shadow);}
+.painel-table{width:100%;border-collapse:collapse;background:#fff;font-size:.82rem;}
+.painel-table thead tr{background:var(--ml-dark);color:#fff;}
+.painel-table thead th{padding:.7rem .9rem;text-align:left;font-weight:800;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.painel-table tbody tr{border-bottom:1px solid var(--gray2);transition:background .12s;}
+.painel-table tbody tr:hover{background:#F7F7FC;}
+.painel-table tbody td{padding:.65rem .9rem;vertical-align:middle;}
+.painel-table tbody td.center{text-align:center;}
+
+.status-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:800;white-space:nowrap;}
+.status-green{background:var(--green-bg);color:var(--green);}
+.status-yellow{background:var(--yellow-bg);color:var(--yellow);}
+.status-red{background:var(--red-bg);color:var(--red);}
+.status-blue{background:var(--blue-bg);color:var(--blue);}
+
+.stock-alert{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:6px;font-size:.7rem;font-weight:800;}
+.stock-ok{background:var(--green-bg);color:var(--green);}
+.stock-diff{background:var(--red-bg);color:var(--red);}
+.stock-na{background:var(--gray1);color:var(--gray4);}
+
+.preco-minimo{font-weight:800;color:var(--text);}
+.preco-atual-ok{color:var(--green);font-weight:800;}
+.preco-atual-low{color:var(--red);font-weight:800;}
+.preco-atual-high{color:var(--blue);font-weight:800;}
+
+.painel-loading{text-align:center;padding:3rem 1rem;color:var(--gray4);font-weight:700;}
+.painel-progress{width:100%;height:4px;background:var(--gray2);border-radius:2px;margin-top:.5rem;overflow:hidden;}
+.painel-progress-bar{height:100%;background:var(--ml-blue);border-radius:2px;transition:width .3s;}
+
+.resumo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.2rem;}
+.resumo-card{background:#fff;border-radius:12px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.resumo-card .rc-label{font-size:.72rem;font-weight:700;color:var(--gray4);margin-bottom:.3rem;}
+.resumo-card .rc-value{font-size:1.4rem;font-weight:800;font-family:'DM Sans',sans-serif;}
+.rc-green{color:var(--green);}
+.rc-yellow{color:#D69E2E;}
+.rc-red{color:var(--red);}
+.rc-blue{color:var(--blue);}
+.rc-gray{color:var(--gray4);}
+
+/* ERP UPLOAD */
+.upload-box{background:#fff;border:2px dashed var(--gray3);border-radius:14px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:1rem;}
+.upload-box:hover{border-color:var(--ml-blue);background:#F0F6FF;}
+.upload-box input[type=file]{display:none;}
+.upload-icon{font-size:2rem;margin-bottom:.5rem;}
+.upload-label{font-size:.9rem;font-weight:700;color:var(--gray4);}
+.upload-label b{color:var(--ml-blue);}
 </style>
 </head>
 <body>
 
+<!-- MODAL CREDENCIAIS -->
 <div id="modal-cred">
   <div class="modal-box">
     <div class="modal-logo">
@@ -193,10 +260,41 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
+<!-- HOME -->
 <div id="home">
+  <div class="banner" style="width:calc(100% + 2rem);margin-left:-1rem;margin-right:-1rem;align-self:stretch;">
+    <div class="banner-inner">
+      <div class="banner-left">
+        <div class="banner-icon">🛒</div>
+        <div>
+          <div class="banner-headline">Calculadora do seu amigão</div>
+          <div class="banner-sub">Feito por @edsonacf para seus filhos do ecommerce</div>
+        </div>
+      </div>
+      <div class="banner-badge">100% gratuito</div>
+    </div>
+  </div>
   <p class="home-sub">Ferramentas de precificação</p>
   <h1 class="home-title">Calcule seus preços<br>com precisão</h1>
   <div class="cards-row">
+    <div class="platform-card card-painel" onclick="goto('painel')">
+      <div class="card-header">
+        <svg viewBox="0 0 160 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="160">
+          <rect x="4" y="8" width="32" height="32" rx="6" fill="rgba(255,255,255,0.15)"/>
+          <rect x="4" y="8" width="14" height="14" rx="3" fill="#38A169"/>
+          <rect x="22" y="8" width="14" height="14" rx="3" fill="#D69E2E"/>
+          <rect x="4" y="26" width="14" height="14" rx="3" fill="#E53E3E"/>
+          <rect x="22" y="26" width="14" height="14" rx="3" fill="#3483FA"/>
+          <text x="46" y="24" font-family="DM Sans,Arial" font-size="13" font-weight="900" fill="white">PAINEL</text>
+          <text x="46" y="40" font-family="DM Sans,Arial" font-size="11" font-weight="700" fill="rgba(255,255,255,0.7)">Anúncios + ERP</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3>Painel de Anúncios</h3>
+        <p>Liste todos os anúncios ativos, cruze com o ERP e veja alertas de precificação e estoque.</p>
+        <button class="card-btn">Abrir Painel</button>
+      </div>
+    </div>
     <div class="platform-card card-ml" onclick="goto('ml')">
       <div class="card-header">
         <svg class="logo-ml" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -209,8 +307,8 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       </div>
       <div class="card-body">
         <h3>Mercado Livre</h3>
-        <p>Busque seus anúncios via API — tarifa real, frete e lucro calculados automaticamente.</p>
-        <button class="card-btn">Calculadora Mercado Livre</button>
+        <p>Busque um anúncio específico e calcule tarifa, frete e lucro em detalhes.</p>
+        <button class="card-btn">Calculadora ML</button>
       </div>
     </div>
     <div class="platform-card card-sh" onclick="goto('sh')">
@@ -224,13 +322,107 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       </div>
       <div class="card-body">
         <h3>Shopee</h3>
-        <p>Defina a margem desejada — descubra o preço ideal com as tarifas aplicadas.</p>
+        <p>Defina a margem desejada e descubra o preço ideal com as tarifas aplicadas.</p>
         <button class="card-btn">Calculadora Shopee</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ═══ PAINEL DE ANÚNCIOS ═══ -->
+<div id="screen-painel" class="screen">
+  <div class="topbar topbar-painel">
+    <button class="back-btn" onclick="goto('home')">&#8592;</button>
+    <span class="topbar-title">Painel de Anúncios</span>
+    <button class="api-pill" id="api-pill-painel" onclick="reabrirModal()">
+      <span class="pill-dot gray" id="pill-dot-painel"></span>
+      <span id="pill-label-painel">Sem API</span>
+    </button>
+  </div>
+  <div class="content">
+
+    <!-- TOOLBAR -->
+    <div class="painel-toolbar">
+      <div class="field" style="min-width:160px;">
+        <label>Margem desejada (%)</label>
+        <div class="field-row has-suffix">
+          <input type="number" id="painel-margem" placeholder="ex: 20" min="0" max="100" step="1" value="20"/>
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="field" style="min-width:160px;">
+        <label>Imposto sobre venda (%)</label>
+        <div class="field-row has-suffix">
+          <input type="number" id="painel-imposto" placeholder="ex: 12" min="0" max="100" step="0.1"/>
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <label class="upload-box" style="padding:.6rem 1rem;border:1.5px dashed var(--gray3);border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:.5rem;background:#fff;margin-bottom:0;flex-shrink:0;" title="Subir planilha ERP">
+        <input type="file" id="erp-file-painel" accept=".xlsx,.xls" onchange="carregarERP(this)"/>
+        <span style="font-size:1.1rem;">📂</span>
+        <span style="font-size:.8rem;font-weight:800;color:var(--gray4);" id="erp-btn-label">Subir ERP</span>
+      </label>
+      <button class="toolbar-btn btn-primary" onclick="carregarPainel()">▶ Carregar Anúncios</button>
+    </div>
+
+    <!-- STATUS ERP -->
+    <div class="erp-status-bar none" id="erp-status-bar">
+      📋 Nenhuma planilha carregada — suba o ERP para ver custos e alertas de estoque
+    </div>
+
+    <!-- RESUMO -->
+    <div class="resumo-cards" id="resumo-cards" style="display:none;">
+      <div class="resumo-card"><div class="rc-label">Total de anúncios</div><div class="rc-value rc-gray" id="rc-total">—</div></div>
+      <div class="resumo-card"><div class="rc-label">Dentro da margem</div><div class="rc-value rc-green" id="rc-green">—</div></div>
+      <div class="resumo-card"><div class="rc-label">Margem apertada</div><div class="rc-value rc-yellow" id="rc-yellow">—</div></div>
+      <div class="resumo-card"><div class="rc-label">Abaixo do mínimo</div><div class="rc-value rc-red" id="rc-red">—</div></div>
+      <div class="resumo-card"><div class="rc-label">Muito acima</div><div class="rc-value rc-blue" id="rc-blue">—</div></div>
+      <div class="resumo-card"><div class="rc-label">Estoque divergente</div><div class="rc-value rc-red" id="rc-stock-diff">—</div></div>
+    </div>
+
+    <!-- LEGENDA -->
+    <div class="legenda">
+      <div class="legenda-item"><div class="legenda-dot dot-green"></div>Dentro da margem</div>
+      <div class="legenda-item"><div class="legenda-dot dot-yellow"></div>Margem apertada (0% a meta)</div>
+      <div class="legenda-item"><div class="legenda-dot dot-red"></div>Abaixo do mínimo</div>
+      <div class="legenda-item"><div class="legenda-dot dot-blue"></div>Muito acima (pode baixar)</div>
+    </div>
+
+    <!-- TABELA -->
+    <div id="painel-loading" class="painel-loading" style="display:none;">
+      <div>Carregando anúncios...</div>
+      <div class="painel-progress"><div class="painel-progress-bar" id="painel-progress-bar" style="width:0%"></div></div>
+      <div id="painel-progress-txt" style="font-size:.75rem;margin-top:.4rem;color:var(--gray4);"></div>
+    </div>
+
+    <div class="painel-table-wrap" id="painel-table-wrap" style="display:none;">
+      <table class="painel-table">
+        <thead>
+          <tr>
+            <th>Anúncio</th>
+            <th>Tipo</th>
+            <th>Preço atual</th>
+            <th>Custo ERP</th>
+            <th>Preço mínimo</th>
+            <th>Preço sugerido</th>
+            <th>Status</th>
+            <th>Estoque ML</th>
+            <th>Estoque ERP</th>
+            <th>Alerta</th>
+          </tr>
+        </thead>
+        <tbody id="painel-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="painel-empty" style="display:none;text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
+      Clique em "Carregar Anúncios" para começar.
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MERCADO LIVRE ═══ -->
 <div id="screen-ml" class="screen ml-screen">
   <div class="topbar topbar-ml">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -240,12 +432,11 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <span id="pill-label">Sem API</span>
     </button>
   </div>
-  <div class="content">
+  <div class="content-narrow">
     <div class="mode-tabs">
       <div class="mode-tab active" id="tab-api" onclick="setTab('api')">🔗 Buscar pelo SKU</div>
       <div class="mode-tab" id="tab-manual" onclick="setTab('manual')">✏️ Inserir manualmente</div>
     </div>
-
     <div id="section-api">
       <div class="search-box">
         <div class="search-row">
@@ -254,12 +445,10 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         </div>
         <div class="search-status" id="search-status"></div>
       </div>
-
       <div id="anuncios-wrap" style="display:none">
         <div class="sec-label" id="anuncios-label">Anúncios encontrados</div>
         <div class="anuncios-lista" id="anuncios-lista"></div>
       </div>
-
       <div class="result-card" id="ml-result-api">
         <div class="result-title" id="ml-result-titulo-api">Demonstrativo</div>
         <div class="info-tags" id="ml-info-tags" style="margin-bottom:.75rem;"></div>
@@ -270,7 +459,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
           <div class="result-row deduction"><span class="label">(-) Custo de embalagem</span><span class="val" id="ml-ra-embalagem">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Frete (vendedor)</span><span class="val" id="ml-ra-frete">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Imposto</span><span class="val" id="ml-ra-imposto">—</span></div>
-          <div class="result-row deduction"><span class="label" id="label-tarifa-tipo">(-) Tarifa ML</span><span class="val" id="ml-ra-tarifa">—</span></div>
+          <div class="result-row deduction"><span class="label" id="label-tarifa-tipo">(-) Comissão ML</span><span class="val" id="ml-ra-tarifa">—</span></div>
         </div>
         <div class="big-result" id="ml-big-api">
           <div><div class="br-label">Lucro líquido</div><div class="br-pct" id="ml-ra-margem">—</div></div>
@@ -280,7 +469,6 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <button class="reset-btn" onclick="resetMLApi()">Nova busca</button>
       </div>
     </div>
-
     <div id="section-manual" style="display:none">
       <div class="sec-label">Custos do produto</div>
       <div class="fields-grid">
@@ -319,12 +507,13 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   </div>
 </div>
 
+<!-- ═══ SHOPEE ═══ -->
 <div id="screen-sh" class="screen sh-screen">
   <div class="topbar topbar-sh">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
     <span class="topbar-title">Shopee — Preço ideal de venda</span>
   </div>
-  <div class="content">
+  <div class="content-narrow">
     <div class="sec-label">Custos do produto</div>
     <div class="fields-grid">
       <div class="field"><label>Custo do produto</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="sh-custo" placeholder="0,00" min="0" step="0.01"/></div></div>
@@ -360,8 +549,11 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 const WORKER_URL = 'https://proxy-ml.dediner20.workers.dev';
 let mlAccessToken = '', mlSellerId = '';
 let anuncioSelecionado = null;
+let erpData = {}; // { SKU: { custo, estoque } }
 
-// ── Navegação ──
+// ══════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════
 function goto(page) {
   document.getElementById('home').style.display = 'none';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -369,23 +561,24 @@ function goto(page) {
     document.getElementById('home').style.display = 'flex';
   } else {
     document.getElementById('screen-' + page).classList.add('active');
-    if (page === 'ml' && !mlAccessToken) abrirModal();
+    if (!mlAccessToken) abrirModal();
   }
   window.scrollTo(0, 0);
 }
-
 function setTab(tab) {
   document.getElementById('tab-api').classList.toggle('active', tab === 'api');
   document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
-  document.getElementById('section-api').style.display    = tab === 'api'    ? '' : 'none';
+  document.getElementById('section-api').style.display   = tab === 'api'    ? '' : 'none';
   document.getElementById('section-manual').style.display = tab === 'manual' ? '' : 'none';
 }
 
-// ── Modal ──
+// ══════════════════════════════════════════
+// MODAL / AUTH
+// ══════════════════════════════════════════
 function abrirModal()   { document.getElementById('modal-cred').classList.add('open'); }
 function fecharModal()  { document.getElementById('modal-cred').classList.remove('open'); }
 function reabrirModal() { document.getElementById('modal-status').textContent = ''; abrirModal(); }
-function usarSemAPI()   { mlAccessToken = ''; fecharModal(); atualizarPill(); setTab('manual'); }
+function usarSemAPI()   { mlAccessToken = ''; fecharModal(); atualizarPills(); setTab('manual'); }
 
 async function conectarML() {
   const clientId = document.getElementById('cred-clientid').value.trim();
@@ -406,8 +599,8 @@ async function conectarML() {
       mlSellerId    = seller;
       if (d.refresh_token) document.getElementById('cred-refresh').value = d.refresh_token;
       st.className = 'modal-status ok'; st.textContent = '✓ Conectado!';
-      atualizarPill();
-      setTimeout(() => { fecharModal(); setTab('api'); }, 800);
+      atualizarPills();
+      setTimeout(() => { fecharModal(); }, 800);
     } else {
       st.className = 'modal-status err';
       st.textContent = 'Erro: ' + (d.message || d.error || 'credenciais inválidas');
@@ -419,9 +612,16 @@ async function conectarML() {
   btn.disabled = false;
 }
 
-function atualizarPill() {
-  document.getElementById('pill-dot').className   = mlAccessToken ? 'pill-dot green' : 'pill-dot gray';
-  document.getElementById('pill-label').textContent = mlAccessToken ? 'API conectada' : 'Sem API';
+function atualizarPills() {
+  const connected = !!mlAccessToken;
+  ['pill-dot','pill-dot-painel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = connected ? 'pill-dot green' : 'pill-dot gray';
+  });
+  ['pill-label','pill-label-painel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = connected ? 'API conectada' : 'Sem API';
+  });
 }
 
 async function mlGet(path) {
@@ -429,7 +629,255 @@ async function mlGet(path) {
   return r.json();
 }
 
-// ── Busca anúncios pelo SKU (pode retornar vários) ──
+// ══════════════════════════════════════════
+// ERP — UPLOAD E PROCESSAMENTO
+// ══════════════════════════════════════════
+function carregarERP(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+      erpData = {};
+      let count = 0;
+      rows.forEach(row => {
+        // SKU = CodigoReferenciaProduto — trim obrigatório pois vem com espaço
+        const skuRaw = row['CodigoReferenciaProduto'] || row['ProdutoCod'] || '';
+        const sku = String(skuRaw).trim();
+        if (!sku) return;
+
+        // Custo = ValorCustoMedio (formato BR com vírgula)
+        const custoRaw = String(row['ValorCustoMedio'] || '0').replace(',', '.');
+        const custo = parseFloat(custoRaw) || 0;
+
+        // Estoque = QtdeSaldo
+        const estoque = parseInt(row['QtdeSaldo'] || 0) || 0;
+
+        erpData[sku] = { custo, estoque };
+        count++;
+      });
+
+      const bar = document.getElementById('erp-status-bar');
+      const btn = document.getElementById('erp-btn-label');
+      if (count > 0) {
+        bar.className = 'erp-status-bar ok';
+        bar.textContent = `✓ ERP carregado — ${count} produtos disponíveis`;
+        btn.textContent = `ERP (${count})`;
+      } else {
+        bar.className = 'erp-status-bar warn';
+        bar.textContent = '⚠ Planilha carregada mas nenhum produto identificado. Verifique as colunas.';
+      }
+    } catch(err) {
+      document.getElementById('erp-status-bar').className = 'erp-status-bar warn';
+      document.getElementById('erp-status-bar').textContent = '⚠ Erro ao ler planilha: ' + err.message;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ══════════════════════════════════════════
+// PAINEL — CARREGAR TODOS OS ANÚNCIOS ATIVOS
+// ══════════════════════════════════════════
+async function carregarPainel() {
+  if (!mlAccessToken) { abrirModal(); return; }
+
+  const margemDesejada = parseFloat(document.getElementById('painel-margem').value) || 20;
+  const impostoPct     = parseFloat(document.getElementById('painel-imposto').value) || 0;
+
+  const loading = document.getElementById('painel-loading');
+  const tableWrap = document.getElementById('painel-table-wrap');
+  const empty = document.getElementById('painel-empty');
+  const resumo = document.getElementById('resumo-cards');
+  const tbody = document.getElementById('painel-tbody');
+  const progressBar = document.getElementById('painel-progress-bar');
+  const progressTxt = document.getElementById('painel-progress-txt');
+
+  loading.style.display = 'block';
+  tableWrap.style.display = 'none';
+  empty.style.display = 'none';
+  resumo.style.display = 'none';
+  tbody.innerHTML = '';
+  progressBar.style.width = '0%';
+  progressTxt.textContent = 'Buscando anúncios ativos...';
+
+  try {
+    // 1. Busca todos os IDs de anúncios ativos (paginado)
+    let allIds = [];
+    let offset = 0;
+    const limit = 100;
+    let total = null;
+
+    do {
+      const res = await mlGet(`/users/${mlSellerId}/items/search?status=active&limit=${limit}&offset=${offset}`);
+      if (!res || res.error) break;
+      if (total === null) total = res.paging?.total || 0;
+      const ids = res.results || [];
+      allIds = allIds.concat(ids);
+      offset += limit;
+    } while (allIds.length < total && offset < total);
+
+    if (!allIds.length) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.textContent = 'Nenhum anúncio ativo encontrado.';
+      return;
+    }
+
+    progressTxt.textContent = `${allIds.length} anúncios encontrados. Carregando dados...`;
+
+    // 2. Busca dados em lotes de 20
+    const LOTE = 20;
+    let itens = [];
+    for (let i = 0; i < allIds.length; i += LOTE) {
+      const lote = allIds.slice(i, i + LOTE);
+      const resultados = await Promise.all(lote.map(id => mlGet(`/items/${id}`).catch(() => null)));
+      itens = itens.concat(resultados.filter(r => r && !r.error));
+      const pct = Math.round(((i + LOTE) / allIds.length) * 60);
+      progressBar.style.width = Math.min(pct, 60) + '%';
+      progressTxt.textContent = `Carregando itens: ${Math.min(i + LOTE, allIds.length)} / ${allIds.length}`;
+    }
+
+    // 3. Busca tarifas em lotes de 10
+    progressTxt.textContent = 'Calculando tarifas...';
+    const LOTE_FEE = 10;
+    const tarifas = {};
+    for (let i = 0; i < itens.length; i += LOTE_FEE) {
+      const lote = itens.slice(i, i + LOTE_FEE);
+      await Promise.all(lote.map(async item => {
+        try {
+          const params = new URLSearchParams({
+            price: item.price,
+            category_id: item.category_id,
+            listing_type_id: item.listing_type_id || 'gold_special',
+            logistic_type: item.shipping?.logistic_type || 'not_specified',
+            shipping_modes: item.shipping?.mode || 'not_specified'
+          });
+          const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
+          if (lp && lp.sale_fee_amount !== undefined) {
+            const freteFixo = lp.sale_fee_details?.fixed_fee || 0;
+            tarifas[item.id] = {
+              comissaoVal: lp.sale_fee_amount - freteFixo,
+              comissaoPct: lp.sale_fee_details?.percentage_fee || 0,
+              freteFixo
+            };
+          }
+        } catch {}
+      }));
+      const pct = 60 + Math.round(((i + LOTE_FEE) / itens.length) * 40);
+      progressBar.style.width = Math.min(pct, 99) + '%';
+      progressTxt.textContent = `Calculando tarifas: ${Math.min(i + LOTE_FEE, itens.length)} / ${itens.length}`;
+    }
+
+    progressBar.style.width = '100%';
+    loading.style.display = 'none';
+
+    // 4. Monta a tabela
+    let cGreen = 0, cYellow = 0, cRed = 0, cBlue = 0, cStockDiff = 0;
+
+    itens.forEach(item => {
+      const preco      = item.price || 0;
+      const tipoLabel  = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+      const tipoCls    = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
+      const freeShip   = item.shipping?.free_shipping || false;
+
+      // Custo do ERP — tenta pelo seller_custom_field (SKU) ou pelo id
+      const skuItem = String(item.seller_custom_field || '').trim();
+      const erpItem = erpData[skuItem] || null;
+      const custo   = erpItem ? erpItem.custo : null;
+      const estoqueERP = erpItem ? erpItem.estoque : null;
+      const estoqueML  = item.available_quantity ?? item.initial_quantity ?? null;
+
+      // Tarifa
+      const fee = tarifas[item.id];
+      const comissaoVal = fee ? fee.comissaoVal : null;
+      const freteVal    = freeShipping ? (fee ? fee.freteFixo : 0) : 0;
+
+      // Preços mínimo e sugerido (só calcula se tiver custo e tarifa)
+      let precoMin = null, precoSugerido = null, margemAtual = null;
+      if (custo !== null && comissaoVal !== null) {
+        const impVal = preco * (impostoPct / 100);
+        // Preço mínimo = custo / (1 - imposto% - comissão%)
+        const impFrac = impostoPct / 100;
+        const comFrac = comissaoVal / preco; // comissão como fração do preço atual
+        precoMin = (custo + freteVal) / (1 - impFrac - comFrac);
+        // Preço sugerido = custo / (1 - imposto% - comissão% - margem%)
+        const marFrac = margemDesejada / 100;
+        const den = 1 - impFrac - comFrac - marFrac;
+        precoSugerido = den > 0 ? (custo + freteVal) / den : null;
+        // Margem atual
+        const lucroAtual = preco - custo - freteVal - (preco * impFrac) - comissaoVal;
+        margemAtual = preco > 0 ? (lucroAtual / preco) * 100 : 0;
+      }
+
+      // Status de cor
+      let statusLabel = '—', statusCls = '';
+      if (margemAtual !== null) {
+        if (margemAtual < 0) { statusLabel = 'Abaixo do mínimo'; statusCls = 'status-red'; cRed++; }
+        else if (margemAtual < margemDesejada) { statusLabel = 'Margem apertada'; statusCls = 'status-yellow'; cYellow++; }
+        else if (margemAtual >= margemDesejada * 1.5) { statusLabel = 'Muito acima'; statusCls = 'status-blue'; cBlue++; }
+        else { statusLabel = 'Dentro da margem'; statusCls = 'status-green'; cGreen++; }
+      }
+
+      // Alerta de estoque
+      let stockAlert = '', stockCls = 'stock-na';
+      if (estoqueERP !== null && estoqueML !== null) {
+        if (estoqueERP === estoqueML) { stockAlert = '✓ OK'; stockCls = 'stock-ok'; }
+        else { stockAlert = `⚠ ERP: ${estoqueERP} / ML: ${estoqueML}`; stockCls = 'stock-diff'; cStockDiff++; }
+      } else {
+        stockAlert = 'Sem ERP';
+      }
+
+      // Classe do preço atual
+      let precoCls = '';
+      if (margemAtual !== null) {
+        if (margemAtual < 0) precoCls = 'preco-atual-low';
+        else if (margemAtual >= margemDesejada * 1.5) precoCls = 'preco-atual-high';
+        else precoCls = 'preco-atual-ok';
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:800;font-size:.82rem;color:var(--text);max-width:220px;line-height:1.3;">${item.title}</div>
+          <div style="font-size:.7rem;color:var(--gray4);margin-top:2px;">${item.id}${skuItem ? ' · SKU: '+skuItem : ''}</div>
+        </td>
+        <td><span class="anuncio-badge ${tipoCls}">${tipoLabel}</span></td>
+        <td class="${precoCls}">${brl(preco)}${margemAtual !== null ? '<br><span style="font-size:.7rem;color:var(--gray4);font-weight:700;">'+pct(margemAtual)+' margem</span>' : ''}</td>
+        <td>${custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.75rem;">Sem ERP</span>'}</td>
+        <td class="preco-minimo">${precoMin !== null ? brl(precoMin) : '—'}</td>
+        <td style="color:var(--green);font-weight:800;">${precoSugerido !== null ? brl(precoSugerido) : '—'}</td>
+        <td>${statusLabel !== '—' ? `<span class="status-pill ${statusCls}">${statusLabel}</span>` : '—'}</td>
+        <td style="font-weight:700;">${estoqueML !== null ? estoqueML : '—'}</td>
+        <td style="font-weight:700;">${estoqueERP !== null ? estoqueERP : '—'}</td>
+        <td><span class="stock-alert ${stockCls}">${stockAlert}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Resumo
+    document.getElementById('rc-total').textContent  = itens.length;
+    document.getElementById('rc-green').textContent  = cGreen;
+    document.getElementById('rc-yellow').textContent = cYellow;
+    document.getElementById('rc-red').textContent    = cRed;
+    document.getElementById('rc-blue').textContent   = cBlue;
+    document.getElementById('rc-stock-diff').textContent = cStockDiff;
+    resumo.style.display = 'grid';
+    tableWrap.style.display = 'block';
+
+  } catch(e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = 'Erro ao carregar: ' + e.message;
+  }
+}
+
+// ══════════════════════════════════════════
+// CALCULADORA ML — BUSCA INDIVIDUAL
+// ══════════════════════════════════════════
 async function buscarAnuncio() {
   if (!mlAccessToken) { abrirModal(); return; }
   const skuRaw = document.getElementById('ml-mlb').value.trim();
@@ -437,54 +885,30 @@ async function buscarAnuncio() {
   const btn  = document.getElementById('search-btn');
   const wrap = document.getElementById('anuncios-wrap');
   const lista = document.getElementById('anuncios-lista');
-
   if (!skuRaw) { st.className='search-status err'; st.textContent='Informe o SKU ou MLB.'; return; }
   btn.disabled = true;
   st.className = 'search-status loading'; st.textContent = 'Buscando anúncios...';
-  wrap.style.display = 'none';
-  lista.innerHTML = '';
+  wrap.style.display = 'none'; lista.innerHTML = '';
   document.getElementById('ml-result-api').classList.remove('show');
   anuncioSelecionado = null;
-
   try {
     let mlbIds = [];
-
     if (skuRaw.toUpperCase().startsWith('MLB')) {
       mlbIds = [skuRaw.toUpperCase()];
     } else {
-      st.textContent = 'Buscando pelo SKU...';
       const sr = await mlGet(`/users/${mlSellerId}/items/search?seller_sku=${encodeURIComponent(skuRaw)}&limit=20`);
       mlbIds = sr.results || [];
     }
-
-    if (!mlbIds.length) {
-      st.className = 'search-status err';
-      st.textContent = 'Nenhum anúncio encontrado para esse SKU.';
-      btn.disabled = false; return;
-    }
-
-    st.textContent = `Carregando ${mlbIds.length} anúncio(s)...`;
-
-    // Busca dados de todos os anúncios em paralelo (max 20)
-    const itens = await Promise.all(
-      mlbIds.slice(0, 20).map(id => mlGet(`/items/${id}`).catch(() => null))
-    );
-
+    if (!mlbIds.length) { st.className='search-status err'; st.textContent='Nenhum anúncio encontrado.'; btn.disabled=false; return; }
+    const itens = await Promise.all(mlbIds.slice(0,20).map(id => mlGet(`/items/${id}`).catch(()=>null)));
     const validos = itens.filter(i => i && !i.error);
-    if (!validos.length) {
-      st.className = 'search-status err'; st.textContent = 'Erro ao carregar anúncios.';
-      btn.disabled = false; return;
-    }
-
-    document.getElementById('anuncios-label').textContent =
-      validos.length === 1 ? 'Anúncio encontrado' : `${validos.length} anúncios encontrados — selecione um`;
-
+    if (!validos.length) { st.className='search-status err'; st.textContent='Erro ao carregar anúncios.'; btn.disabled=false; return; }
+    document.getElementById('anuncios-label').textContent = validos.length===1 ? 'Anúncio encontrado' : `${validos.length} anúncios — selecione um`;
     validos.forEach(item => {
-      const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
-      const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
-      const statusCls = item.status === 'active' ? 'badge-ativo' : 'badge-pausado';
-      const statusLabel = item.status === 'active' ? 'Ativo' : 'Pausado';
-
+      const tipoLabel = item.listing_type_id==='gold_pro'?'Premium':'Clássico';
+      const tipoCls   = item.listing_type_id==='gold_pro'?'badge-premium':'badge-classico';
+      const statusCls = item.status==='active'?'badge-ativo':'badge-pausado';
+      const statusLabel = item.status==='active'?'Ativo':'Pausado';
       const card = document.createElement('div');
       card.className = 'anuncio-card';
       card.innerHTML = `
@@ -497,210 +921,126 @@ async function buscarAnuncio() {
         </div>
         <div class="custo-inline">
           <div class="custo-inline-row">
-            <div class="field">
-              <label>Custo do produto (R$)</label>
-              <div class="field-row has-prefix">
-                <span class="prefix">R$</span>
-                <input type="number" class="custo-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
-              </div>
-            </div>
-            <div class="field">
-              <label>Embalagem (R$)</label>
-              <div class="field-row has-prefix">
-                <span class="prefix">R$</span>
-                <input type="number" class="embal-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
-              </div>
-            </div>
-            <div class="field">
-              <label>Imposto (%)</label>
-              <input type="number" class="imp-input" placeholder="0" min="0" max="100" step="0.01" style="width:100%;padding:.55rem .75rem;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/>
-            </div>
+            <div class="field"><label>Custo (R$)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" class="custo-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div></div>
+            <div class="field"><label>Embalagem (R$)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" class="embal-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div></div>
+            <div class="field"><label>Imposto (%)</label><input type="number" class="imp-input" placeholder="0" min="0" max="100" step="0.01" style="width:100%;padding:.55rem .75rem;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div>
             <button class="custo-inline-btn" onclick="calcularAnuncio(this)">Calcular</button>
           </div>
-        </div>
-      `;
-
+        </div>`;
       card.addEventListener('click', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-        document.querySelectorAll('.anuncio-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        anuncioSelecionado = item;
+        if (e.target.tagName==='INPUT'||e.target.tagName==='BUTTON') return;
+        document.querySelectorAll('.anuncio-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected'); anuncioSelecionado = item;
         card.querySelector('.custo-input').focus();
       });
-
       lista.appendChild(card);
     });
-
-    wrap.style.display = 'block';
-    st.className = 'search-status ok';
-    st.textContent = validos.length === 1
-      ? '✓ Anúncio carregado! Informe o custo e calcule.'
-      : `✓ ${validos.length} anúncios encontrados! Clique em um para calcular.`;
-
-  } catch(e) {
-    st.className = 'search-status err'; st.textContent = 'Erro: ' + e.message;
-  }
+    wrap.style.display='block';
+    st.className='search-status ok';
+    st.textContent = validos.length===1 ? '✓ Anúncio carregado! Informe o custo e calcule.' : `✓ ${validos.length} anúncios. Clique em um para calcular.`;
+  } catch(e) { st.className='search-status err'; st.textContent='Erro: '+e.message; }
   btn.disabled = false;
 }
 
-// ── Calcular anúncio selecionado ──
 async function calcularAnuncio(btn) {
-  const card  = btn.closest('.anuncio-card');
-  const item  = anuncioSelecionado || JSON.parse(card.dataset.item || 'null');
-
-  // Garante que este card está selecionado
-  document.querySelectorAll('.anuncio-card').forEach(c => c.classList.remove('selected'));
+  const card = btn.closest('.anuncio-card');
+  document.querySelectorAll('.anuncio-card').forEach(c=>c.classList.remove('selected'));
   card.classList.add('selected');
-
-  // Encontra o item correspondente pelo MLB no título
   const mlbEl = card.querySelector('.anuncio-meta span:nth-child(3)');
   const mlbId = mlbEl ? mlbEl.textContent.trim() : null;
-
-  const custo = parseFloat(card.querySelector('.custo-input').value) || 0;
-  const embal = parseFloat(card.querySelector('.embal-input').value) || 0;
-  const impPct = parseFloat(card.querySelector('.imp-input').value) || 0;
-
-  // Busca o item correto da lista renderizada
-  const lista = document.getElementById('anuncios-lista');
-  const cards = Array.from(lista.querySelectorAll('.anuncio-card'));
-  const idx   = cards.indexOf(card);
-
-  // Pega o item da busca anterior via atributo data
-  let itemData = null;
-  try { itemData = JSON.parse(card.dataset.itemJson || 'null'); } catch {}
-
+  const custo  = parseFloat(card.querySelector('.custo-input').value)||0;
+  const embal  = parseFloat(card.querySelector('.embal-input').value)||0;
+  const impPct = parseFloat(card.querySelector('.imp-input').value)||0;
+  let itemData = anuncioSelecionado;
   if (!itemData && mlbId) {
-    btn.disabled = true; btn.textContent = '...';
+    btn.disabled=true; btn.textContent='...';
     try { itemData = await mlGet(`/items/${mlbId}`); } catch {}
-    btn.disabled = false; btn.textContent = 'Calcular';
+    btn.disabled=false; btn.textContent='Calcular';
   }
-
   if (!itemData) { alert('Não foi possível carregar os dados do anúncio.'); return; }
-
   await processarCalculo(itemData, custo, embal, impPct);
 }
 
 async function processarCalculo(item, custo, embal, impPct) {
-  const preco       = item.price || 0;
-  const mlbId       = item.id;
-  const categoryId  = item.category_id;
-  const listingType = item.listing_type_id || 'gold_special';
-  const tipoLabel   = listingType === 'gold_pro' ? 'Premium' : 'Clássico';
+  const preco        = item.price || 0;
+  const mlbId        = item.id;
+  const categoryId   = item.category_id;
+  const listingType  = item.listing_type_id || 'gold_special';
+  const tipoLabel    = listingType === 'gold_pro' ? 'Premium' : 'Clássico';
   const logisticType = item.shipping?.logistic_type || 'not_specified';
   const shippingMode = item.shipping?.mode || 'not_specified';
   const freeShipping = item.shipping?.free_shipping || false;
 
-  // ── 1. Tarifa de Venda via /sites/MLB/listing_prices ──
   let tarifaVal = null, tarifaPct = null, freteFixo = 0;
-  let tarifaFonte = '';
-
   try {
-    const params = new URLSearchParams({
-      price: preco,
-      category_id: categoryId,
-      listing_type_id: listingType,
-      logistic_type: logisticType,
-      shipping_modes: shippingMode
-    });
+    const params = new URLSearchParams({ price: preco, category_id: categoryId, listing_type_id: listingType, logistic_type: logisticType, shipping_modes: shippingMode });
     const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
-
     if (lp && lp.sale_fee_amount !== undefined) {
-      freteFixo = lp.sale_fee_details?.fixed_fee || 0;
-      tarifaVal = lp.sale_fee_amount - freteFixo;
-      tarifaPct = lp.sale_fee_details?.percentage_fee || (preco > 0 ? (tarifaVal / preco) * 100 : 0);
-      tarifaFonte = `${tipoLabel} — ${tarifaPct.toFixed(1)}%`;
+      freteFixo  = lp.sale_fee_details?.fixed_fee || 0;
+      tarifaVal  = lp.sale_fee_amount - freteFixo;
+      tarifaPct  = lp.sale_fee_details?.percentage_fee || (preco>0?(tarifaVal/preco)*100:0);
     }
   } catch {}
 
   const tarifaOk = tarifaVal !== null;
-
-  // ── 2. Frete do vendedor via /shipping_options/free ──
-  let freteVal = 0;
-  let freteFonte = 'comprador paga';
-
+  let freteVal = 0, freteFonte = 'comprador paga';
   if (freeShipping) {
     try {
-      let shipUrl = `/users/${mlSellerId}/shipping_options/free?item_id=${mlbId}`;
-      let shipRes = await mlGet(shipUrl);
-      console.log("[DEBUG ML] Frete via item_id:", shipRes);
-
-      if (shipRes?.coverage?.all_country?.list_cost) {
-        freteVal = shipRes.coverage.all_country.list_cost;
-        freteFonte = 'frete ME2';
-      } else if (item.shipping?.dimensions) {
-        shipUrl = `/users/${mlSellerId}/shipping_options/free?dimensions=${item.shipping.dimensions}&item_price=${preco}&listing_type_id=${listingType}`;
-        shipRes = await mlGet(shipUrl);
-        console.log("[DEBUG ML] Frete via dimensões (Fallback):", shipRes);
-
-        if (shipRes?.coverage?.all_country?.list_cost) {
-          freteVal = shipRes.coverage.all_country.list_cost;
-          freteFonte = 'frete ME2 (dimensões)';
-        } else {
-          freteFonte = 'sem cobertura ML';
-        }
-      }
-    } catch(e) {
-      console.warn('Erro ao buscar frete:', e);
-      freteFonte = 'erro API';
-    }
-  } else if (freteFixo > 0) {
-    freteVal = freteFixo;
-    freteFonte = 'custo fixo (< R$79)';
+      const shipRes = await mlGet(`/users/${mlSellerId}/shipping_options/free?item_id=${mlbId}`);
+      if (shipRes?.coverage?.all_country?.list_cost) { freteVal = shipRes.coverage.all_country.list_cost; freteFonte = 'frete ME2'; }
+      else if (freteFixo > 0) { freteVal = freteFixo; freteFonte = 'custo fixo API'; }
+    } catch { if (freteFixo>0){ freteVal=freteFixo; freteFonte='custo fixo API'; } }
   }
 
   const impVal = preco * (impPct / 100);
-  const lucro  = tarifaOk
-    ? preco - custo - embal - freteVal - impVal - tarifaVal
-    : null;
+  const lucro  = tarifaOk ? preco - custo - embal - freteVal - impVal - tarifaVal : null;
   const margem = (lucro !== null && preco > 0) ? (lucro / preco) * 100 : null;
 
-  // Preenche resultado
-  document.getElementById('ml-result-titulo-api').textContent = item.title.substring(0, 55) + (item.title.length > 55 ? '…' : '');
-
-  const tagsEl = document.getElementById('ml-info-tags');
-  tagsEl.innerHTML = '';
-  const addTag = (txt, cls) => { const t = document.createElement('span'); t.className = `itag ${cls}`; t.textContent = txt; tagsEl.appendChild(t); };
-  addTag(mlbId, 'itag-info');
-  addTag(tipoLabel, 'itag-info');
-  if (tarifaOk) addTag(`Comissão: ${tarifaPct.toFixed(1)}% = ${brl(tarifaVal)}`, 'itag-ok');
-  else addTag('Tarifa: não retornada pela API', 'itag-warn');
-  addTag(`Frete: ${freteVal > 0 ? brl(freteVal) + ' (' + freteFonte + ')' : 'comprador paga'}`, freteVal > 0 ? 'itag-ok' : 'itag-info');
+  document.getElementById('ml-result-titulo-api').textContent = item.title.substring(0,55)+(item.title.length>55?'…':'');
+  const tagsEl = document.getElementById('ml-info-tags'); tagsEl.innerHTML='';
+  const addTag = (txt,cls)=>{ const t=document.createElement('span'); t.className=`itag ${cls}`; t.textContent=txt; tagsEl.appendChild(t); };
+  addTag(mlbId,'itag-info'); addTag(tipoLabel,'itag-info');
+  if (tarifaOk) addTag(`Comissão: ${tarifaPct.toFixed(1)}% = ${brl(tarifaVal)}`,'itag-ok');
+  else addTag('Tarifa: não retornada pela API','itag-warn');
+  addTag(`Frete: ${freteVal>0?brl(freteVal)+' ('+freteFonte+')':'comprador paga'}`,freteVal>0?'itag-ok':'itag-info');
 
   document.getElementById('label-tarifa-tipo').textContent = `(-) Comissão ML — ${tipoLabel}`;
-  document.getElementById('ml-ra-preco').textContent     = brl(preco);
-  document.getElementById('ml-ra-custo').textContent     = '- ' + brl(custo);
-  document.getElementById('ml-ra-embalagem').textContent = '- ' + brl(embal);
-  document.getElementById('ml-ra-frete').textContent     = '- ' + brl(freteVal);
-  document.getElementById('ml-ra-imposto').textContent   = '- ' + brl(impVal);
-  document.getElementById('ml-ra-tarifa').textContent    = tarifaOk ? '- ' + brl(tarifaVal) : '—';
+  document.getElementById('ml-ra-preco').textContent    = brl(preco);
+  document.getElementById('ml-ra-custo').textContent    = '- '+brl(custo);
+  document.getElementById('ml-ra-embalagem').textContent = '- '+brl(embal);
+  document.getElementById('ml-ra-frete').textContent    = '- '+brl(freteVal);
+  document.getElementById('ml-ra-imposto').textContent  = '- '+brl(impVal);
+  document.getElementById('ml-ra-tarifa').textContent   = tarifaOk ? '- '+brl(tarifaVal) : '—';
 
   const big = document.getElementById('ml-big-api');
-  big.className = 'big-result ' + (lucro !== null ? (lucro >= 0 ? 'positive' : 'negative') : 'positive');
-  document.getElementById('ml-ra-lucro').textContent  = lucro !== null ? (lucro < 0 ? '- ' : '') + brl(lucro) : '—';
-  document.getElementById('ml-ra-margem').textContent = margem !== null ? pct(margem) + ' de margem' : 'informe o custo';
+  big.className = 'big-result '+(lucro!==null?(lucro>=0?'positive':'negative'):'positive');
+  document.getElementById('ml-ra-lucro').textContent  = lucro!==null?((lucro<0?'- ':'')+brl(lucro)):'—';
+  document.getElementById('ml-ra-margem').textContent = margem!==null?pct(margem)+' de margem':'informe o custo';
 
   const minEl = document.getElementById('ml-ra-precomin');
-  if (custo > 0 && tarifaOk) {
-    const precoMin = custo + embal + freteVal + impVal + tarifaVal;
+  if (custo>0 && tarifaOk) {
+    const precoMin = custo+embal+freteVal+impVal+tarifaVal;
     minEl.textContent = `💡 Preço mínimo para não ter prejuízo: ${brl(precoMin)}`;
-    minEl.style.display = 'block';
-  } else { minEl.style.display = 'none'; }
+    minEl.style.display='block';
+  } else { minEl.style.display='none'; }
 
   const rc = document.getElementById('ml-result-api');
   rc.classList.remove('show'); void rc.offsetWidth; rc.classList.add('show');
-  rc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  rc.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function resetMLApi() {
-  document.getElementById('ml-mlb').value = '';
-  document.getElementById('search-status').textContent = '';
-  document.getElementById('anuncios-wrap').style.display = 'none';
-  document.getElementById('anuncios-lista').innerHTML = '';
+  document.getElementById('ml-mlb').value='';
+  document.getElementById('search-status').textContent='';
+  document.getElementById('anuncios-wrap').style.display='none';
+  document.getElementById('anuncios-lista').innerHTML='';
   document.getElementById('ml-result-api').classList.remove('show');
-  anuncioSelecionado = null;
+  anuncioSelecionado=null;
 }
 
-// ── Calc ML manual ──
+// ══════════════════════════════════════════
+// CALCULADORA ML MANUAL
+// ══════════════════════════════════════════
 function calcML() {
   const custo=+document.getElementById('ml-custo').value||0, embal=+document.getElementById('ml-embalagem').value||0;
   const impPct=+document.getElementById('ml-imposto').value||0, tarPct=+document.getElementById('ml-tarifa').value||0;
@@ -720,7 +1060,9 @@ function calcML() {
 }
 function resetML(){['ml-custo','ml-embalagem','ml-imposto','ml-tarifa','ml-frete','ml-preco'].forEach(id=>document.getElementById(id).value='');document.getElementById('ml-result').classList.remove('show');}
 
-// ── Shopee ──
+// ══════════════════════════════════════════
+// SHOPEE
+// ══════════════════════════════════════════
 function shopeeRate(p){if(p<80)return{pct:.20,fixed:4,label:'até R$79,99: 20% + R$4'};if(p<100)return{pct:.14,fixed:16,label:'R$80 a R$99,99: 14% + R$16'};if(p<200)return{pct:.14,fixed:20,label:'R$100 a R$199,99: 14% + R$20'};return{pct:.14,fixed:26,label:'acima de R$200: 14% + R$26'};}
 function calcSH(){
   const custo=+document.getElementById('sh-custo').value||0,embal=+document.getElementById('sh-embalagem').value||0;
@@ -739,10 +1081,14 @@ function calcSH(){
 }
 function resetSH(){['sh-custo','sh-embalagem','sh-imposto','sh-margem'].forEach(id=>document.getElementById(id).value='');document.getElementById('sh-result').classList.remove('show');}
 
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
 function brl(v){return 'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function pct(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';}
+
 document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('ml-mlb').addEventListener('keydown',e=>{if(e.key==='Enter')buscarAnuncio();});
+  document.getElementById('ml-mlb')?.addEventListener('keydown',e=>{if(e.key==='Enter')buscarAnuncio();});
 });
 </script>
 </body>
