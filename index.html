@@ -406,15 +406,16 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <table class="painel-table">
         <thead>
           <tr>
-            <th style="width:28%;">Anúncio</th>
-            <th style="width:8%;">Tipo</th>
-            <th style="width:11%;">Preço atual</th>
-            <th style="width:10%;">Custo ERP</th>
-            <th style="width:13%;">Mínimo c/ meta / Dif.</th>
-            <th style="width:14%;">Status</th>
-            <th style="width:6%;text-align:center;">Qtd ML</th>
-            <th style="width:6%;text-align:center;">Qtd ERP</th>
-            <th style="width:6%;">Estoque</th>
+            <th style="width:22%;">Anúncio</th>
+            <th style="width:7%;">Tipo</th>
+            <th style="width:9%;">Preço atual</th>
+            <th style="width:8%;">Custo ERP</th>
+            <th style="width:16%;">Comissão · Frete · Imposto</th>
+            <th style="width:9%;">Preço mínimo</th>
+            <th style="width:11%;">Status</th>
+            <th style="width:5%;text-align:center;">Qtd ML</th>
+            <th style="width:5%;text-align:center;">Qtd ERP</th>
+            <th style="width:8%;">Estoque</th>
           </tr>
         </thead>
         <tbody id="painel-tbody"></tbody>
@@ -900,24 +901,7 @@ function renderizarTabela(itens, tarifas) {
     // 0 = P - custo - freteVal - P*impFrac - P*comFrac
     // P*(1 - impFrac - comFrac) = custo + freteVal
     // P = (custo + freteVal) / (1 - impFrac - comFrac)
-    // Preco minimo = igual calculadora individual
-    // custo + frete + imposto(sobre preco atual) + comissao(sobre preco atual)
-    let precoMin = null;
-    if (custo !== null && tarifaOk) {
-      const impValAtual = preco * (impostoPct / 100);
-      precoMin = custo + freteVal + impValAtual + tarifaVal;
-    }
-
-    // Preco meta = preco minimo para atingir margem desejada
-    // Resolve: P = (custo + freteVal) / (1 - impFrac - comFrac - marFrac)
-    let precoMeta = null;
-    if (custo !== null && tarifaOk && preco > 0) {
-      const impFrac = impostoPct / 100;
-      const comFrac = tarifaPct / 100;
-      const marFrac = margemDesejada / 100;
-      const den = 1 - impFrac - comFrac - marFrac;
-      precoMeta = den > 0 ? (custo + freteVal) / den : null;
-    }
+    // precoMinReal e precoMeta calculados abaixo junto com o innerHTML da linha
 
     // Status de cor
     let statusLabel = '—', statusCls = '';
@@ -943,14 +927,24 @@ function renderizarTabela(itens, tarifas) {
       else precoCls = 'preco-atual-ok';
     }
 
-    // Diferenca preco atual vs meta
-    let diffLabel = '';
-    if (precoMeta !== null) {
-      const diff = preco - precoMeta;
-      diffLabel = diff >= 0
-        ? '<br><span style="color:#22543D;font-size:.68rem;font-weight:700;">+' + brl(diff) + ' acima da meta</span>'
-        : '<br><span style="color:#C53030;font-size:.68rem;font-weight:700;">' + brl(Math.abs(diff)) + ' abaixo da meta</span>';
-    }
+
+
+    // Detalhes iguais à calculadora individual
+    const detComissao = tarifaOk
+      ? '<span style="color:#22543D;font-weight:700;">' + brl(tarifaVal) + ' (' + (tarifaPct ? tarifaPct.toFixed(1) : '?') + '%)</span>'
+      : '<span style="color:var(--gray4);">—</span>';
+    const detFrete = freeShip
+      ? '<span style="color:#0C447C;font-weight:700;">' + brl(freteVal) + '</span>'
+      : '<span style="color:var(--gray4);font-size:.68rem;">Comprador paga</span>';
+    const impValAtual = preco * (impostoPct / 100);
+    const detImposto = impostoPct > 0
+      ? '<span style="color:#7B5800;font-weight:700;">' + brl(impValAtual) + '</span>'
+      : '<span style="color:var(--gray4);font-size:.68rem;">—</span>';
+
+    // Preço mínimo = igual calculadora: custo + frete + imposto(preço atual) + comissão(preço atual)
+    const precoMinReal = (custo !== null && tarifaOk)
+      ? custo + freteVal + impValAtual + tarifaVal
+      : null;
 
     const tr = document.createElement('tr');
     tr.innerHTML =
@@ -960,7 +954,12 @@ function renderizarTabela(itens, tarifas) {
       '<td class="' + precoCls + '" style="white-space:nowrap;font-weight:800;">' + brl(preco) +
         (margem !== null ? '<br><span style="font-size:.68rem;color:var(--gray4);font-weight:600;">' + pct(margem) + ' margem</span>' : '') + '</td>' +
       '<td style="font-weight:700;white-space:nowrap;">' + (custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.72rem;">Sem ERP</span>') + '</td>' +
-      '<td style="font-weight:800;white-space:nowrap;">' + (precoMeta !== null ? brl(precoMeta) + diffLabel : '—') + '</td>' +
+      '<td style="font-size:.72rem;line-height:1.8;">' +
+        'Com: ' + detComissao + '<br>' +
+        'Fr: ' + detFrete + '<br>' +
+        'Imp: ' + detImposto +
+      '</td>' +
+      '<td style="font-weight:800;white-space:nowrap;">' + (precoMinReal !== null ? brl(precoMinReal) : '—') + '</td>' +
       '<td>' + (statusLabel !== '—' ? '<span class="status-pill ' + statusCls + '">' + statusLabel + '</span>' : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueML !== null ? estoqueML : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueERP !== null ? estoqueERP : '—') + '</td>' +
