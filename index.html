@@ -362,7 +362,14 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <span style="font-size:1.1rem;">📂</span>
         <span style="font-size:.8rem;font-weight:800;color:var(--gray4);" id="erp-btn-label">Subir ERP</span>
       </label>
-      <button class="toolbar-btn btn-primary" onclick="carregarPainel()">▶ Carregar Anúncios</button>
+      <button class="toolbar-btn btn-primary" onclick="carregarPainel(true)">↺ Atualizar da API</button>
+      <button class="toolbar-btn btn-secondary" onclick="carregarPainel(false)">▶ Usar Cache</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">
+      <span style="font-size:.75rem;font-weight:700;color:var(--gray4);" id="cache-info"></span>
+      <button class="toolbar-btn btn-danger" onclick="limparCache()" id="btn-limpar-cache" style="display:none;padding:.35rem .75rem;font-size:.75rem;">🗑 Limpar cache</button>
+    </div>
+    <div style="display:none">
     </div>
 
     <!-- STATUS ERP -->
@@ -562,6 +569,7 @@ function goto(page) {
   } else {
     document.getElementById('screen-' + page).classList.add('active');
     if (!mlAccessToken) abrirModal();
+    if (page === 'painel' && mlAccessToken) setTimeout(verificarCacheAoAbrir, 300);
   }
   window.scrollTo(0, 0);
 }
@@ -680,21 +688,68 @@ function carregarERP(input) {
 }
 
 // ══════════════════════════════════════════
+// CACHE — localStorage
+// ══════════════════════════════════════════
+const CACHE_KEY = 'ml_painel_cache_v1';
+
+function salvarCache(itens, tarifas) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ itens, tarifas, ts: Date.now(), sellerId: mlSellerId }));
+  } catch(e) { console.warn('Cache cheio:', e); }
+}
+
+function lerCache() {
+  try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+
+function limparCache() {
+  localStorage.removeItem(CACHE_KEY);
+  document.getElementById('cache-info').textContent = 'Cache apagado.';
+  document.getElementById('btn-limpar-cache').style.display = 'none';
+}
+
+function atualizarInfoCache(cache) {
+  if (!cache) return;
+  const mins = Math.round((Date.now() - cache.ts) / 60000);
+  const label = mins < 1 ? 'agora mesmo' : mins < 60 ? mins + ' min atrás' : Math.round(mins/60) + 'h atrás';
+  document.getElementById('cache-info').textContent = 'Cache: ' + cache.itens.length + ' anúncios — atualizado ' + label;
+  document.getElementById('btn-limpar-cache').style.display = 'inline-block';
+}
+
+// Ao abrir o painel verifica se existe cache e carrega automaticamente
+function verificarCacheAoAbrir() {
+  const cache = lerCache();
+  if (cache && cache.sellerId === mlSellerId) {
+    atualizarInfoCache(cache);
+    renderizarTabela(cache.itens, cache.tarifas);
+  } else {
+    document.getElementById('painel-empty').style.display = 'block';
+  }
+}
+
+// ══════════════════════════════════════════
 // PAINEL — CARREGAR TODOS OS ANÚNCIOS ATIVOS
 // ══════════════════════════════════════════
-async function carregarPainel() {
+async function carregarPainel(forcarAtualizacao = false) {
   if (!mlAccessToken) { abrirModal(); return; }
 
-  const margemDesejada = parseFloat(document.getElementById('painel-margem').value) || 20;
-  const impostoPct     = parseFloat(document.getElementById('painel-imposto').value) || 0;
-
-  const loading = document.getElementById('painel-loading');
+  const loading   = document.getElementById('painel-loading');
   const tableWrap = document.getElementById('painel-table-wrap');
-  const empty = document.getElementById('painel-empty');
-  const resumo = document.getElementById('resumo-cards');
-  const tbody = document.getElementById('painel-tbody');
+  const empty     = document.getElementById('painel-empty');
+  const resumo    = document.getElementById('resumo-cards');
+  const tbody     = document.getElementById('painel-tbody');
   const progressBar = document.getElementById('painel-progress-bar');
   const progressTxt = document.getElementById('painel-progress-txt');
+
+  // Tenta cache primeiro
+  if (!forcarAtualizacao) {
+    const cache = lerCache();
+    if (cache && cache.sellerId === mlSellerId) {
+      atualizarInfoCache(cache);
+      renderizarTabela(cache.itens, cache.tarifas);
+      return;
+    }
+  }
 
   loading.style.display = 'block';
   tableWrap.style.display = 'none';
@@ -705,18 +760,16 @@ async function carregarPainel() {
   progressTxt.textContent = 'Buscando anúncios ativos...';
 
   try {
-    // 1. Busca todos os IDs de anúncios ativos (paginado)
+    // 1. Busca todos os IDs paginado
     let allIds = [];
     let offset = 0;
     const limit = 100;
     let total = null;
-
     do {
-      const res = await mlGet(`/users/${mlSellerId}/items/search?status=active&limit=${limit}&offset=${offset}`);
+      const res = await mlGet('/users/' + mlSellerId + '/items/search?status=active&limit=' + limit + '&offset=' + offset);
       if (!res || res.error) break;
       if (total === null) total = res.paging?.total || 0;
-      const ids = res.results || [];
-      allIds = allIds.concat(ids);
+      allIds = allIds.concat(res.results || []);
       offset += limit;
     } while (allIds.length < total && offset < total);
 
@@ -727,24 +780,23 @@ async function carregarPainel() {
       return;
     }
 
-    progressTxt.textContent = `${allIds.length} anúncios encontrados. Carregando dados...`;
+    progressTxt.textContent = allIds.length + ' anúncios encontrados. Carregando dados...';
 
     // 2. Busca dados em lotes de 20
-    const LOTE = 20;
     let itens = [];
+    const LOTE = 20;
     for (let i = 0; i < allIds.length; i += LOTE) {
       const lote = allIds.slice(i, i + LOTE);
-      const resultados = await Promise.all(lote.map(id => mlGet(`/items/${id}`).catch(() => null)));
+      const resultados = await Promise.all(lote.map(id => mlGet('/items/' + id).catch(() => null)));
       itens = itens.concat(resultados.filter(r => r && !r.error));
-      const pct = Math.round(((i + LOTE) / allIds.length) * 60);
-      progressBar.style.width = Math.min(pct, 60) + '%';
-      progressTxt.textContent = `Carregando itens: ${Math.min(i + LOTE, allIds.length)} / ${allIds.length}`;
+      progressBar.style.width = Math.min(Math.round(((i + LOTE) / allIds.length) * 60), 60) + '%';
+      progressTxt.textContent = 'Carregando itens: ' + Math.min(i + LOTE, allIds.length) + ' / ' + allIds.length;
     }
 
     // 3. Busca tarifas em lotes de 10
     progressTxt.textContent = 'Calculando tarifas...';
-    const LOTE_FEE = 10;
     const tarifas = {};
+    const LOTE_FEE = 10;
     for (let i = 0; i < itens.length; i += LOTE_FEE) {
       const lote = itens.slice(i, i + LOTE_FEE);
       await Promise.all(lote.map(async item => {
@@ -756,7 +808,7 @@ async function carregarPainel() {
             logistic_type: item.shipping?.logistic_type || 'not_specified',
             shipping_modes: item.shipping?.mode || 'not_specified'
           });
-          const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
+          const lp = await mlGet('/sites/MLB/listing_prices?' + params.toString());
           if (lp && lp.sale_fee_amount !== undefined) {
             const freteFixo = lp.sale_fee_details?.fixed_fee || 0;
             tarifas[item.id] = {
@@ -767,16 +819,37 @@ async function carregarPainel() {
           }
         } catch {}
       }));
-      const pct = 60 + Math.round(((i + LOTE_FEE) / itens.length) * 40);
-      progressBar.style.width = Math.min(pct, 99) + '%';
-      progressTxt.textContent = `Calculando tarifas: ${Math.min(i + LOTE_FEE, itens.length)} / ${itens.length}`;
+      progressBar.style.width = Math.min(60 + Math.round(((i + LOTE_FEE) / itens.length) * 40), 99) + '%';
+      progressTxt.textContent = 'Calculando tarifas: ' + Math.min(i + LOTE_FEE, itens.length) + ' / ' + itens.length;
     }
 
+    salvarCache(itens, tarifas);
+    atualizarInfoCache(lerCache());
     progressBar.style.width = '100%';
     loading.style.display = 'none';
+    renderizarTabela(itens, tarifas);
 
-    // 4. Monta a tabela
-    let cGreen = 0, cYellow = 0, cRed = 0, cBlue = 0, cStockDiff = 0;
+  } catch(e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = 'Erro ao carregar: ' + e.message;
+  }
+}
+
+// ── Renderiza a tabela com os dados (cache ou API) ──
+function renderizarTabela(itens, tarifas) {
+  const margemDesejada = parseFloat(document.getElementById('painel-margem').value) || 20;
+  const impostoPct     = parseFloat(document.getElementById('painel-imposto').value) || 0;
+
+  const tableWrap = document.getElementById('painel-table-wrap');
+  const empty     = document.getElementById('painel-empty');
+  const resumo    = document.getElementById('resumo-cards');
+  const tbody     = document.getElementById('painel-tbody');
+
+  tbody.innerHTML = '';
+  empty.style.display = 'none';
+
+  let cGreen = 0, cYellow = 0, cRed = 0, cBlue = 0, cStockDiff = 0;
 
     itens.forEach(item => {
       const preco      = item.price || 0;
@@ -858,21 +931,15 @@ async function carregarPainel() {
       tbody.appendChild(tr);
     });
 
-    // Resumo
-    document.getElementById('rc-total').textContent  = itens.length;
-    document.getElementById('rc-green').textContent  = cGreen;
-    document.getElementById('rc-yellow').textContent = cYellow;
-    document.getElementById('rc-red').textContent    = cRed;
-    document.getElementById('rc-blue').textContent   = cBlue;
-    document.getElementById('rc-stock-diff').textContent = cStockDiff;
-    resumo.style.display = 'grid';
-    tableWrap.style.display = 'block';
 
-  } catch(e) {
-    loading.style.display = 'none';
-    empty.style.display = 'block';
-    empty.textContent = 'Erro ao carregar: ' + e.message;
-  }
+  document.getElementById('rc-total').textContent  = itens.length;
+  document.getElementById('rc-green').textContent  = cGreen;
+  document.getElementById('rc-yellow').textContent = cYellow;
+  document.getElementById('rc-red').textContent    = cRed;
+  document.getElementById('rc-blue').textContent   = cBlue;
+  document.getElementById('rc-stock-diff').textContent = cStockDiff;
+  resumo.style.display = 'grid';
+  tableWrap.style.display = 'block';
 }
 
 // ══════════════════════════════════════════
