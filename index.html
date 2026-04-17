@@ -57,7 +57,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .topbar-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;}
 .topbar-ml .topbar-title{color:var(--ml-dark)}.topbar-sh .topbar-title{color:#fff}
 .topbar-ml .back-btn{color:var(--ml-dark)}.topbar-sh .back-btn{color:#fff}
-.content{max-width:900px;margin:0 auto;padding:1.5rem 1rem;}
+.content{max-width:100%;margin:0 auto;padding:1.5rem 1.5rem;}
 .content-narrow{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
 .sec-label{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray4);margin:1.6rem 0 .7rem;}
 .sec-label:first-child{margin-top:0}
@@ -189,8 +189,8 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .dot-green{background:#38A169;}.dot-yellow{background:#D69E2E;}.dot-red{background:#E53E3E;}.dot-blue{background:#3483FA;}
 
 /* TABELA DE ANÚNCIOS */
-.painel-table-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--shadow);}
-.painel-table{width:100%;border-collapse:collapse;background:#fff;font-size:.82rem;}
+.painel-table-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--shadow);width:100%;}
+.painel-table{width:100%;border-collapse:collapse;background:#fff;font-size:.75rem;table-layout:fixed;}
 .painel-table thead tr{background:var(--ml-dark);color:#fff;}
 .painel-table thead th{padding:.7rem .9rem;text-align:left;font-weight:800;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
 .painel-table tbody tr{border-bottom:1px solid var(--gray2);transition:background .12s;}
@@ -406,16 +406,15 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <table class="painel-table">
         <thead>
           <tr>
-            <th>Anúncio</th>
-            <th>Tipo</th>
-            <th>Preço atual</th>
-            <th>Custo ERP</th>
-            <th>Preço mínimo</th>
-            <th>Preço sugerido</th>
-            <th>Status</th>
-            <th>Estoque ML</th>
-            <th>Estoque ERP</th>
-            <th>Alerta</th>
+            <th style="width:28%;">Anúncio</th>
+            <th style="width:8%;">Tipo</th>
+            <th style="width:11%;">Preço atual</th>
+            <th style="width:10%;">Custo ERP</th>
+            <th style="width:11%;">Preço mínimo</th>
+            <th style="width:14%;">Status</th>
+            <th style="width:6%;text-align:center;">Qtd ML</th>
+            <th style="width:6%;text-align:center;">Qtd ERP</th>
+            <th style="width:6%;">Estoque</th>
           </tr>
         </thead>
         <tbody id="painel-tbody"></tbody>
@@ -851,86 +850,75 @@ function renderizarTabela(itens, tarifas) {
 
   let cGreen = 0, cYellow = 0, cRed = 0, cBlue = 0, cStockDiff = 0;
 
-    itens.forEach(item => {
-      const preco      = item.price || 0;
-      const tipoLabel  = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
-      const tipoCls    = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
-      const freeShip   = item.shipping?.free_shipping || false;
+  itens.forEach(item => {
+    const preco     = item.price || 0;
+    const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+    const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
+    const freeShip  = item.shipping?.free_shipping || false;
 
-      // Custo do ERP — tenta pelo seller_custom_field (SKU) ou pelo id
-      const skuItem = String(item.seller_custom_field || '').trim();
-      const erpItem = erpData[skuItem] || null;
-      const custo   = erpItem ? erpItem.custo : null;
-      const estoqueERP = erpItem ? erpItem.estoque : null;
-      const estoqueML  = item.available_quantity ?? item.initial_quantity ?? null;
+    // SKU pelo atributo PART_NUMBER
+    const partNumber = (item.attributes?.find(a => a.id === 'PART_NUMBER')?.value_name || '').trim();
+    const skuItem    = partNumber || String(item.seller_custom_field || '').trim();
+    const erpItem    = skuItem ? (erpData[skuItem] || null) : null;
+    const custo      = erpItem ? erpItem.custo : null;
+    const estoqueERP = erpItem ? erpItem.estoque : null;
+    const estoqueML  = item.available_quantity ?? null;
 
-      // Tarifa
-      const fee = tarifas[item.id];
-      const comissaoVal = fee ? fee.comissaoVal : null;
-      const freteVal    = freeShip ? (fee ? fee.freteFixo : 0) : 0;
+    // Tarifa
+    const fee         = tarifas[item.id];
+    const comissaoVal = fee ? fee.comissaoVal : null;
+    const freteVal    = freeShip ? (fee ? fee.freteFixo : 0) : 0;
 
-      // Preços mínimo e sugerido (só calcula se tiver custo e tarifa)
-      let precoMin = null, precoSugerido = null, margemAtual = null;
-      if (custo !== null && comissaoVal !== null) {
-        const impVal = preco * (impostoPct / 100);
-        // Preço mínimo = custo / (1 - imposto% - comissão%)
-        const impFrac = impostoPct / 100;
-        const comFrac = comissaoVal / preco; // comissão como fração do preço atual
-        precoMin = (custo + freteVal) / (1 - impFrac - comFrac);
-        // Preço sugerido = custo / (1 - imposto% - comissão% - margem%)
-        const marFrac = margemDesejada / 100;
-        const den = 1 - impFrac - comFrac - marFrac;
-        precoSugerido = den > 0 ? (custo + freteVal) / den : null;
-        // Margem atual
-        const lucroAtual = preco - custo - freteVal - (preco * impFrac) - comissaoVal;
-        margemAtual = preco > 0 ? (lucroAtual / preco) * 100 : 0;
-      }
+    // Cálculo preço mínimo
+    let precoMin = null, margemAtual = null;
+    if (custo !== null && comissaoVal !== null && preco > 0) {
+      const impFrac = impostoPct / 100;
+      const comFrac = comissaoVal / preco;
+      const den     = 1 - impFrac - comFrac;
+      precoMin      = den > 0 ? (custo + freteVal) / den : null;
+      const lucroAtual = preco - custo - freteVal - (preco * impFrac) - comissaoVal;
+      margemAtual = (lucroAtual / preco) * 100;
+    }
 
-      // Status de cor
-      let statusLabel = '—', statusCls = '';
-      if (margemAtual !== null) {
-        if (margemAtual < 0) { statusLabel = 'Abaixo do mínimo'; statusCls = 'status-red'; cRed++; }
-        else if (margemAtual < margemDesejada) { statusLabel = 'Margem apertada'; statusCls = 'status-yellow'; cYellow++; }
-        else if (margemAtual >= margemDesejada * 1.5) { statusLabel = 'Muito acima'; statusCls = 'status-blue'; cBlue++; }
-        else { statusLabel = 'Dentro da margem'; statusCls = 'status-green'; cGreen++; }
-      }
+    // Status de cor
+    let statusLabel = '—', statusCls = '';
+    if (margemAtual !== null) {
+      if (margemAtual < 0)                          { statusLabel = 'Abaixo do mínimo'; statusCls = 'status-red';    cRed++;    }
+      else if (margemAtual < margemDesejada)         { statusLabel = 'Margem apertada';  statusCls = 'status-yellow'; cYellow++; }
+      else if (margemAtual >= margemDesejada * 1.5)  { statusLabel = 'Muito acima';      statusCls = 'status-blue';   cBlue++;   }
+      else                                           { statusLabel = 'Dentro da margem'; statusCls = 'status-green';  cGreen++;  }
+    }
 
-      // Alerta de estoque
-      let stockAlert = '', stockCls = 'stock-na';
-      if (estoqueERP !== null && estoqueML !== null) {
-        if (estoqueERP === estoqueML) { stockAlert = '✓ OK'; stockCls = 'stock-ok'; }
-        else { stockAlert = `⚠ ERP: ${estoqueERP} / ML: ${estoqueML}`; stockCls = 'stock-diff'; cStockDiff++; }
-      } else {
-        stockAlert = 'Sem ERP';
-      }
+    // Alerta de estoque
+    let stockAlert = 'Sem ERP', stockCls = 'stock-na';
+    if (estoqueERP !== null && estoqueML !== null) {
+      if (estoqueERP === estoqueML) { stockAlert = '✓ OK'; stockCls = 'stock-ok'; }
+      else { stockAlert = 'ERP:' + estoqueERP + ' ML:' + estoqueML; stockCls = 'stock-diff'; cStockDiff++; }
+    }
 
-      // Classe do preço atual
-      let precoCls = '';
-      if (margemAtual !== null) {
-        if (margemAtual < 0) precoCls = 'preco-atual-low';
-        else if (margemAtual >= margemDesejada * 1.5) precoCls = 'preco-atual-high';
-        else precoCls = 'preco-atual-ok';
-      }
+    // Cor do preço atual
+    let precoCls = '';
+    if (margemAtual !== null) {
+      if (margemAtual < 0) precoCls = 'preco-atual-low';
+      else if (margemAtual >= margemDesejada * 1.5) precoCls = 'preco-atual-high';
+      else precoCls = 'preco-atual-ok';
+    }
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>
-          <div style="font-weight:800;font-size:.82rem;color:var(--text);max-width:220px;line-height:1.3;">${item.title}</div>
-          <div style="font-size:.7rem;color:var(--gray4);margin-top:2px;">${item.id}${skuItem ? ' · SKU: '+skuItem : ''}</div>
-        </td>
-        <td><span class="anuncio-badge ${tipoCls}">${tipoLabel}</span></td>
-        <td class="${precoCls}">${brl(preco)}${margemAtual !== null ? '<br><span style="font-size:.7rem;color:var(--gray4);font-weight:700;">'+pct(margemAtual)+' margem</span>' : ''}</td>
-        <td>${custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.75rem;">Sem ERP</span>'}</td>
-        <td class="preco-minimo">${precoMin !== null ? brl(precoMin) : '—'}</td>
-        <td style="color:var(--green);font-weight:800;">${precoSugerido !== null ? brl(precoSugerido) : '—'}</td>
-        <td>${statusLabel !== '—' ? `<span class="status-pill ${statusCls}">${statusLabel}</span>` : '—'}</td>
-        <td style="font-weight:700;">${estoqueML !== null ? estoqueML : '—'}</td>
-        <td style="font-weight:700;">${estoqueERP !== null ? estoqueERP : '—'}</td>
-        <td><span class="stock-alert ${stockCls}">${stockAlert}</span></td>
-      `;
-      tbody.appendChild(tr);
-    });
-
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><div style="font-weight:800;font-size:.78rem;color:var(--text);line-height:1.3;max-width:180px;">' + item.title + '</div>' +
+        '<div style="font-size:.68rem;color:var(--gray4);margin-top:2px;">' + item.id + (skuItem ? ' · ' + skuItem : '') + '</div></td>' +
+      '<td><span class="anuncio-badge ' + tipoCls + '">' + tipoLabel + '</span></td>' +
+      '<td class="' + precoCls + '" style="white-space:nowrap;">' + brl(preco) +
+        (margemAtual !== null ? '<br><span style="font-size:.68rem;color:var(--gray4);font-weight:700;">' + pct(margemAtual) + '</span>' : '') + '</td>' +
+      '<td style="font-weight:700;white-space:nowrap;">' + (custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.72rem;">Sem ERP</span>') + '</td>' +
+      '<td style="font-weight:800;white-space:nowrap;">' + (precoMin !== null ? brl(precoMin) : '—') + '</td>' +
+      '<td>' + (statusLabel !== '—' ? '<span class="status-pill ' + statusCls + '">' + statusLabel + '</span>' : '—') + '</td>' +
+      '<td style="font-weight:700;text-align:center;">' + (estoqueML !== null ? estoqueML : '—') + '</td>' +
+      '<td style="font-weight:700;text-align:center;">' + (estoqueERP !== null ? estoqueERP : '—') + '</td>' +
+      '<td><span class="stock-alert ' + stockCls + '">' + stockAlert + '</span></td>';
+    tbody.appendChild(tr);
+  });
 
   document.getElementById('rc-total').textContent  = itens.length;
   document.getElementById('rc-green').textContent  = cGreen;
