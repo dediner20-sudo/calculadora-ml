@@ -689,7 +689,7 @@ function carregarERP(input) {
 // ══════════════════════════════════════════
 // CACHE — localStorage
 // ══════════════════════════════════════════
-const CACHE_KEY = 'ml_painel_cache_v1';
+const CACHE_KEY = 'ml_painel_cache_v2';
 
 function salvarCache(itens, tarifas) {
   try {
@@ -809,11 +809,19 @@ async function carregarPainel(forcarAtualizacao = false) {
           });
           const lp = await mlGet('/sites/MLB/listing_prices?' + params.toString());
           if (lp && lp.sale_fee_amount !== undefined) {
-            const freteFixo = lp.sale_fee_details?.fixed_fee || 0;
-            tarifas[item.id] = {
-              comissaoVal: lp.sale_fee_amount - freteFixo,
-              comissaoPct: lp.sale_fee_details?.percentage_fee || 0,
-              freteFixo
+            const freteFixo   = lp.sale_fee_details?.fixed_fee || 0;
+            const comissaoVal = lp.sale_fee_amount - freteFixo;
+            const comissaoPct = lp.sale_fee_details?.percentage_fee || 0;
+            // Frete real via shipping_options/free — igual calculadora individual
+            let freteReal = 0;
+            if (item.shipping?.free_shipping) {
+              try {
+                const sr = await mlGet('/users/' + mlSellerId + '/shipping_options/free?item_id=' + item.id);
+                if (sr?.coverage?.all_country?.list_cost) freteReal = sr.coverage.all_country.list_cost;
+                else if (freteFixo > 0) freteReal = freteFixo;
+              } catch { freteReal = freteFixo; }
+            }
+            tarifas[item.id] = { comissaoVal, comissaoPct, freteFixo, freteReal
             };
           }
         } catch {}
@@ -869,17 +877,15 @@ function renderizarTabela(itens, tarifas) {
     const estoqueML  = item.available_quantity ?? null;
 
     // ── MESMA LOGICA DA CALCULADORA INDIVIDUAL ──
-    // fee vem do cache — ja foi buscado via /sites/MLB/listing_prices
+    // fee vem do cache — inclui freteReal buscado via shipping_options/free
     const fee = tarifas[item.id];
 
-    // tarifaVal = sale_fee_amount - fixed_fee  (igual processarCalculo)
-    const freteFixo  = fee ? (fee.freteFixo || 0) : 0;
     const tarifaVal  = fee ? fee.comissaoVal : null;
     const tarifaPct  = fee ? fee.comissaoPct : null;
     const tarifaOk   = tarifaVal !== null;
 
-    // freteVal: se frete gratis, usa freteFixo do cache (mesmo resultado do shipping_options/free)
-    const freteVal   = freeShip ? freteFixo : 0;
+    // freteReal = frete real do vendedor (mesmo endpoint da calculadora individual)
+    const freteVal   = freeShip ? (fee ? (fee.freteReal || fee.freteFixo || 0) : 0) : 0;
 
     // imposto sobre o preco de venda (igual processarCalculo)
     const impVal     = preco * (impostoPct / 100);
