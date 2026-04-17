@@ -346,14 +346,14 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       <div class="field" style="min-width:160px;">
         <label>Margem desejada (%)</label>
         <div class="field-row has-suffix">
-          <input type="number" id="painel-margem" placeholder="ex: 20" min="0" max="100" step="1" value="20"/>
+          <input type="number" id="painel-margem" placeholder="ex: 20" min="0" max="100" step="1" value="20" oninput="recalcularPainel()"/>
           <span class="suffix">%</span>
         </div>
       </div>
       <div class="field" style="min-width:160px;">
         <label>Imposto sobre venda (%)</label>
         <div class="field-row has-suffix">
-          <input type="number" id="painel-imposto" placeholder="ex: 12" min="0" max="100" step="0.1"/>
+          <input type="number" id="painel-imposto" placeholder="ex: 12" min="0" max="100" step="0.1" oninput="recalcularPainel()"/>
           <span class="suffix">%</span>
         </div>
       </div>
@@ -410,7 +410,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
             <th style="width:8%;">Tipo</th>
             <th style="width:11%;">Preço atual</th>
             <th style="width:10%;">Custo ERP</th>
-            <th style="width:11%;">Preço mínimo</th>
+            <th style="width:13%;">Mínimo c/ meta / Dif.</th>
             <th style="width:14%;">Status</th>
             <th style="width:6%;text-align:center;">Qtd ML</th>
             <th style="width:6%;text-align:center;">Qtd ERP</th>
@@ -836,6 +836,7 @@ async function carregarPainel(forcarAtualizacao = false) {
 }
 
 // ── Renderiza a tabela com os dados (cache ou API) ──
+// Chamada também ao mudar margem/imposto — sem nova chamada à API
 function renderizarTabela(itens, tarifas) {
   const margemDesejada = parseFloat(document.getElementById('painel-margem').value) || 20;
   const impostoPct     = parseFloat(document.getElementById('painel-imposto').value) || 0;
@@ -845,6 +846,10 @@ function renderizarTabela(itens, tarifas) {
   const resumo    = document.getElementById('resumo-cards');
   const tbody     = document.getElementById('painel-tbody');
 
+  // Guarda referência global para recalcular sem API
+  window._painelItens   = itens;
+  window._painelTarifas = tarifas;
+
   tbody.innerHTML = '';
   empty.style.display = 'none';
 
@@ -852,11 +857,11 @@ function renderizarTabela(itens, tarifas) {
 
   itens.forEach(item => {
     const preco     = item.price || 0;
-    const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico';
+    const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Classico';
     const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
     const freeShip  = item.shipping?.free_shipping || false;
 
-    // SKU pelo atributo PART_NUMBER
+    // SKU pelo atributo PART_NUMBER (campo "Numero de peca" do ML)
     const partNumber = (item.attributes?.find(a => a.id === 'PART_NUMBER')?.value_name || '').trim();
     const skuItem    = partNumber || String(item.seller_custom_field || '').trim();
     const erpItem    = skuItem ? (erpData[skuItem] || null) : null;
@@ -864,39 +869,54 @@ function renderizarTabela(itens, tarifas) {
     const estoqueERP = erpItem ? erpItem.estoque : null;
     const estoqueML  = item.available_quantity ?? null;
 
-    // Tarifa
+    // Tarifa e frete reais da API (mesmo calculo da calculadora individual)
     const fee         = tarifas[item.id];
-    const comissaoVal = fee ? fee.comissaoVal : null;
+    const comissaoVal = fee ? fee.comissaoVal : null;  // comissao em R$ real
+    const comissaoPct = fee ? fee.comissaoPct : null;  // % real da categoria
     const freteVal    = freeShip ? (fee ? fee.freteFixo : 0) : 0;
 
-    // Cálculo preço mínimo
+    // Calculo usando os dados reais da API — igual a calculadora individual
     let precoMin = null, margemAtual = null;
     if (custo !== null && comissaoVal !== null && preco > 0) {
       const impFrac = impostoPct / 100;
-      const comFrac = comissaoVal / preco;
-      const den     = 1 - impFrac - comFrac;
-      precoMin      = den > 0 ? (custo + freteVal) / den : null;
+      // Margem atual real
       const lucroAtual = preco - custo - freteVal - (preco * impFrac) - comissaoVal;
       margemAtual = (lucroAtual / preco) * 100;
+
+      // Preco minimo: custo + frete coberto, sem prejuizo (margem = 0)
+      // P = (custo + freteVal) / (1 - impFrac - comissaoPct/100)
+      const comFrac = comissaoPct !== null ? comissaoPct / 100 : comissaoVal / preco;
+      const den = 1 - impFrac - comFrac;
+      precoMin = den > 0 ? (custo + freteVal) / den : null;
     }
 
-    // Status de cor
+    // Preco minimo com margem desejada
+    let precoMeta = null;
+    if (custo !== null && comissaoVal !== null) {
+      const impFrac = impostoPct / 100;
+      const comFrac = comissaoPct !== null ? comissaoPct / 100 : comissaoVal / preco;
+      const marFrac = margemDesejada / 100;
+      const den = 1 - impFrac - comFrac - marFrac;
+      precoMeta = den > 0 ? (custo + freteVal) / den : null;
+    }
+
+    // Status de cor baseado na margem atual vs meta
     let statusLabel = '—', statusCls = '';
     if (margemAtual !== null) {
-      if (margemAtual < 0)                          { statusLabel = 'Abaixo do mínimo'; statusCls = 'status-red';    cRed++;    }
-      else if (margemAtual < margemDesejada)         { statusLabel = 'Margem apertada';  statusCls = 'status-yellow'; cYellow++; }
-      else if (margemAtual >= margemDesejada * 1.5)  { statusLabel = 'Muito acima';      statusCls = 'status-blue';   cBlue++;   }
-      else                                           { statusLabel = 'Dentro da margem'; statusCls = 'status-green';  cGreen++;  }
+      if (margemAtual < 0)                          { statusLabel = 'Abaixo minimo';   statusCls = 'status-red';    cRed++;    }
+      else if (margemAtual < margemDesejada)         { statusLabel = 'Margem apertada'; statusCls = 'status-yellow'; cYellow++; }
+      else if (margemAtual >= margemDesejada * 1.5)  { statusLabel = 'Muito acima';     statusCls = 'status-blue';   cBlue++;   }
+      else                                           { statusLabel = 'Dentro da meta';  statusCls = 'status-green';  cGreen++;  }
     }
 
     // Alerta de estoque
     let stockAlert = 'Sem ERP', stockCls = 'stock-na';
     if (estoqueERP !== null && estoqueML !== null) {
-      if (estoqueERP === estoqueML) { stockAlert = '✓ OK'; stockCls = 'stock-ok'; }
-      else { stockAlert = 'ERP:' + estoqueERP + ' ML:' + estoqueML; stockCls = 'stock-diff'; cStockDiff++; }
+      if (estoqueERP === estoqueML) { stockAlert = 'OK'; stockCls = 'stock-ok'; }
+      else { stockAlert = 'ERP:' + estoqueERP + ' x ML:' + estoqueML; stockCls = 'stock-diff'; cStockDiff++; }
     }
 
-    // Cor do preço atual
+    // Cor do preco atual
     let precoCls = '';
     if (margemAtual !== null) {
       if (margemAtual < 0) precoCls = 'preco-atual-low';
@@ -904,15 +924,24 @@ function renderizarTabela(itens, tarifas) {
       else precoCls = 'preco-atual-ok';
     }
 
+    // Diferenca entre preco atual e preco minimo com meta
+    let diffLabel = '';
+    if (precoMeta !== null && preco > 0) {
+      const diff = preco - precoMeta;
+      diffLabel = diff >= 0
+        ? '<span style="color:var(--green);font-size:.68rem;font-weight:700;">+' + brl(diff) + '</span>'
+        : '<span style="color:var(--red);font-size:.68rem;font-weight:700;">' + brl(diff) + '</span>';
+    }
+
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td><div style="font-weight:800;font-size:.78rem;color:var(--text);line-height:1.3;max-width:180px;">' + item.title + '</div>' +
-        '<div style="font-size:.68rem;color:var(--gray4);margin-top:2px;">' + item.id + (skuItem ? ' · ' + skuItem : '') + '</div></td>' +
+      '<td><div style="font-weight:800;font-size:.76rem;color:var(--text);line-height:1.3;">' + item.title + '</div>' +
+        '<div style="font-size:.67rem;color:var(--gray4);margin-top:1px;">' + item.id + (skuItem ? ' · ' + skuItem : '') + '</div></td>' +
       '<td><span class="anuncio-badge ' + tipoCls + '">' + tipoLabel + '</span></td>' +
-      '<td class="' + precoCls + '" style="white-space:nowrap;">' + brl(preco) +
-        (margemAtual !== null ? '<br><span style="font-size:.68rem;color:var(--gray4);font-weight:700;">' + pct(margemAtual) + '</span>' : '') + '</td>' +
+      '<td class="' + precoCls + '" style="white-space:nowrap;font-weight:800;">' + brl(preco) +
+        (margemAtual !== null ? '<br><span style="font-size:.68rem;color:var(--gray4);font-weight:600;">' + pct(margemAtual) + ' margem</span>' : '') + '</td>' +
       '<td style="font-weight:700;white-space:nowrap;">' + (custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.72rem;">Sem ERP</span>') + '</td>' +
-      '<td style="font-weight:800;white-space:nowrap;">' + (precoMin !== null ? brl(precoMin) : '—') + '</td>' +
+      '<td style="font-weight:800;white-space:nowrap;">' + (precoMeta !== null ? brl(precoMeta) + '<br>' + diffLabel : '—') + '</td>' +
       '<td>' + (statusLabel !== '—' ? '<span class="status-pill ' + statusCls + '">' + statusLabel + '</span>' : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueML !== null ? estoqueML : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueERP !== null ? estoqueERP : '—') + '</td>' +
@@ -928,6 +957,13 @@ function renderizarTabela(itens, tarifas) {
   document.getElementById('rc-stock-diff').textContent = cStockDiff;
   resumo.style.display = 'grid';
   tableWrap.style.display = 'block';
+}
+
+// Recalcula na tela sem chamar API — chamado ao mudar margem ou imposto
+function recalcularPainel() {
+  if (window._painelItens && window._painelTarifas) {
+    renderizarTabela(window._painelItens, window._painelTarifas);
+  }
 }
 
 // ══════════════════════════════════════════
