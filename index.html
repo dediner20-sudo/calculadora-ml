@@ -222,6 +222,9 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .resumo-card{background:#fff;border-radius:12px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .resumo-card .rc-label{font-size:.72rem;font-weight:700;color:var(--gray4);margin-bottom:.3rem;}
 .resumo-card .rc-value{font-size:1.4rem;font-weight:800;font-family:'DM Sans',sans-serif;}
+.filtro-btn{padding:.35rem .85rem;border:2px solid var(--gray2);border-radius:20px;background:#fff;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--gray4);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.filtro-btn:hover{border-color:var(--ml-blue);color:var(--ml-blue);}
+.filtro-btn.active{border-color:var(--ml-blue);background:var(--ml-blue);color:#fff;}
 .rc-green{color:var(--green);}
 .rc-yellow{color:#D69E2E;}
 .rc-red{color:var(--red);}
@@ -388,11 +391,22 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
     </div>
 
     <!-- LEGENDA -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">
+      <span style="font-size:.75rem;font-weight:800;color:var(--gray4);margin-right:.25rem;">FILTRAR:</span>
+      <button class="filtro-btn active" data-filtro="todos" onclick="setFiltro('todos')">Todos</button>
+      <button class="filtro-btn" data-filtro="green" onclick="setFiltro('green')">✓ Dentro da margem</button>
+      <button class="filtro-btn" data-filtro="yellow" onclick="setFiltro('yellow')">⚠ Margem apertada</button>
+      <button class="filtro-btn" data-filtro="red" onclick="setFiltro('red')">✕ Abaixo do mínimo</button>
+      <button class="filtro-btn" data-filtro="blue" onclick="setFiltro('blue')">↑ Muito acima</button>
+      <button class="filtro-btn" data-filtro="stock" onclick="setFiltro('stock')">⚡ Estoque divergente</button>
+      <button class="filtro-btn" data-filtro="noerp" onclick="setFiltro('noerp')">? Sem ERP</button>
+      <input type="text" id="filtro-busca" placeholder="Buscar por título ou SKU..." oninput="setFiltro(window._filtroAtivo)" style="margin-left:.5rem;padding:.4rem .75rem;font-family:Nunito,sans-serif;font-size:.8rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;outline:none;min-width:200px;"/>
+    </div>
     <div class="legenda">
       <div class="legenda-item"><div class="legenda-dot dot-green"></div>Dentro da margem</div>
-      <div class="legenda-item"><div class="legenda-dot dot-yellow"></div>Margem apertada (0% a meta)</div>
+      <div class="legenda-item"><div class="legenda-dot dot-yellow"></div>Margem apertada</div>
       <div class="legenda-item"><div class="legenda-dot dot-red"></div>Abaixo do mínimo</div>
-      <div class="legenda-item"><div class="legenda-dot dot-blue"></div>Muito acima (pode baixar)</div>
+      <div class="legenda-item"><div class="legenda-dot dot-blue"></div>Muito acima</div>
     </div>
 
     <!-- TABELA -->
@@ -412,6 +426,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
             <th style="width:8%;">Custo ERP</th>
             <th style="width:16%;">Comissão · Frete · Imposto</th>
             <th style="width:9%;">Preço mínimo</th>
+            <th style="width:9%;">Vender por</th>
             <th style="width:11%;">Status</th>
             <th style="width:5%;text-align:center;">Qtd ML</th>
             <th style="width:5%;text-align:center;">Qtd ERP</th>
@@ -946,7 +961,39 @@ function renderizarTabela(itens, tarifas) {
       ? custo + freteVal + impValAtual + tarifaVal
       : null;
 
+    // Preço alvo = preço que deve cobrar para atingir a margem desejada
+    // Resolve: lucro/P = marFrac → P*(1 - impFrac - comFrac - marFrac) = custo + freteVal
+    let precoAlvo = null;
+    if (custo !== null && tarifaOk && preco > 0) {
+      const impFrac = impostoPct / 100;
+      const comFrac = tarifaPct / 100;
+      const marFrac = margemDesejada / 100;
+      const den = 1 - impFrac - comFrac - marFrac;
+      if (den > 0) {
+        precoAlvo = (custo + freteVal) / den;
+        // Se precoAlvo menor que precoMinReal, usa precoMinReal
+        if (precoMinReal !== null && precoAlvo < precoMinReal) precoAlvo = precoMinReal;
+      }
+    }
+
+    // Diferença preço atual vs alvo
+    const diffAlvo = (precoAlvo !== null) ? preco - precoAlvo : null;
+    const diffAlvoLabel = diffAlvo !== null
+      ? (diffAlvo >= 0
+          ? '<br><span style="font-size:.68rem;font-weight:700;color:#22543D;">+' + brl(diffAlvo) + ' acima</span>'
+          : '<br><span style="font-size:.68rem;font-weight:700;color:#C53030;">' + brl(Math.abs(diffAlvo)) + ' abaixo</span>')
+      : ''
+
+    // data attributes para filtro
+    const trStockDiff = (estoqueERP !== null && estoqueML !== null && estoqueERP !== estoqueML);
+    const trNoErp     = custo === null;
+    const trStatus    = statusCls.replace('status-','') || 'nodata';
+
     const tr = document.createElement('tr');
+    tr.dataset.status = trStatus;
+    tr.dataset.stock  = trStockDiff ? 'diff' : 'ok';
+    tr.dataset.noerp  = trNoErp ? '1' : '0';
+    tr.dataset.search = (item.title + ' ' + item.id + ' ' + skuItem).toLowerCase();
     tr.innerHTML =
       '<td><div style="font-weight:800;font-size:.76rem;line-height:1.3;">' + item.title + '</div>' +
         '<div style="font-size:.67rem;color:var(--gray4);margin-top:1px;">' + item.id + (skuItem ? ' · ' + skuItem : '') + '</div></td>' +
@@ -960,6 +1007,7 @@ function renderizarTabela(itens, tarifas) {
         'Imp: ' + detImposto +
       '</td>' +
       '<td style="font-weight:800;white-space:nowrap;">' + (precoMinReal !== null ? brl(precoMinReal) : '—') + '</td>' +
+      '<td style="font-weight:800;white-space:nowrap;">' + (precoAlvo !== null ? brl(precoAlvo) + diffAlvoLabel : '—') + '</td>' +
       '<td>' + (statusLabel !== '—' ? '<span class="status-pill ' + statusCls + '">' + statusLabel + '</span>' : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueML !== null ? estoqueML : '—') + '</td>' +
       '<td style="font-weight:700;text-align:center;">' + (estoqueERP !== null ? estoqueERP : '—') + '</td>' +
@@ -975,6 +1023,53 @@ function renderizarTabela(itens, tarifas) {
   document.getElementById('rc-stock-diff').textContent = cStockDiff;
   resumo.style.display = 'grid';
   tableWrap.style.display = 'block';
+  // Reaplicar filtro ativo após renderização
+  if (window._filtroAtivo) filtrarTabela();
+}
+
+// ── Filtros ──
+window._filtroAtivo = 'todos';
+
+function setFiltro(filtro) {
+  window._filtroAtivo = filtro;
+
+  // Atualiza botões ativos
+  document.querySelectorAll('.filtro-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filtro === filtro);
+  });
+
+  filtrarTabela();
+}
+
+function filtrarTabela() {
+  const filtro = window._filtroAtivo;
+  const busca  = (document.getElementById('filtro-busca')?.value || '').toLowerCase().trim();
+  const rows   = document.querySelectorAll('#painel-tbody tr');
+  let visiveis = 0;
+
+  rows.forEach(tr => {
+    let mostrar = true;
+
+    // Filtro por status
+    if (filtro === 'green')  mostrar = tr.dataset.status === 'green';
+    else if (filtro === 'yellow') mostrar = tr.dataset.status === 'yellow';
+    else if (filtro === 'red')    mostrar = tr.dataset.status === 'red';
+    else if (filtro === 'blue')   mostrar = tr.dataset.status === 'blue';
+    else if (filtro === 'stock')  mostrar = tr.dataset.stock === 'diff';
+    else if (filtro === 'noerp')  mostrar = tr.dataset.noerp === '1';
+
+    // Filtro por busca de texto
+    if (mostrar && busca) {
+      mostrar = tr.dataset.search && tr.dataset.search.includes(busca);
+    }
+
+    tr.style.display = mostrar ? '' : 'none';
+    if (mostrar) visiveis++;
+  });
+
+  // Atualiza contador
+  const total = document.getElementById('rc-total');
+  if (total) total.textContent = visiveis + (filtro !== 'todos' || busca ? ' (filtrado)' : '');
 }
 
 // Recalcula na tela sem chamar API — ao mudar margem ou imposto
