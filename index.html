@@ -794,7 +794,7 @@ async function carregarPainel() {
       // Tarifa
       const fee = tarifas[item.id];
       const comissaoVal = fee ? fee.comissaoVal : null;
-      const freteVal    = freeShipping ? (fee ? fee.freteFixo : 0) : 0;
+      const freteVal    = freeShip ? (fee ? fee.freteFixo : 0) : 0;
 
       // Preços mínimo e sugerido (só calcula se tiver custo e tarifa)
       let precoMin = null, precoSugerido = null, margemAtual = null;
