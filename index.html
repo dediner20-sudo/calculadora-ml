@@ -20,45 +20,86 @@
 }
 body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:var(--text);}
 
-/* HOME */
+/* ── LAYOUT ── */
+.screen{display:none;min-height:100vh;padding:0 0 3rem;}
+.screen.active{display:block}
+.topbar{padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);}
+.topbar-dark{background:rgba(26,26,46,0.96);border-bottom:1px solid rgba(255,255,255,0.08);}
+.topbar-dark .topbar-title{color:#fff;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;}
+.topbar-dark .back-btn{color:#fff;}
+.topbar-ml{background:rgba(255,230,0,0.92);border-bottom:1px solid rgba(0,0,0,0.06);}
+.topbar-ml .topbar-title{color:var(--ml-dark);font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;}
+.topbar-ml .back-btn{color:var(--ml-dark);}
+.topbar-sh{background:rgba(238,77,45,0.93);border-bottom:1px solid rgba(0,0,0,0.06);}
+.topbar-sh .topbar-title{color:#fff;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;}
+.topbar-sh .back-btn{color:#fff;}
+.back-btn{background:rgba(255,255,255,.25);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:background .15s;flex-shrink:0;}
+.back-btn:hover{background:rgba(255,255,255,.4)}
+.content{max-width:1100px;margin:0 auto;padding:1.5rem 1.5rem;}
+.content-narrow{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
+
+/* ── HOME ── */
 #home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 1rem 2rem;background:#F0F0F6;position:relative;overflow:hidden;}
 #home::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(52,131,250,0.07),transparent 70%);top:-200px;left:-200px;pointer-events:none;}
 #home::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(238,77,45,0.07),transparent 70%);bottom:-150px;right:-150px;pointer-events:none;}
 .home-title{font-family:'DM Sans',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;text-align:center;color:var(--text);margin-bottom:.4rem;letter-spacing:-0.03em;}
 .home-sub{font-size:.95rem;color:var(--gray4);font-weight:600;text-align:center;margin-bottom:3rem;margin-top:2.5rem;letter-spacing:.02em;text-transform:uppercase;}
 .cards-row{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;}
-.platform-card{width:260px;background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;border:2px solid transparent;}
+.platform-card{width:240px;background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;border:2px solid transparent;}
 .platform-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 20px 50px rgba(0,0,0,0.14);}
-.card-header{height:130px;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.card-header{height:110px;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
 .card-ml .card-header{background:var(--ml-yellow);}
 .card-sh .card-header{background:var(--sh-orange);}
 .card-painel .card-header{background:linear-gradient(135deg,#1A1A2E,#3483FA);}
-.logo-ml{width:160px;height:auto}.logo-sh{width:130px;height:auto}
-.card-body{padding:1.4rem 1.5rem 1.6rem;border-top:1px solid var(--gray2);}
-.card-body h3{font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.35rem;}
-.card-body p{font-size:.82rem;color:var(--gray4);font-weight:600;line-height:1.5;margin-bottom:1rem;}
-.card-btn{display:block;width:100%;padding:.65rem;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;cursor:pointer;transition:opacity .15s,transform .12s;}
+.card-gestao .card-header{background:linear-gradient(135deg,#2D3748,#4A5568);}
+.logo-ml{width:140px;height:auto}.logo-sh{width:120px;height:auto}
+.card-body{padding:1.2rem 1.4rem 1.4rem;border-top:1px solid var(--gray2);}
+.card-body h3{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:800;margin-bottom:.3rem;}
+.card-body p{font-size:.78rem;color:var(--gray4);font-weight:600;line-height:1.5;margin-bottom:.9rem;}
+.card-btn{display:block;width:100%;padding:.6rem;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;transition:opacity .15s,transform .12s;}
 .card-btn:active{transform:scale(.97);opacity:.9}
 .card-ml .card-btn{background:var(--ml-blue);color:#fff;}
 .card-sh .card-btn{background:var(--sh-orange);color:#fff;}
 .card-painel .card-btn{background:#1A1A2E;color:#fff;}
+.card-gestao .card-btn{background:#4A5568;color:#fff;}
 
-/* SCREEN */
-.screen{display:none;min-height:100vh;padding:0 0 3rem;}
-.screen.active{display:block}
-.topbar{padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);}
-.topbar-ml{background:rgba(255,230,0,0.92);border-bottom:1px solid rgba(0,0,0,0.06);}
-.topbar-sh{background:rgba(238,77,45,0.93);border-bottom:1px solid rgba(0,0,0,0.06);}
-.topbar-painel{background:rgba(26,26,46,0.95);border-bottom:1px solid rgba(255,255,255,0.08);}
-.topbar-painel .topbar-title{color:#fff;}
-.topbar-painel .back-btn{color:#fff;}
-.back-btn{background:rgba(255,255,255,.35);border:none;border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:background .15s;flex-shrink:0;}
-.back-btn:hover{background:rgba(255,255,255,.5)}
-.topbar-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;}
-.topbar-ml .topbar-title{color:var(--ml-dark)}.topbar-sh .topbar-title{color:#fff}
-.topbar-ml .back-btn{color:var(--ml-dark)}.topbar-sh .back-btn{color:#fff}
-.content{max-width:100%;margin:0 auto;padding:1.5rem 1.5rem;}
-.content-narrow{max-width:580px;margin:0 auto;padding:1.5rem 1rem;}
+/* ── BANNER ── */
+.banner{width:100%;background:linear-gradient(100deg,#1346B0 0%,#1A6FFF 55%,#0FA3FF 100%);overflow:hidden;position:relative;flex-shrink:0;}
+.banner-inner{max-width:900px;margin:0 auto;padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative;z-index:1;}
+.banner-left{display:flex;align-items:center;gap:.9rem;}
+.banner-icon{width:40px;height:40px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;}
+.banner-headline{font-family:'DM Sans',sans-serif;font-size:clamp(.95rem,2.5vw,1.1rem);font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.2;}
+.banner-sub{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7);margin-top:.15rem;}
+.banner-badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:.3rem .85rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;color:#fff;white-space:nowrap;flex-shrink:0;}
+
+/* ── MODAL ── */
+#modal-cred{display:none;position:fixed;inset:0;z-index:200;background:rgba(20,20,40,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;}
+#modal-cred.open{display:flex}
+.modal-box{background:#fff;border-radius:22px;padding:2rem 1.75rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:popIn .28s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:1.2rem;}
+.modal-logo-badge{width:42px;height:42px;background:var(--ml-yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:900;color:var(--ml-dark);}
+.modal-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;}
+.modal-sub{font-size:.78rem;color:var(--gray4);font-weight:600;margin-top:.1rem;}
+.modal-field{margin-bottom:.85rem;}
+.modal-field label{display:block;font-size:.78rem;font-weight:700;color:#555;margin-bottom:.3rem;}
+.modal-field input,.modal-field select{width:100%;padding:.65rem .75rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color .15s;}
+.modal-field input:focus,.modal-field select:focus{border-color:var(--ml-blue)}
+.modal-btn{width:100%;padding:.85rem;border:none;border-radius:12px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-top:.5rem;box-shadow:0 4px 20px rgba(52,131,250,.35);}
+.modal-btn:disabled{opacity:.5;cursor:not-allowed}
+.modal-btn-secondary{width:100%;padding:.7rem;border:2px solid var(--gray2);border-radius:12px;background:transparent;color:var(--gray4);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;margin-top:.5rem;}
+.modal-status{margin-top:.75rem;font-size:.82rem;font-weight:700;text-align:center;min-height:18px;}
+.modal-status.ok{color:#22543D}.modal-status.err{color:#C53030}.modal-status.loading{color:var(--gray4)}
+.modal-security-note{background:#F7F7F9;border-radius:10px;padding:.65rem .85rem;margin-top:1rem;font-size:.75rem;color:var(--gray4);font-weight:600;line-height:1.55;}
+
+/* ── PILL ── */
+.api-pill{margin-left:auto;display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.2);border-radius:20px;padding:.25rem .75rem;font-size:.75rem;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif;color:#fff;transition:background .15s;}
+.api-pill-dark{color:var(--ml-dark);background:rgba(0,0,0,.08);}
+.api-pill:hover{background:rgba(255,255,255,.35)}
+.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.pill-dot.green{background:#38A169}.pill-dot.gray{background:#aaa}.pill-dot.yellow{background:#D69E2E}
+
+/* ── CAMPOS ── */
 .sec-label{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray4);margin:1.6rem 0 .7rem;}
 .sec-label:first-child{margin-top:0}
 .field{margin-bottom:.8rem;}
@@ -69,15 +110,18 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .field input{width:100%;padding:.65rem .75rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color .15s;-moz-appearance:textfield;}
 .field input::-webkit-inner-spin-button,.field input::-webkit-outer-spin-button{-webkit-appearance:none}
 .has-prefix input{padding-left:28px}.has-suffix input{padding-right:28px}
-.field input:focus{border-color:var(--accent)}
-.ml-screen{--accent:var(--ml-blue)}.sh-screen{--accent:var(--sh-orange)}
-.calc-btn{width:100%;padding:.9rem;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:1.2rem;letter-spacing:.01em;transition:opacity .15s,transform .12s,box-shadow .15s;}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
+@media(max-width:400px){.fields-grid{grid-template-columns:1fr}}
+.calc-btn{width:100%;padding:.9rem;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:1.2rem;transition:opacity .15s,transform .12s,box-shadow .15s;}
 .calc-btn:active{transform:scale(.98);opacity:.9}
-.ml-screen .calc-btn{background:var(--ml-blue);color:#fff;box-shadow:0 4px 20px rgba(52,131,250,.35)}
+.ml-screen .calc-btn,.ml-screen .field input:focus{background:var(--ml-blue);color:#fff;box-shadow:0 4px 20px rgba(52,131,250,.35)}
 .sh-screen .calc-btn{background:var(--sh-orange);color:#fff;box-shadow:0 4px 20px rgba(238,77,45,.35)}
+.reset-btn{display:block;width:100%;padding:.65rem;border:2px solid var(--gray2);border-radius:10px;background:transparent;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--gray4);cursor:pointer;margin-top:.75rem;transition:border-color .15s,color .15s;}
+.reset-btn:hover{border-color:var(--gray3);color:var(--text)}
+
+/* ── RESULT CARDS ── */
 .result-card{background:#fff;border-radius:18px;padding:1.4rem 1.5rem;margin-top:1.4rem;box-shadow:var(--shadow);display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
 .result-card.show{display:block}
-@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .result-title{font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gray4);margin-bottom:1rem;}
 .result-rows{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem}
 .result-row{display:flex;justify-content:space-between;align-items:center;font-size:.88rem;}
@@ -93,214 +137,197 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 .big-result .br-pct{font-size:.78rem;font-weight:700;margin-top:.1rem;}
 .big-result.positive .br-pct{color:#38A169}.big-result.negative .br-pct{color:#E53E3E}
 .sell-price-block{border-radius:12px;padding:1rem 1.2rem;background:linear-gradient(135deg,#EE4D2D,#FF6633);display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;}
-.sell-price-block .sp-label{font-size:.8rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.8);}
+.sell-price-block .sp-label{font-size:.8rem;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.8);}
 .sell-price-block .sp-value{font-family:'DM Sans',sans-serif;font-size:1.7rem;font-weight:800;color:#fff;}
 .tariff-note{font-size:.76rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;margin-top:.6rem;line-height:1.5;}
-.reset-btn{display:block;width:100%;padding:.65rem;border:2px solid var(--gray2);border-radius:10px;background:transparent;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--gray4);cursor:pointer;margin-top:.75rem;transition:border-color .15s,color .15s;}
-.reset-btn:hover{border-color:var(--gray3);color:var(--text)}
-.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
-@media(max-width:400px){.fields-grid{grid-template-columns:1fr}}
-.banner{width:100%;background:linear-gradient(100deg,#1346B0 0%,#1A6FFF 55%,#0FA3FF 100%);overflow:hidden;position:relative;flex-shrink:0;}
-.banner-inner{max-width:900px;margin:0 auto;padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative;z-index:1;}
-.banner-left{display:flex;align-items:center;gap:.9rem;}
-.banner-icon{width:40px;height:40px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;}
-.banner-headline{font-family:'DM Sans',sans-serif;font-size:clamp(.95rem,2.5vw,1.1rem);font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.2;}
-.banner-sub{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7);margin-top:.15rem;}
-.banner-badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:.3rem .85rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:800;color:#fff;white-space:nowrap;flex-shrink:0;}
-
-/* MODAL */
-#modal-cred{display:none;position:fixed;inset:0;z-index:100;background:rgba(20,20,40,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;}
-#modal-cred.open{display:flex}
-.modal-box{background:#fff;border-radius:22px;padding:2rem 1.75rem;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.18);animation:popIn .28s cubic-bezier(.34,1.56,.64,1);}
-.modal-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:1.2rem;}
-.modal-logo-badge{width:42px;height:42px;background:var(--ml-yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:900;color:var(--ml-dark);}
-.modal-title{font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:800;}
-.modal-sub{font-size:.78rem;color:var(--gray4);font-weight:600;margin-top:.1rem;}
-.modal-field{margin-bottom:.9rem;}
-.modal-field label{display:block;font-size:.78rem;font-weight:700;color:#555;margin-bottom:.3rem;}
-.modal-field input{width:100%;padding:.65rem .75rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color .15s;}
-.modal-field input:focus{border-color:var(--ml-blue)}
-.modal-btn{width:100%;padding:.85rem;border:none;border-radius:12px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-top:.5rem;transition:opacity .15s,transform .12s,box-shadow .15s;box-shadow:0 4px 20px rgba(52,131,250,.35);}
-.modal-btn:disabled{opacity:.5;cursor:not-allowed}
-.modal-status{margin-top:.75rem;font-size:.82rem;font-weight:700;text-align:center;min-height:18px;}
-.modal-status.ok{color:#22543D}.modal-status.err{color:#C53030}.modal-status.loading{color:var(--gray4)}
-.modal-skip{display:block;text-align:center;margin-top:.75rem;font-size:.8rem;font-weight:700;color:var(--gray4);cursor:pointer;text-decoration:underline;background:none;border:none;}
-.modal-security-note{background:#F7F7F9;border-radius:10px;padding:.65rem .85rem;margin-top:1rem;font-size:.75rem;color:var(--gray4);font-weight:600;line-height:1.55;}
-.modal-security-note b{color:#555}
-.api-pill{margin-left:auto;display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.3);border-radius:20px;padding:.25rem .75rem;font-size:.75rem;font-weight:800;cursor:pointer;border:none;font-family:'Nunito',sans-serif;color:var(--ml-dark);transition:background .15s;}
-.api-pill:hover{background:rgba(255,255,255,.5)}
-.pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.pill-dot.green{background:#38A169}.pill-dot.gray{background:#aaa}
-.search-box{background:#fff;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:2px solid var(--gray2);}
-.search-row{display:flex;gap:.6rem;align-items:flex-end;}
-.search-row .field{flex:1;margin-bottom:0;}
-.search-btn{flex-shrink:0;padding:.65rem 1.1rem;border:none;border-radius:10px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap;}
-.search-btn:disabled{opacity:.4;cursor:not-allowed}
-.search-status{margin-top:.65rem;font-size:.8rem;font-weight:700;min-height:16px;}
-.search-status.ok{color:#22543D}.search-status.err{color:#C53030}.search-status.loading{color:var(--gray4)}
-.mode-tabs{display:flex;gap:.5rem;margin-bottom:1rem;}
-.mode-tab{flex:1;padding:.55rem;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--gray4);cursor:pointer;text-align:center;transition:all .15s;}
-.mode-tab.active{border-color:var(--ml-blue);background:#EBF2FF;color:var(--ml-blue);}
-.anuncios-lista{display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem;}
-.anuncio-card{background:#fff;border:2px solid var(--gray2);border-radius:12px;padding:.9rem 1rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
-.anuncio-card:hover{border-color:var(--ml-blue);box-shadow:0 2px 12px rgba(52,131,250,.15);}
-.anuncio-card.selected{border-color:var(--ml-blue);background:#EBF2FF;}
-.anuncio-titulo{font-size:.88rem;font-weight:800;color:var(--text);margin-bottom:.35rem;line-height:1.3;}
-.anuncio-meta{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;}
-.anuncio-badge{font-size:.72rem;font-weight:800;padding:.2rem .6rem;border-radius:6px;}
-.badge-ativo{background:#EBF8F1;color:#22543D;}
-.badge-pausado{background:#FFF0F0;color:#C53030;}
-.badge-classico{background:#EBF2FF;color:#0C447C;}
-.badge-premium{background:#FFF8E1;color:#7B5800;}
-.anuncio-preco{font-size:.88rem;font-weight:800;color:var(--ml-blue);margin-left:auto;}
-.custo-inline{margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--gray2);display:none;}
-.anuncio-card.selected .custo-inline{display:block;}
-.custo-inline-row{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;}
-.custo-inline .field{flex:1;min-width:100px;margin-bottom:0;}
-.custo-inline .field label{font-size:.75rem;}
-.custo-inline-btn{flex-shrink:0;padding:.6rem .9rem;border:none;border-radius:8px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap;}
+.nota{font-size:.76rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;margin-top:.6rem;line-height:1.5;}
 .info-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
 .itag{display:inline-flex;align-items:center;gap:.3rem;border-radius:8px;padding:.22rem .65rem;font-size:.75rem;font-weight:700;}
-.itag-ok{background:#EBF8F1;color:#22543D;}
-.itag-warn{background:#FFF8E1;color:#7B5800;}
-.itag-info{background:#EBF2FF;color:#0C447C;}
-.nota{font-size:.76rem;font-weight:700;color:var(--gray4);background:var(--gray1);border-radius:8px;padding:.55rem .75rem;margin-top:.6rem;line-height:1.5;}
+.itag-ok{background:#EBF8F1;color:#22543D;}.itag-warn{background:#FFF8E1;color:#7B5800;}.itag-info{background:#EBF2FF;color:#0C447C;}
 
-/* ═══════════════════════════════════
-   PAINEL DE ANÚNCIOS
-═══════════════════════════════════ */
-.painel-toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem;background:#fff;border-radius:14px;padding:1rem 1.2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
-.painel-toolbar .field{margin-bottom:0;flex:1;min-width:120px;}
+/* ── GESTÃO DE CONTAS ── */
+.conta-card{background:#fff;border:2px solid var(--gray2);border-radius:14px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:1rem;margin-bottom:.75rem;transition:border-color .15s;}
+.conta-card.ativa{border-color:var(--ml-blue);background:#F0F6FF;}
+.conta-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:900;color:#fff;flex-shrink:0;}
+.conta-info{flex:1;}
+.conta-nome{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:800;color:var(--text);}
+.conta-meta{font-size:.75rem;color:var(--gray4);font-weight:600;margin-top:2px;}
+.conta-acoes{display:flex;gap:.5rem;flex-shrink:0;}
+.btn-sm{padding:.35rem .8rem;border-radius:8px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;border:none;transition:opacity .15s;}
+.btn-conectar{background:var(--ml-blue);color:#fff;}
+.btn-editar{background:var(--gray1);color:var(--text);border:1.5px solid var(--gray2);}
+.btn-excluir{background:#FFF0F0;color:#C53030;border:1.5px solid #F7C1C1;}
+.btn-erp{background:#EBF8F1;color:#22543D;border:1.5px solid #9FE1CB;}
+.nova-conta-btn{width:100%;padding:.85rem;border:2px dashed var(--gray3);border-radius:14px;background:transparent;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:800;color:var(--gray4);cursor:pointer;transition:all .15s;margin-top:.5rem;}
+.nova-conta-btn:hover{border-color:var(--ml-blue);color:var(--ml-blue);background:#F0F6FF;}
+
+/* ── ABAS DE CONTA ── */
+.conta-tabs{display:flex;gap:.5rem;margin-bottom:1.2rem;overflow-x:auto;padding-bottom:.25rem;}
+.conta-tab{padding:.5rem 1.2rem;border:2px solid var(--gray2);border-radius:20px;background:#fff;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--gray4);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.conta-tab:hover{border-color:var(--ml-blue);color:var(--ml-blue);}
+.conta-tab.active{border-color:var(--ml-blue);background:var(--ml-blue);color:#fff;}
+.conta-tab.offline{border-color:var(--gray3);color:var(--gray4);opacity:.6;}
+
+/* ── PAINEL TOOLBAR ── */
+.painel-toolbar{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem;background:#fff;border-radius:14px;padding:1rem 1.2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.painel-toolbar .field{margin-bottom:0;min-width:120px;}
 .painel-toolbar label{font-size:.75rem;}
-.toolbar-btn{padding:.6rem 1.1rem;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .12s;}
-.toolbar-btn:active{transform:scale(.97);opacity:.9}
+.toolbar-btn{padding:.6rem 1.1rem;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .12s;}
+.toolbar-btn:active{transform:scale(.97)}
 .btn-primary{background:var(--ml-blue);color:#fff;}
 .btn-secondary{background:var(--gray1);color:var(--text);border:1.5px solid var(--gray2);}
 .btn-danger{background:#FFF0F0;color:#C53030;border:1.5px solid #F7C1C1;}
+.cache-info{font-size:.72rem;font-weight:700;color:var(--gray4);margin-left:auto;}
 
-.erp-status-bar{border-radius:12px;padding:.75rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;}
-.erp-status-bar.ok{background:var(--green-bg);color:var(--green);}
-.erp-status-bar.warn{background:var(--yellow-bg);color:var(--yellow);}
-.erp-status-bar.none{background:var(--gray1);color:var(--gray4);}
+/* ── RESUMO CARDS ── */
+.resumo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.75rem;margin-bottom:1rem;}
+.resumo-card{background:#fff;border-radius:12px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.resumo-card .rc-label{font-size:.7rem;font-weight:700;color:var(--gray4);margin-bottom:.3rem;}
+.resumo-card .rc-value{font-size:1.35rem;font-weight:800;font-family:'DM Sans',sans-serif;}
+.rc-green{color:#22543D;}.rc-yellow{color:#D69E2E;}.rc-red{color:#C53030;}.rc-blue{color:#0C447C;}.rc-gray{color:var(--gray4);}
 
-.legenda{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem;}
-.legenda-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:700;color:var(--gray4);}
-.legenda-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.dot-green{background:#38A169;}.dot-yellow{background:#D69E2E;}.dot-red{background:#E53E3E;}.dot-blue{background:#3483FA;}
+/* ── FILTROS ── */
+.filtros-bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center;}
+.filtro-btn{padding:.32rem .8rem;border:2px solid var(--gray2);border-radius:20px;background:#fff;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--gray4);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.filtro-btn:hover{border-color:var(--ml-blue);color:var(--ml-blue);}
+.filtro-btn.active{border-color:var(--ml-blue);background:var(--ml-blue);color:#fff;}
+.busca-input{padding:.38rem .8rem;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;outline:none;min-width:200px;color:var(--text);}
+.busca-input:focus{border-color:var(--ml-blue);}
 
-/* TABELA DE ANÚNCIOS */
+/* ── TABELA ── */
 .painel-table-wrap{overflow-x:auto;border-radius:14px;box-shadow:var(--shadow);width:100%;}
 .painel-table{width:100%;border-collapse:collapse;background:#fff;font-size:.75rem;table-layout:fixed;}
 .painel-table thead tr{background:var(--ml-dark);color:#fff;}
-.painel-table thead th{padding:.7rem .9rem;text-align:left;font-weight:800;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.painel-table thead th{padding:.65rem .85rem;text-align:left;font-weight:800;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;}
 .painel-table tbody tr{border-bottom:1px solid var(--gray2);transition:background .12s;}
 .painel-table tbody tr:hover{background:#F7F7FC;}
-.painel-table tbody td{padding:.65rem .9rem;vertical-align:middle;}
-.painel-table tbody td.center{text-align:center;}
-
-.status-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:800;white-space:nowrap;}
-.status-green{background:var(--green-bg);color:var(--green);}
-.status-yellow{background:var(--yellow-bg);color:var(--yellow);}
-.status-red{background:var(--red-bg);color:var(--red);}
-.status-blue{background:var(--blue-bg);color:var(--blue);}
-
-.stock-alert{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:6px;font-size:.7rem;font-weight:800;}
-.stock-ok{background:var(--green-bg);color:var(--green);}
-.stock-diff{background:var(--red-bg);color:var(--red);}
-.stock-na{background:var(--gray1);color:var(--gray4);}
-
-.preco-minimo{font-weight:800;color:var(--text);}
-.preco-atual-ok{color:var(--green);font-weight:800;}
-.preco-atual-low{color:var(--red);font-weight:800;}
-.preco-atual-high{color:var(--blue);font-weight:800;}
-
+.painel-table tbody td{padding:.6rem .85rem;vertical-align:middle;}
+.anuncio-badge{font-size:.68rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;display:inline-block;}
+.badge-ativo{background:#EBF8F1;color:#22543D;}.badge-pausado{background:#FFF0F0;color:#C53030;}
+.badge-classico{background:#EBF2FF;color:#0C447C;}.badge-premium{background:#FFF8E1;color:#7B5800;}
+.status-pill{display:inline-flex;align-items:center;padding:.18rem .6rem;border-radius:20px;font-size:.68rem;font-weight:800;white-space:nowrap;}
+.status-green{background:var(--green-bg);color:var(--green);}.status-yellow{background:var(--yellow-bg);color:var(--yellow);}
+.status-red{background:var(--red-bg);color:var(--red);}.status-blue{background:var(--blue-bg);color:var(--blue);}
+.stock-alert{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:6px;font-size:.68rem;font-weight:800;}
+.stock-ok{background:var(--green-bg);color:var(--green);}.stock-diff{background:var(--red-bg);color:var(--red);}.stock-na{background:var(--gray1);color:var(--gray4);}
+.preco-atual-ok{color:#22543D;font-weight:800;}.preco-atual-low{color:#C53030;font-weight:800;}.preco-atual-high{color:#0C447C;font-weight:800;}
 .painel-loading{text-align:center;padding:3rem 1rem;color:var(--gray4);font-weight:700;}
 .painel-progress{width:100%;height:4px;background:var(--gray2);border-radius:2px;margin-top:.5rem;overflow:hidden;}
 .painel-progress-bar{height:100%;background:var(--ml-blue);border-radius:2px;transition:width .3s;}
 
-.resumo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.2rem;}
-.resumo-card{background:#fff;border-radius:12px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.resumo-card .rc-label{font-size:.72rem;font-weight:700;color:var(--gray4);margin-bottom:.3rem;}
-.resumo-card .rc-value{font-size:1.4rem;font-weight:800;font-family:'DM Sans',sans-serif;}
-.filtro-btn{padding:.35rem .85rem;border:2px solid var(--gray2);border-radius:20px;background:#fff;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--gray4);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.filtro-btn:hover{border-color:var(--ml-blue);color:var(--ml-blue);}
-.filtro-btn.active{border-color:var(--ml-blue);background:var(--ml-blue);color:#fff;}
-.rc-green{color:var(--green);}
-.rc-yellow{color:#D69E2E;}
-.rc-red{color:var(--red);}
-.rc-blue{color:var(--blue);}
-.rc-gray{color:var(--gray4);}
+/* ── SKUS NAO CADASTRADOS ── */
+.sku-card{background:#fff;border:2px solid var(--gray2);border-radius:12px;padding:.85rem 1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:1rem;}
+.sku-card.pausado{border-color:#F7C1C1;background:#FFF8F8;}
+.sku-card.sem-anuncio{border-color:var(--gray3);}
+.sku-badge-status{font-size:.7rem;font-weight:800;padding:.2rem .6rem;border-radius:6px;flex-shrink:0;}
+.sku-badge-pausado{background:#FFF0F0;color:#C53030;}
+.sku-badge-sem{background:var(--gray1);color:var(--gray4);}
 
-/* ERP UPLOAD */
-.upload-box{background:#fff;border:2px dashed var(--gray3);border-radius:14px;padding:2rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:1rem;}
-.upload-box:hover{border-color:var(--ml-blue);background:#F0F6FF;}
-.upload-box input[type=file]{display:none;}
-.upload-icon{font-size:2rem;margin-bottom:.5rem;}
-.upload-label{font-size:.9rem;font-weight:700;color:var(--gray4);}
-.upload-label b{color:var(--ml-blue);}
+/* ── VENDAS ── */
+.vendas-periodo{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;background:#fff;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.vendas-periodo .field{margin-bottom:0;min-width:130px;}
+.vendas-periodo label{font-size:.75rem;}
+.vendas-periodo input{padding:.55rem .75rem;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;background:#fff;color:var(--text);outline:none;width:100%;}
+.vendas-periodo input:focus{border-color:#38A169;}
+.vendas-resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.6rem;margin-bottom:1rem;}
+.vr-card{background:#fff;border-radius:10px;padding:.7rem .9rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.vr-label{font-size:.68rem;font-weight:700;color:var(--gray4);margin-bottom:.2rem;}
+.vr-value{font-size:1.2rem;font-weight:800;font-family:'DM Sans',sans-serif;}
+.venda-row{background:#fff;border:1.5px solid var(--gray2);border-radius:10px;margin-bottom:.4rem;overflow:hidden;transition:border-color .15s;}
+.venda-row:hover{border-color:#38A169;}
+.venda-row.expandido{border-color:#38A169;}
+.venda-header{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;cursor:pointer;flex-wrap:wrap;}
+.venda-id{font-size:.72rem;font-weight:800;color:var(--gray4);flex-shrink:0;}
+.venda-data{font-size:.75rem;font-weight:700;color:var(--gray4);flex-shrink:0;min-width:85px;}
+.venda-cliente{font-size:.8rem;font-weight:800;color:var(--text);flex:1;min-width:120px;}
+.venda-valor{font-size:.88rem;font-weight:800;color:#22543D;white-space:nowrap;margin-left:auto;}
+.venda-tipo{font-size:.68rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;flex-shrink:0;}
+.tipo-full{background:#EBF2FF;color:#0C447C;}
+.tipo-cross{background:#EBF8F1;color:#22543D;}
+.tipo-dev{background:#FFF8E1;color:#7B5800;}
+.tipo-cancel{background:#FFF0F0;color:#C53030;}
+.venda-nf-pill{font-size:.68rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;flex-shrink:0;}
+.nf-ok{background:#EBF8F1;color:#22543D;}
+.nf-pend{background:#FFF8E1;color:#7B5800;}
+.nf-sem{background:var(--gray1);color:var(--gray4);}
+.venda-detalhe{display:none;padding:.75rem 1rem 1rem;border-top:1.5px solid var(--gray2);background:#FAFAFA;}
+.venda-row.expandido .venda-detalhe{display:block;}
+.det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.5rem .75rem;margin-bottom:.75rem;}
+.det-item{display:flex;flex-direction:column;gap:2px;}
+.det-label{font-size:.68rem;font-weight:700;color:var(--gray4);text-transform:uppercase;letter-spacing:.04em;}
+.det-value{font-size:.8rem;font-weight:800;color:var(--text);}
+.det-section{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gray4);margin:.6rem 0 .35rem;padding-bottom:.25rem;border-bottom:1px solid var(--gray2);}
+.det-loading{color:var(--gray4);font-size:.8rem;font-weight:700;padding:.5rem 0;}
+.venda-acoes{display:flex;gap:.5rem;margin-top:.5rem;}
+.btn-danfe{padding:.35rem .75rem;border:none;border-radius:8px;background:#EBF2FF;color:#0C447C;font-family:Nunito,sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;}
+.btn-xml{padding:.35rem .75rem;border:none;border-radius:8px;background:#EBF8F1;color:#22543D;font-family:Nunito,sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;}
 </style>
 </head>
 <body>
 
-<!-- MODAL CREDENCIAIS -->
+<!-- ══ MODAL CREDENCIAIS ══ -->
 <div id="modal-cred">
   <div class="modal-box">
     <div class="modal-logo">
-      <div class="modal-logo-badge">ML</div>
+      <div class="modal-logo-badge" id="modal-badge">ML</div>
       <div>
-        <div class="modal-title">Conectar ao Mercado Livre</div>
-        <div class="modal-sub">Credenciais ficam só na memória desta aba</div>
+        <div class="modal-title" id="modal-titulo">Conectar conta</div>
+        <div class="modal-sub" id="modal-sub">Credenciais ficam só na memória desta aba</div>
       </div>
     </div>
     <div class="modal-field"><label>Client ID</label><input type="text" id="cred-clientid" placeholder="1234567890123456" autocomplete="off"/></div>
     <div class="modal-field"><label>Client Secret</label><input type="password" id="cred-secret" placeholder="Seu client secret" autocomplete="off"/></div>
     <div class="modal-field"><label>Refresh Token</label><input type="password" id="cred-refresh" placeholder="TG-xxxxxxxxxxxxxxxx-..." autocomplete="off"/></div>
     <div class="modal-field"><label>Seller ID</label><input type="text" id="cred-sellerid" placeholder="123456789" autocomplete="off"/></div>
-    <button class="modal-btn" id="modal-connect-btn" onclick="conectarML()">Conectar</button>
+    <button class="modal-btn" id="modal-connect-btn" onclick="conectarConta()">Conectar</button>
     <div class="modal-status" id="modal-status"></div>
-    <button class="modal-skip" onclick="usarSemAPI()">Usar sem API (modo manual)</button>
-    <div class="modal-security-note">🔒 <b>Segurança:</b> suas credenciais passam pelo Cloudflare Worker e vão apenas para a API oficial do ML. Nada é armazenado.</div>
+    <button class="modal-btn-secondary" onclick="fecharModal()">Cancelar</button>
+    <div class="modal-security-note">🔒 Credenciais enviadas apenas para a API oficial do ML via Cloudflare Worker. Nada é armazenado em servidor.</div>
   </div>
 </div>
 
-<!-- HOME -->
+<!-- ══ HOME ══ -->
 <div id="home">
-  <div class="banner" style="width:calc(100% + 2rem);margin-left:-1rem;margin-right:-1rem;align-self:stretch;">
-    <div class="banner-inner">
-      <div class="banner-left">
-        <div class="banner-icon">🛒</div>
-        <div>
-          <div class="banner-headline">Calculadora do seu amigão</div>
-          <div class="banner-sub">Feito por @edsonacf para seus filhos do ecommerce</div>
-        </div>
-      </div>
-      <div class="banner-badge">100% gratuito</div>
-    </div>
-  </div>
+
   <p class="home-sub">Ferramentas de precificação</p>
   <h1 class="home-title">Calcule seus preços<br>com precisão</h1>
   <div class="cards-row">
+    <div class="platform-card card-gestao" onclick="goto('gestao')">
+      <div class="card-header">
+        <svg viewBox="0 0 140 60" width="140" fill="none">
+          <rect x="4" y="8" width="14" height="14" rx="3" fill="#68D391"/>
+          <rect x="22" y="8" width="14" height="14" rx="3" fill="#F6AD55"/>
+          <rect x="4" y="26" width="14" height="14" rx="3" fill="#FC8181"/>
+          <rect x="22" y="26" width="14" height="14" rx="3" fill="#63B3ED"/>
+          <text x="46" y="22" font-family="DM Sans,Arial" font-size="12" font-weight="900" fill="white">CONTAS</text>
+          <text x="46" y="38" font-family="DM Sans,Arial" font-size="10" font-weight="700" fill="rgba(255,255,255,0.7)">Gerenciamento</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3>Gerenciar Contas</h3>
+        <p>Cadastre e alterne entre suas contas do ML.</p>
+        <button class="card-btn">Gerenciar</button>
+      </div>
+    </div>
     <div class="platform-card card-painel" onclick="goto('painel')">
       <div class="card-header">
-        <svg viewBox="0 0 160 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="160">
-          <rect x="4" y="8" width="32" height="32" rx="6" fill="rgba(255,255,255,0.15)"/>
-          <rect x="4" y="8" width="14" height="14" rx="3" fill="#38A169"/>
-          <rect x="22" y="8" width="14" height="14" rx="3" fill="#D69E2E"/>
-          <rect x="4" y="26" width="14" height="14" rx="3" fill="#E53E3E"/>
-          <rect x="22" y="26" width="14" height="14" rx="3" fill="#3483FA"/>
-          <text x="46" y="24" font-family="DM Sans,Arial" font-size="13" font-weight="900" fill="white">PAINEL</text>
-          <text x="46" y="40" font-family="DM Sans,Arial" font-size="11" font-weight="700" fill="rgba(255,255,255,0.7)">Anúncios + ERP</text>
+        <svg viewBox="0 0 140 60" width="140" fill="none">
+          <rect x="4" y="10" width="32" height="8" rx="3" fill="rgba(255,255,255,0.3)"/>
+          <rect x="4" y="22" width="24" height="8" rx="3" fill="rgba(255,255,255,0.5)"/>
+          <rect x="4" y="34" width="28" height="8" rx="3" fill="rgba(255,255,255,0.4)"/>
+          <text x="46" y="22" font-family="DM Sans,Arial" font-size="12" font-weight="900" fill="white">PAINEL</text>
+          <text x="46" y="38" font-family="DM Sans,Arial" font-size="10" font-weight="700" fill="rgba(255,255,255,0.7)">Anúncios + ERP</text>
         </svg>
       </div>
       <div class="card-body">
         <h3>Painel de Anúncios</h3>
-        <p>Liste todos os anúncios ativos, cruze com o ERP e veja alertas de precificação e estoque.</p>
-        <button class="card-btn">Abrir Painel</button>
+        <p>Precificação, estoque e alertas por conta.</p>
+        <button class="card-btn" style="background:#3483FA;">Abrir Painel</button>
       </div>
     </div>
     <div class="platform-card card-ml" onclick="goto('ml')">
       <div class="card-header">
-        <svg class="logo-ml" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="logo-ml" viewBox="0 0 200 60" fill="none">
           <circle cx="22" cy="18" r="16" fill="#3483FA"/>
           <text x="22" y="23" text-anchor="middle" font-size="15" font-weight="900" fill="#FFE600" font-family="Arial">ML</text>
           <text x="46" y="22" font-family="Arial" font-size="12" font-weight="900" fill="#1A1A2E">MERCADO</text>
@@ -309,14 +336,30 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         </svg>
       </div>
       <div class="card-body">
-        <h3>Mercado Livre</h3>
-        <p>Busque um anúncio específico e calcule tarifa, frete e lucro em detalhes.</p>
-        <button class="card-btn">Calculadora ML</button>
+        <h3>Calculadora ML</h3>
+        <p>Calcule lucro e margem de um anúncio.</p>
+        <button class="card-btn">Calcular</button>
+      </div>
+    </div>
+    <div class="platform-card" style="border:2px solid transparent;" onclick="goto('vendas')">
+      <div class="card-header" style="background:linear-gradient(135deg,#276749,#38A169);">
+        <svg viewBox="0 0 140 60" width="140" fill="none">
+          <rect x="4" y="12" width="50" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
+          <rect x="4" y="22" width="40" height="6" rx="3" fill="rgba(255,255,255,0.6)"/>
+          <rect x="4" y="32" width="45" height="6" rx="3" fill="rgba(255,255,255,0.5)"/>
+          <text x="64" y="22" font-family="DM Sans,Arial" font-size="12" font-weight="900" fill="white">VENDAS</text>
+          <text x="64" y="38" font-family="DM Sans,Arial" font-size="10" font-weight="700" fill="rgba(255,255,255,0.7)">NF · Financeiro</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3>Relatório de Vendas</h3>
+        <p>Vendas por período com NF, financeiro e detalhes completos.</p>
+        <button class="card-btn" style="background:#38A169;">Ver Vendas</button>
       </div>
     </div>
     <div class="platform-card card-sh" onclick="goto('sh')">
       <div class="card-header">
-        <svg class="logo-sh" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="logo-sh" viewBox="0 0 180 60" fill="none">
           <rect x="4" y="22" width="28" height="26" rx="5" fill="white" opacity="0.9"/>
           <path d="M11 22 Q18 10 25 22" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.9"/>
           <text x="18" y="39" text-anchor="middle" font-size="11" font-weight="900" fill="#EE4D2D" font-family="Arial">S</text>
@@ -325,151 +368,190 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
       </div>
       <div class="card-body">
         <h3>Shopee</h3>
-        <p>Defina a margem desejada e descubra o preço ideal com as tarifas aplicadas.</p>
-        <button class="card-btn">Calculadora Shopee</button>
+        <p>Preço ideal com margem desejada.</p>
+        <button class="card-btn">Calcular</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PAINEL DE ANÚNCIOS ═══ -->
+<!-- ══ GESTÃO DE CONTAS ══ -->
+<div id="screen-gestao" class="screen">
+  <div class="topbar topbar-dark">
+    <button class="back-btn" onclick="goto('home')">&#8592;</button>
+    <span class="topbar-title">Gerenciamento de Contas</span>
+  </div>
+  <div class="content-narrow">
+    <div class="sec-label">Contas cadastradas</div>
+    <div id="contas-lista"></div>
+    <button class="nova-conta-btn" onclick="abrirModalNovaConta()">+ Nova conta</button>
+
+    <div class="sec-label" style="margin-top:2rem;">Planilha ERP por conta</div>
+    <div id="erp-lista"></div>
+  </div>
+</div>
+
+<!-- ══ PAINEL DE ANÚNCIOS ══ -->
 <div id="screen-painel" class="screen">
-  <div class="topbar topbar-painel">
+  <div class="topbar topbar-dark">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
     <span class="topbar-title">Painel de Anúncios</span>
-    <button class="api-pill" id="api-pill-painel" onclick="reabrirModal()">
-      <span class="pill-dot gray" id="pill-dot-painel"></span>
-      <span id="pill-label-painel">Sem API</span>
-    </button>
+    <div id="painel-conta-pill" style="margin-left:auto;font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7);"></div>
   </div>
   <div class="content">
+    <!-- Abas de conta -->
+    <div class="conta-tabs" id="painel-tabs"></div>
 
-    <!-- TOOLBAR -->
-    <div class="painel-toolbar">
-      <div class="field" style="min-width:160px;">
-        <label>Margem desejada (%)</label>
-        <div class="field-row has-suffix">
-          <input type="number" id="painel-margem" placeholder="ex: 20 (padrão)" min="0" max="100" step="1" oninput="recalcularPainel()"/>
-          <span class="suffix">%</span>
+    <!-- Sub-abas: Anúncios / SKUs não cadastrados -->
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;">
+      <button class="filtro-btn active" id="subtab-anuncios" onclick="setSubTab('anuncios')">Anúncios ativos</button>
+      <button class="filtro-btn" id="subtab-skus" onclick="setSubTab('skus')">SKUs não cadastrados</button>
+    </div>
+
+    <!-- ── SEÇÃO ANÚNCIOS ── -->
+    <div id="section-anuncios">
+      <div class="painel-toolbar">
+        <div class="field" style="min-width:130px;">
+          <label>Margem desejada (%)</label>
+          <div class="field-row has-suffix">
+            <input type="number" id="painel-margem" placeholder="ex: 20" min="0" max="100" step="1" oninput="recalcularPainel()"/>
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="field" style="min-width:130px;">
+          <label>Imposto (%)</label>
+          <div class="field-row has-suffix">
+            <input type="number" id="painel-imposto" placeholder="ex: 16" min="0" max="100" step="0.1" oninput="recalcularPainel()"/>
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border:1.5px dashed var(--gray3);border-radius:10px;cursor:pointer;background:#fff;white-space:nowrap;" title="Subir planilha ERP">
+          <input type="file" id="erp-file-painel" accept=".xlsx,.xls" onchange="carregarERPPainel(this)" style="display:none;"/>
+          <span>📂</span>
+          <span style="font-size:.78rem;font-weight:800;color:var(--gray4);" id="erp-btn-label">Subir ERP</span>
+        </label>
+        <button class="toolbar-btn btn-primary" onclick="carregarPainel(true)">↺ Atualizar API</button>
+        <button class="toolbar-btn btn-secondary" onclick="carregarPainel(false)">▶ Usar Cache</button>
+        <button class="toolbar-btn btn-danger" onclick="limparCache()" id="btn-limpar-cache" style="display:none;">🗑 Cache</button>
+        <span class="cache-info" id="cache-info"></span>
+      </div>
+
+      <div class="erp-status-bar" id="erp-status-bar" style="border-radius:12px;padding:.65rem 1rem;font-size:.8rem;font-weight:700;margin-bottom:.75rem;background:var(--gray1);color:var(--gray4);">
+        📋 Nenhuma planilha carregada
+      </div>
+
+      <div class="resumo-cards" id="resumo-cards" style="display:none;">
+        <div class="resumo-card"><div class="rc-label">Total</div><div class="rc-value rc-gray" id="rc-total">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Dentro da meta</div><div class="rc-value rc-green" id="rc-green">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Margem apertada</div><div class="rc-value rc-yellow" id="rc-yellow">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Abaixo do mínimo</div><div class="rc-value rc-red" id="rc-red">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Muito acima</div><div class="rc-value rc-blue" id="rc-blue">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Estoque divergente</div><div class="rc-value rc-red" id="rc-stock-diff">—</div></div>
+      </div>
+
+      <div class="filtros-bar">
+        <button class="filtro-btn active" data-filtro="todos" onclick="setFiltro('todos')">Todos</button>
+        <button class="filtro-btn" data-filtro="green" onclick="setFiltro('green')">✓ Dentro</button>
+        <button class="filtro-btn" data-filtro="yellow" onclick="setFiltro('yellow')">⚠ Apertada</button>
+        <button class="filtro-btn" data-filtro="red" onclick="setFiltro('red')">✕ Abaixo</button>
+        <button class="filtro-btn" data-filtro="blue" onclick="setFiltro('blue')">↑ Muito acima</button>
+        <button class="filtro-btn" data-filtro="stock" onclick="setFiltro('stock')">⚡ Estoque divergente</button>
+        <button class="filtro-btn" data-filtro="noerp" onclick="setFiltro('noerp')">? Sem ERP</button>
+        <input type="text" class="busca-input" id="filtro-busca" placeholder="Buscar título ou SKU..." oninput="filtrarTabela()"/>
+      </div>
+
+      <div id="painel-loading" class="painel-loading" style="display:none;">
+        <div id="painel-progress-txt">Carregando...</div>
+        <div class="painel-progress"><div class="painel-progress-bar" id="painel-progress-bar" style="width:0%"></div></div>
+      </div>
+
+      <div class="painel-table-wrap" id="painel-table-wrap" style="display:none;">
+        <table class="painel-table">
+          <thead>
+            <tr>
+              <th style="width:22%;">Anúncio</th>
+              <th style="width:7%;">Tipo</th>
+              <th style="width:10%;">Preço atual</th>
+              <th style="width:8%;">Custo ERP</th>
+              <th style="width:15%;">Comissão · Frete · Imp.</th>
+              <th style="width:9%;">Preço mínimo</th>
+              <th style="width:9%;">Vender por</th>
+              <th style="width:10%;">Status</th>
+              <th style="width:4%;text-align:center;">ML</th>
+              <th style="width:4%;text-align:center;">ERP</th>
+              <th style="width:6%;">Estoque</th>
+            </tr>
+          </thead>
+          <tbody id="painel-tbody"></tbody>
+        </table>
+      </div>
+      <div id="painel-empty" style="display:block;text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
+        Selecione uma conta e clique em "Atualizar API" ou "Usar Cache".
+      </div>
+    </div>
+
+    <!-- ── SEÇÃO SKUs NÃO CADASTRADOS ── -->
+    <div id="section-skus" style="display:none;">
+      <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
+        <button class="toolbar-btn btn-primary" onclick="analisarSKUs()">🔍 Analisar SKUs</button>
+        <span style="font-size:.72rem;font-weight:700;color:var(--gray4);" id="sku-erp-aviso"></span>
+        <div class="filtros-bar" style="margin-bottom:0;">
+          <button class="filtro-btn active" data-sfiltro="todos" onclick="setFiltroSKU('todos')">Todos</button>
+          <button class="filtro-btn" data-sfiltro="sem" onclick="setFiltroSKU('sem')">Sem anúncio</button>
+          <button class="filtro-btn" data-sfiltro="pausado" onclick="setFiltroSKU('pausado')">Só pausados</button>
+          <button class="filtro-btn" data-sfiltro="cruzado" onclick="setFiltroSKU('cruzado')">⚠ Estoque cruzado</button>
+        </div>
+        <input type="text" class="busca-input" id="sku-busca" placeholder="Buscar SKU ou produto..." oninput="filtrarSKUs()"/>
+      </div>
+
+      <div id="sku-resumo" style="display:none;margin-bottom:1rem;">
+        <div class="resumo-cards">
+          <div class="resumo-card"><div class="rc-label">Total SKUs ERP</div><div class="rc-value rc-gray" id="sku-total">—</div></div>
+          <div class="resumo-card"><div class="rc-label">Com anúncio ativo</div><div class="rc-value rc-green" id="sku-ativos">—</div></div>
+          <div class="resumo-card"><div class="rc-label">Só pausados</div><div class="rc-value rc-yellow" id="sku-pausados">—</div></div>
+          <div class="resumo-card"><div class="rc-label">Sem anúncio</div><div class="rc-value rc-red" id="sku-sem">—</div></div>
         </div>
       </div>
-      <div class="field" style="min-width:160px;">
-        <label>Imposto sobre venda (%)</label>
-        <div class="field-row has-suffix">
-          <input type="number" id="painel-imposto" placeholder="ex: 12" min="0" max="100" step="0.1" oninput="recalcularPainel()"/>
-          <span class="suffix">%</span>
-        </div>
+
+      <div id="sku-loading" class="painel-loading" style="display:none;">
+        <div id="sku-progress-txt">Analisando SKUs...</div>
+        <div class="painel-progress"><div class="painel-progress-bar" id="sku-progress-bar" style="width:0%"></div></div>
       </div>
-      <label class="upload-box" style="padding:.6rem 1rem;border:1.5px dashed var(--gray3);border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:.5rem;background:#fff;margin-bottom:0;flex-shrink:0;" title="Subir planilha ERP">
-        <input type="file" id="erp-file-painel" accept=".xlsx,.xls" onchange="carregarERP(this)"/>
-        <span style="font-size:1.1rem;">📂</span>
-        <span style="font-size:.8rem;font-weight:800;color:var(--gray4);" id="erp-btn-label">Subir ERP</span>
-      </label>
-      <button class="toolbar-btn btn-primary" onclick="carregarPainel(true)">↺ Atualizar da API</button>
-      <button class="toolbar-btn btn-secondary" onclick="carregarPainel(false)">▶ Usar Cache</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem;">
-      <span style="font-size:.75rem;font-weight:700;color:var(--gray4);" id="cache-info"></span>
-      <button class="toolbar-btn btn-danger" onclick="limparCache()" id="btn-limpar-cache" style="display:none;padding:.35rem .75rem;font-size:.75rem;">🗑 Limpar cache</button>
-    </div>
-    <div style="display:none">
-    </div>
 
-    <!-- STATUS ERP -->
-    <div class="erp-status-bar none" id="erp-status-bar">
-      📋 Nenhuma planilha carregada — suba o ERP para ver custos e alertas de estoque
+      <div id="sku-lista"></div>
+      <div id="sku-empty" style="text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
+        Clique em "Analisar SKUs" para verificar quais produtos da planilha não estão no ML.
+      </div>
     </div>
-
-    <!-- RESUMO -->
-    <div class="resumo-cards" id="resumo-cards" style="display:none;">
-      <div class="resumo-card"><div class="rc-label">Total de anúncios</div><div class="rc-value rc-gray" id="rc-total">—</div></div>
-      <div class="resumo-card"><div class="rc-label">Dentro da margem</div><div class="rc-value rc-green" id="rc-green">—</div></div>
-      <div class="resumo-card"><div class="rc-label">Margem apertada</div><div class="rc-value rc-yellow" id="rc-yellow">—</div></div>
-      <div class="resumo-card"><div class="rc-label">Abaixo do mínimo</div><div class="rc-value rc-red" id="rc-red">—</div></div>
-      <div class="resumo-card"><div class="rc-label">Muito acima</div><div class="rc-value rc-blue" id="rc-blue">—</div></div>
-      <div class="resumo-card"><div class="rc-label">Estoque divergente</div><div class="rc-value rc-red" id="rc-stock-diff">—</div></div>
-    </div>
-
-    <!-- LEGENDA -->
-    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">
-      <span style="font-size:.75rem;font-weight:800;color:var(--gray4);margin-right:.25rem;">FILTRAR:</span>
-      <button class="filtro-btn active" data-filtro="todos" onclick="setFiltro('todos')">Todos</button>
-      <button class="filtro-btn" data-filtro="green" onclick="setFiltro('green')">✓ Dentro da margem</button>
-      <button class="filtro-btn" data-filtro="yellow" onclick="setFiltro('yellow')">⚠ Margem apertada</button>
-      <button class="filtro-btn" data-filtro="red" onclick="setFiltro('red')">✕ Abaixo do mínimo</button>
-      <button class="filtro-btn" data-filtro="blue" onclick="setFiltro('blue')">↑ Muito acima</button>
-      <button class="filtro-btn" data-filtro="stock" onclick="setFiltro('stock')">⚡ Estoque divergente</button>
-      <button class="filtro-btn" data-filtro="noerp" onclick="setFiltro('noerp')">? Sem ERP</button>
-      <input type="text" id="filtro-busca" placeholder="Buscar por título ou SKU..." oninput="setFiltro(window._filtroAtivo)" style="margin-left:.5rem;padding:.4rem .75rem;font-family:Nunito,sans-serif;font-size:.8rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;outline:none;min-width:200px;"/>
-    </div>
-    <div class="legenda">
-      <div class="legenda-item"><div class="legenda-dot dot-green"></div>Dentro da margem</div>
-      <div class="legenda-item"><div class="legenda-dot dot-yellow"></div>Margem apertada</div>
-      <div class="legenda-item"><div class="legenda-dot dot-red"></div>Abaixo do mínimo</div>
-      <div class="legenda-item"><div class="legenda-dot dot-blue"></div>Muito acima</div>
-    </div>
-
-    <!-- TABELA -->
-    <div id="painel-loading" class="painel-loading" style="display:none;">
-      <div>Carregando anúncios...</div>
-      <div class="painel-progress"><div class="painel-progress-bar" id="painel-progress-bar" style="width:0%"></div></div>
-      <div id="painel-progress-txt" style="font-size:.75rem;margin-top:.4rem;color:var(--gray4);"></div>
-    </div>
-
-    <div class="painel-table-wrap" id="painel-table-wrap" style="display:none;">
-      <table class="painel-table">
-        <thead>
-          <tr>
-            <th style="width:22%;">Anúncio</th>
-            <th style="width:7%;">Tipo</th>
-            <th style="width:9%;">Preço atual</th>
-            <th style="width:8%;">Custo ERP</th>
-            <th style="width:16%;">Comissão · Frete · Imposto</th>
-            <th style="width:9%;">Preço mínimo</th>
-            <th style="width:9%;">Vender por</th>
-            <th style="width:11%;">Status</th>
-            <th style="width:5%;text-align:center;">Qtd ML</th>
-            <th style="width:5%;text-align:center;">Qtd ERP</th>
-            <th style="width:8%;">Estoque</th>
-          </tr>
-        </thead>
-        <tbody id="painel-tbody"></tbody>
-      </table>
-    </div>
-
-    <div id="painel-empty" style="display:none;text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
-      Clique em "Carregar Anúncios" para começar.
-    </div>
-
   </div>
 </div>
 
-<!-- ═══ MERCADO LIVRE ═══ -->
+<!-- ══ CALCULADORA ML ══ -->
 <div id="screen-ml" class="screen ml-screen">
   <div class="topbar topbar-ml">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
-    <span class="topbar-title">Mercado Livre — Lucro &amp; Margem</span>
-    <button class="api-pill" id="api-pill" onclick="reabrirModal()">
-      <span class="pill-dot gray" id="pill-dot"></span>
-      <span id="pill-label">Sem API</span>
+    <span class="topbar-title">Mercado Livre — Lucro & Margem</span>
+    <button class="api-pill api-pill-dark" id="api-pill-ml" onclick="abrirModalParaConta(contaAtiva?.id)">
+      <span class="pill-dot gray" id="pill-dot-ml"></span>
+      <span id="pill-label-ml">Sem conta</span>
     </button>
   </div>
   <div class="content-narrow">
-    <div class="mode-tabs">
-      <div class="mode-tab active" id="tab-api" onclick="setTab('api')">🔗 Buscar pelo SKU</div>
-      <div class="mode-tab" id="tab-manual" onclick="setTab('manual')">✏️ Inserir manualmente</div>
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;">
+      <button class="filtro-btn active" id="tab-api" onclick="setTabML('api')">🔗 Buscar pelo SKU</button>
+      <button class="filtro-btn" id="tab-manual" onclick="setTabML('manual')">✏️ Manual</button>
     </div>
     <div id="section-api">
-      <div class="search-box">
-        <div class="search-row">
-          <div class="field"><label>SKU interno ou MLB do anúncio</label><input type="text" id="ml-mlb" placeholder="SKU-001 ou MLB1234567890"/></div>
-          <button class="search-btn" id="search-btn" onclick="buscarAnuncio()">Buscar</button>
+      <div style="background:#fff;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,0.07);border:2px solid var(--gray2);">
+        <div style="display:flex;gap:.6rem;align-items:flex-end;">
+          <div class="field" style="flex:1;margin-bottom:0;"><label>SKU interno ou MLB</label><input type="text" id="ml-mlb" placeholder="SKU-001 ou MLB1234567890"/></div>
+          <button style="flex-shrink:0;padding:.65rem 1.1rem;border:none;border-radius:10px;background:var(--ml-blue);color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;" id="search-btn" onclick="buscarAnuncio()">Buscar</button>
         </div>
-        <div class="search-status" id="search-status"></div>
+        <div id="search-status" style="margin-top:.65rem;font-size:.8rem;font-weight:700;min-height:16px;"></div>
       </div>
-      <div id="anuncios-wrap" style="display:none">
+      <div id="anuncios-wrap" style="display:none;">
         <div class="sec-label" id="anuncios-label">Anúncios encontrados</div>
-        <div class="anuncios-lista" id="anuncios-lista"></div>
+        <div id="anuncios-lista" style="display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem;"></div>
       </div>
       <div class="result-card" id="ml-result-api">
         <div class="result-title" id="ml-result-titulo-api">Demonstrativo</div>
@@ -491,20 +573,19 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <button class="reset-btn" onclick="resetMLApi()">Nova busca</button>
       </div>
     </div>
-    <div id="section-manual" style="display:none">
-      <div class="sec-label">Custos do produto</div>
+    <div id="section-manual" style="display:none;">
+      <div class="sec-label">Custos</div>
       <div class="fields-grid">
-        <div class="field"><label>Custo do produto</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-custo" placeholder="0,00" min="0" step="0.01"/></div></div>
-        <div class="field"><label>Custo de embalagem</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-embalagem" placeholder="0,00" min="0" step="0.01"/></div></div>
+        <div class="field"><label>Custo</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-custo" placeholder="0,00" min="0" step="0.01"/></div></div>
+        <div class="field"><label>Embalagem</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-embalagem" placeholder="0,00" min="0" step="0.01"/></div></div>
       </div>
-      <div class="sec-label">Impostos &amp; Tarifas</div>
+      <div class="sec-label">Tarifas</div>
       <div class="fields-grid">
         <div class="field"><label>Imposto</label><div class="field-row has-suffix"><input type="number" id="ml-imposto" placeholder="0" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
-        <div class="field"><label>Tarifa do anúncio</label><div class="field-row has-suffix"><input type="number" id="ml-tarifa" placeholder="ex: 14" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
+        <div class="field"><label>Tarifa ML</label><div class="field-row has-suffix"><input type="number" id="ml-tarifa" placeholder="14" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
       </div>
-      <div class="sec-label">Frete &amp; Preço de venda</div>
       <div class="fields-grid">
-        <div class="field"><label>Frete (vendedor)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-frete" placeholder="0,00" min="0" step="0.01"/></div></div>
+        <div class="field"><label>Frete</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-frete" placeholder="0,00" min="0" step="0.01"/></div></div>
         <div class="field"><label>Preço de venda</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="ml-preco" placeholder="0,00" min="0" step="0.01"/></div></div>
       </div>
       <button class="calc-btn" onclick="calcML()">Calcular Lucro</button>
@@ -513,8 +594,8 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <div class="result-rows">
           <div class="result-row"><span class="label">Preço de venda</span><span class="val" id="ml-r-preco">—</span></div>
           <div class="result-divider"></div>
-          <div class="result-row deduction"><span class="label">(-) Custo do produto</span><span class="val" id="ml-r-custo">—</span></div>
-          <div class="result-row deduction"><span class="label">(-) Custo de embalagem</span><span class="val" id="ml-r-embalagem">—</span></div>
+          <div class="result-row deduction"><span class="label">(-) Custo</span><span class="val" id="ml-r-custo">—</span></div>
+          <div class="result-row deduction"><span class="label">(-) Embalagem</span><span class="val" id="ml-r-embalagem">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Frete</span><span class="val" id="ml-r-frete">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Imposto</span><span class="val" id="ml-r-imposto-val">—</span></div>
           <div class="result-row deduction"><span class="label">(-) Tarifa ML</span><span class="val" id="ml-r-tarifa-val">—</span></div>
@@ -523,13 +604,13 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
           <div><div class="br-label">Lucro líquido</div><div class="br-pct" id="ml-margem-pct">—</div></div>
           <div class="br-value" id="ml-lucro-val">—</div>
         </div>
-        <button class="reset-btn" onclick="resetML()">Limpar campos</button>
+        <button class="reset-btn" onclick="resetML()">Limpar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ SHOPEE ═══ -->
+<!-- ══ SHOPEE ══ -->
 <div id="screen-sh" class="screen sh-screen">
   <div class="topbar topbar-sh">
     <button class="back-btn" onclick="goto('home')">&#8592;</button>
@@ -538,17 +619,17 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
   <div class="content-narrow">
     <div class="sec-label">Custos do produto</div>
     <div class="fields-grid">
-      <div class="field"><label>Custo do produto</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="sh-custo" placeholder="0,00" min="0" step="0.01"/></div></div>
-      <div class="field"><label>Custo de embalagem</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="sh-embalagem" placeholder="0,00" min="0" step="0.01"/></div></div>
+      <div class="field"><label>Custo</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="sh-custo" placeholder="0,00" min="0" step="0.01"/></div></div>
+      <div class="field"><label>Embalagem</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" id="sh-embalagem" placeholder="0,00" min="0" step="0.01"/></div></div>
     </div>
-    <div class="sec-label">Imposto &amp; Margem desejada</div>
+    <div class="sec-label">Imposto & Margem</div>
     <div class="fields-grid">
       <div class="field"><label>Imposto</label><div class="field-row has-suffix"><input type="number" id="sh-imposto" placeholder="0" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
       <div class="field"><label>Margem desejada</label><div class="field-row has-suffix"><input type="number" id="sh-margem" placeholder="ex: 30" min="0" max="100" step="0.01"/><span class="suffix">%</span></div></div>
     </div>
     <button class="calc-btn" onclick="calcSH()">Calcular Preço de Venda</button>
     <div class="result-card" id="sh-result">
-      <div class="result-title">Preço sugerido de venda</div>
+      <div class="result-title">Preço sugerido</div>
       <div class="sell-price-block">
         <div><div class="sp-label">Vender por</div><div class="sp-value" id="sh-preco-venda">R$ —</div></div>
         <div style="text-align:right"><div class="sp-label">Margem real</div><div class="sp-value" id="sh-margem-real">—%</div></div>
@@ -557,21 +638,51 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <div class="result-row"><span class="label">Custo total</span><span class="val" id="sh-r-custo">—</span></div>
         <div class="result-row deduction"><span class="label">(-) Imposto</span><span class="val" id="sh-r-imposto-val">—</span></div>
         <div class="result-row deduction"><span class="label">(-) Comissão Shopee</span><span class="val" id="sh-r-comissao">—</span></div>
-        <div class="result-row deduction"><span class="label">(-) Taxa fixa Shopee</span><span class="val" id="sh-r-taxa-fixa">—</span></div>
+        <div class="result-row deduction"><span class="label">(-) Taxa fixa</span><span class="val" id="sh-r-taxa-fixa">—</span></div>
         <div class="result-divider"></div>
         <div class="result-row"><span class="label">Lucro líquido</span><span class="val" id="sh-r-lucro">—</span></div>
       </div>
       <div class="tariff-note" id="sh-tariff-note">—</div>
-      <button class="reset-btn" onclick="resetSH()">Limpar campos</button>
+      <button class="reset-btn" onclick="resetSH()">Limpar</button>
     </div>
   </div>
 </div>
 
 <script>
-const WORKER_URL = 'https://proxy-ml.dediner20.workers.dev';
-let mlAccessToken = '', mlSellerId = '';
-let anuncioSelecionado = null;
-let erpData = {}; // { SKU: { custo, estoque } }
+// ══════════════════════════════════════════
+// CONSTANTES
+// ══════════════════════════════════════════
+const WORKER_URL  = 'https://proxy-ml.dediner20.workers.dev';
+const CONTAS_KEY  = 'ml_contas_v1';
+const CACHE_PREFIX = 'ml_cache_v3_';
+
+// ══════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════
+let contas        = [];       // [{id, nome, cor, clientId, clientSecret, refreshToken, sellerId, token}]
+let contaAtiva    = null;     // conta selecionada no painel
+let erpPorConta   = {};       // { contaId: { SKU: {custo, estoque} } }
+let modalContaId  = null;     // id da conta sendo editada/conectada
+window._filtroAtivo = 'todos';
+window._filtroSKUAtivo = 'todos';
+window._painelItens = null;
+window._painelTarifas = null;
+
+// ══════════════════════════════════════════
+// PERSISTÊNCIA DE CONTAS
+// ══════════════════════════════════════════
+function salvarContas() {
+  // Salva sem tokens (segurança)
+  const sem = contas.map(c => ({...c, token: null}));
+  localStorage.setItem(CONTAS_KEY, JSON.stringify(sem));
+}
+
+function carregarContas() {
+  try {
+    const raw = localStorage.getItem(CONTAS_KEY);
+    contas = raw ? JSON.parse(raw) : [];
+  } catch { contas = []; }
+}
 
 // ══════════════════════════════════════════
 // NAVEGAÇÃO
@@ -583,435 +694,571 @@ function goto(page) {
     document.getElementById('home').style.display = 'flex';
   } else {
     document.getElementById('screen-' + page).classList.add('active');
-    if (!mlAccessToken) abrirModal();
-    if (page === 'painel' && mlAccessToken) setTimeout(verificarCacheAoAbrir, 300);
+    if (page === 'gestao') renderGestao();
+    if (page === 'painel') iniciarPainel();
+    if (page === 'ml')     atualizarPillML();
+    if (page === 'vendas') iniciarVendas();
   }
   window.scrollTo(0, 0);
 }
-function setTab(tab) {
-  document.getElementById('tab-api').classList.toggle('active', tab === 'api');
-  document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
-  document.getElementById('section-api').style.display   = tab === 'api'    ? '' : 'none';
-  document.getElementById('section-manual').style.display = tab === 'manual' ? '' : 'none';
+
+// ══════════════════════════════════════════
+// MODAL DE CREDENCIAIS
+// ══════════════════════════════════════════
+function abrirModalNovaConta() {
+  modalContaId = null;
+  document.getElementById('modal-titulo').textContent = 'Nova conta';
+  document.getElementById('modal-sub').textContent = 'Preencha as credenciais da nova conta';
+  ['cred-clientid','cred-secret','cred-refresh','cred-sellerid'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modal-status').textContent = '';
+  document.getElementById('modal-cred').classList.add('open');
 }
 
-// ══════════════════════════════════════════
-// MODAL / AUTH
-// ══════════════════════════════════════════
-function abrirModal()   { document.getElementById('modal-cred').classList.add('open'); }
-function fecharModal()  { document.getElementById('modal-cred').classList.remove('open'); }
-function reabrirModal() { document.getElementById('modal-status').textContent = ''; abrirModal(); }
-function usarSemAPI()   { mlAccessToken = ''; fecharModal(); atualizarPills(); setTab('manual'); }
+function abrirModalParaConta(id) {
+  const c = contas.find(x => x.id === id);
+  modalContaId = id || null;
+  document.getElementById('modal-titulo').textContent = c ? 'Reconectar: ' + c.nome : 'Conectar conta';
+  document.getElementById('modal-sub').textContent = 'Atualize o token ou credenciais';
+  if (c) {
+    document.getElementById('cred-clientid').value  = c.clientId || '';
+    document.getElementById('cred-secret').value    = c.clientSecret || '';
+    document.getElementById('cred-refresh').value   = c.refreshToken || '';
+    document.getElementById('cred-sellerid').value  = c.sellerId || '';
+  }
+  document.getElementById('modal-status').textContent = '';
+  document.getElementById('modal-cred').classList.add('open');
+}
 
-async function conectarML() {
+function fecharModal() { document.getElementById('modal-cred').classList.remove('open'); }
+
+async function conectarConta() {
   const clientId = document.getElementById('cred-clientid').value.trim();
   const secret   = document.getElementById('cred-secret').value.trim();
   const refresh  = document.getElementById('cred-refresh').value.trim();
-  const seller   = document.getElementById('cred-sellerid').value.trim();
+  const sellerId = document.getElementById('cred-sellerid').value.trim();
   const st  = document.getElementById('modal-status');
   const btn = document.getElementById('modal-connect-btn');
-  if (!clientId || !secret || !refresh || !seller) { st.className='modal-status err'; st.textContent='Preencha todos os campos.'; return; }
+
+  if (!clientId || !secret || !refresh || !sellerId) {
+    st.className = 'modal-status err'; st.textContent = 'Preencha todos os campos.'; return;
+  }
   btn.disabled = true;
   st.className = 'modal-status loading'; st.textContent = 'Conectando...';
+
   try {
     const body = new URLSearchParams({ grant_type:'refresh_token', client_id:clientId, client_secret:secret, refresh_token:refresh }).toString();
     const r = await fetch(WORKER_URL + '/token', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
     const d = await r.json();
+
     if (d.access_token) {
-      mlAccessToken = d.access_token;
-      mlSellerId    = seller;
-      if (d.refresh_token) document.getElementById('cred-refresh').value = d.refresh_token;
-      st.className = 'modal-status ok'; st.textContent = '✓ Conectado!';
-      atualizarPills();
-      setTimeout(() => { fecharModal(); }, 800);
+      // Busca nickname
+      const me = await fetch(WORKER_URL + '/ml/users/me', { headers:{ Authorization:'Bearer '+d.access_token }}).then(r=>r.json()).catch(()=>({}));
+      const nickname = me.nickname || 'Conta ' + sellerId;
+
+      if (modalContaId) {
+        // Atualiza conta existente
+        const c = contas.find(x => x.id === modalContaId);
+        if (c) {
+          c.token = d.access_token;
+          c.clientId = clientId; c.clientSecret = secret;
+          c.refreshToken = d.refresh_token || refresh;
+          c.sellerId = sellerId;
+        }
+      } else {
+        // Nova conta
+        const cores = ['#3483FA','#E53E3E','#38A169','#D69E2E','#805AD5','#DD6B20'];
+        const cor = cores[contas.length % cores.length];
+        contas.push({
+          id: Date.now().toString(),
+          nome: nickname,
+          cor,
+          clientId, clientSecret: secret,
+          refreshToken: d.refresh_token || refresh,
+          sellerId, token: d.access_token
+        });
+      }
+
+      salvarContas();
+      st.className = 'modal-status ok';
+      st.textContent = '✓ Conectado como ' + nickname;
+      setTimeout(() => {
+        fecharModal();
+        renderGestao();
+        renderPainelTabs();
+      }, 800);
     } else {
       st.className = 'modal-status err';
       st.textContent = 'Erro: ' + (d.message || d.error || 'credenciais inválidas');
     }
-  } catch (e) {
+  } catch(e) {
     st.className = 'modal-status err';
-    st.textContent = 'Erro ao conectar: ' + e.message;
+    st.textContent = 'Erro: ' + e.message;
   }
   btn.disabled = false;
 }
 
-function atualizarPills() {
-  const connected = !!mlAccessToken;
-  ['pill-dot','pill-dot-painel'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.className = connected ? 'pill-dot green' : 'pill-dot gray';
-  });
-  ['pill-label','pill-label-painel'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = connected ? 'API conectada' : 'Sem API';
+// ══════════════════════════════════════════
+// GESTÃO DE CONTAS
+// ══════════════════════════════════════════
+function renderGestao() {
+  const lista = document.getElementById('contas-lista');
+  const erpLista = document.getElementById('erp-lista');
+  lista.innerHTML = '';
+  erpLista.innerHTML = '';
+
+  if (!contas.length) {
+    lista.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray4);font-weight:700;">Nenhuma conta cadastrada ainda.</div>';
+    return;
+  }
+
+  contas.forEach(c => {
+    const conectada = !!c.token;
+    const erp = erpPorConta[c.id];
+    const div = document.createElement('div');
+    div.className = 'conta-card' + (contaAtiva?.id === c.id ? ' ativa' : '');
+    div.innerHTML = `
+      <div class="conta-avatar" style="background:${c.cor}">${c.nome.substring(0,2).toUpperCase()}</div>
+      <div class="conta-info">
+        <div class="conta-nome">${c.nome}</div>
+        <div class="conta-meta">${c.sellerId} · ${conectada ? '<span style="color:#22543D;">Conectada</span>' : '<span style="color:#C53030;">Sem token</span>'} · ERP: ${erp ? Object.keys(erp).length + ' produtos' : '<span style="color:var(--gray4);">não carregado</span>'}</div>
+      </div>
+      <div class="conta-acoes">
+        <button class="btn-sm btn-conectar" onclick="abrirModalParaConta('${c.id}')">${conectada ? '↺ Reconectar' : '⚡ Conectar'}</button>
+        <label class="btn-sm btn-erp" style="cursor:pointer;" title="Subir planilha ERP">
+          <input type="file" accept=".xlsx,.xls" onchange="carregarERPConta(this,'${c.id}')" style="display:none;"/>
+          📂 ERP
+        </label>
+        <button class="btn-sm btn-excluir" onclick="excluirConta('${c.id}')">✕</button>
+      </div>`;
+    lista.appendChild(div);
   });
 }
 
-async function mlGet(path) {
-  const r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + mlAccessToken } });
-  return r.json();
+function excluirConta(id) {
+  if (!confirm('Excluir esta conta?')) return;
+  contas = contas.filter(c => c.id !== id);
+  delete erpPorConta[id];
+  localStorage.removeItem(CACHE_PREFIX + id);
+  salvarContas();
+  renderGestao();
+  renderPainelTabs();
 }
 
 // ══════════════════════════════════════════
-// ERP — UPLOAD E PROCESSAMENTO
+// ERP
 // ══════════════════════════════════════════
-function carregarERP(input) {
-  const file = input.files[0];
-  if (!file) return;
+function processarERP(file, contaId, callback) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'binary' });
+      const wb = XLSX.read(e.target.result, { type:'binary' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
-      erpData = {};
-      let count = 0;
+      const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
+      const data = {};
       rows.forEach(row => {
-        // SKU = CodigoReferenciaProduto — trim obrigatório pois vem com espaço
-        const skuRaw = row['CodigoReferenciaProduto'] || row['ProdutoCod'] || '';
-        const sku = String(skuRaw).trim();
+        const sku = String(row['CodigoReferenciaProduto'] || '').trim();
         if (!sku) return;
-
-        // Custo = ValorCustoMedio (formato BR com vírgula)
-        const custoRaw = String(row['ValorCustoMedio'] || '0').replace(',', '.');
-        const custo = parseFloat(custoRaw) || 0;
-
-        // Estoque = QtdeSaldo
-        const estoque = parseInt(row['QtdeSaldo'] || 0) || 0;
-
-        erpData[sku] = { custo, estoque };
-        count++;
+        const custo  = parseFloat(String(row['ValorCustoMedio']||'0').replace(',','.')) || 0;
+        const estoque = parseInt(row['QtdeSaldo']||0) || 0;
+        const nome   = String(row['Produto_Descricao']||'').trim();
+        data[sku] = { custo, estoque, nome };
       });
-
-      const bar = document.getElementById('erp-status-bar');
-      const btn = document.getElementById('erp-btn-label');
-      if (count > 0) {
-        bar.className = 'erp-status-bar ok';
-        bar.textContent = `✓ ERP carregado — ${count} produtos disponíveis`;
-        btn.textContent = `ERP (${count})`;
-      } else {
-        bar.className = 'erp-status-bar warn';
-        bar.textContent = '⚠ Planilha carregada mas nenhum produto identificado. Verifique as colunas.';
-      }
-    } catch(err) {
-      document.getElementById('erp-status-bar').className = 'erp-status-bar warn';
-      document.getElementById('erp-status-bar').textContent = '⚠ Erro ao ler planilha: ' + err.message;
-    }
+      erpPorConta[contaId] = data;
+      if (callback) callback(Object.keys(data).length);
+    } catch(e) { alert('Erro ao ler planilha: ' + e.message); }
   };
   reader.readAsBinaryString(file);
 }
 
-// ══════════════════════════════════════════
-// CACHE — localStorage
-// ══════════════════════════════════════════
-const CACHE_KEY = 'ml_painel_cache_v3';
+function carregarERPConta(input, contaId) {
+  const file = input.files[0];
+  if (!file) return;
+  processarERP(file, contaId, count => {
+    alert('ERP carregado: ' + count + ' produtos para esta conta.');
+    renderGestao();
+  });
+}
 
-function salvarCache(itens, tarifas) {
+function carregarERPPainel(input) {
+  if (!contaAtiva) { alert('Selecione uma conta primeiro.'); return; }
+  const file = input.files[0];
+  if (!file) return;
+  processarERP(file, contaAtiva.id, count => {
+    document.getElementById('erp-status-bar').style.background = 'var(--green-bg)';
+    document.getElementById('erp-status-bar').style.color = 'var(--green)';
+    document.getElementById('erp-status-bar').textContent = '✓ ERP carregado — ' + count + ' produtos';
+    document.getElementById('erp-btn-label').textContent = 'ERP (' + count + ')';
+    if (window._painelItens && window._painelTarifas) recalcularPainel();
+  });
+}
+
+// ══════════════════════════════════════════
+// PAINEL — ABAS E INICIALIZAÇÃO
+// ══════════════════════════════════════════
+function iniciarPainel() {
+  renderPainelTabs();
+  if (!contaAtiva && contas.length) selecionarConta(contas[0].id);
+  else if (contaAtiva) atualizarStatusERP();
+}
+
+function renderPainelTabs() {
+  const tabs = document.getElementById('painel-tabs');
+  tabs.innerHTML = '';
+  contas.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'conta-tab' + (contaAtiva?.id === c.id ? ' active' : '') + (!c.token ? ' offline' : '');
+    btn.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + c.cor + ';margin-right:.4rem;"></span>' + c.nome;
+    btn.onclick = () => selecionarConta(c.id);
+    tabs.appendChild(btn);
+  });
+  if (!contas.length) tabs.innerHTML = '<span style="font-size:.8rem;color:var(--gray4);font-weight:700;">Nenhuma conta cadastrada — <a href="#" onclick="goto(\'gestao\')" style="color:var(--ml-blue);">adicionar conta</a></span>';
+}
+
+async function selecionarConta(id) {
+  contaAtiva = contas.find(c => c.id === id) || null;
+  renderPainelTabs();
+  atualizarStatusERP();
+  // Carrega cache desta conta se existir
+  const cache = await lerCache(id);
+  if (cache) {
+    window._painelItens   = cache.itens;
+    window._painelTarifas = cache.tarifas;
+    atualizarInfoCache(cache);
+    renderizarTabela(cache.itens, cache.tarifas);
+  } else {
+    document.getElementById('painel-table-wrap').style.display = 'none';
+    document.getElementById('resumo-cards').style.display = 'none';
+    document.getElementById('painel-empty').style.display = 'block';
+    document.getElementById('cache-info').textContent = '';
+    document.getElementById('btn-limpar-cache').style.display = 'none';
+  }
+}
+
+function atualizarStatusERP() {
+  const bar = document.getElementById('erp-status-bar');
+  const btn = document.getElementById('erp-btn-label');
+  if (!contaAtiva) return;
+  const erp = erpPorConta[contaAtiva.id];
+  if (erp && Object.keys(erp).length) {
+    const count = Object.keys(erp).length;
+    bar.style.background = 'var(--green-bg)'; bar.style.color = 'var(--green)';
+    bar.textContent = '✓ ERP carregado — ' + count + ' produtos';
+    btn.textContent = 'ERP (' + count + ')';
+  } else {
+    bar.style.background = 'var(--gray1)'; bar.style.color = 'var(--gray4)';
+    bar.textContent = '📋 Nenhuma planilha carregada para esta conta';
+    btn.textContent = 'Subir ERP';
+  }
+}
+
+function setSubTab(tab) {
+  document.getElementById('subtab-anuncios').classList.toggle('active', tab === 'anuncios');
+  document.getElementById('subtab-skus').classList.toggle('active', tab === 'skus');
+  document.getElementById('section-anuncios').style.display = tab === 'anuncios' ? '' : 'none';
+  document.getElementById('section-skus').style.display = tab === 'skus' ? '' : 'none';
+}
+
+// ══════════════════════════════════════════
+// CACHE — IndexedDB (permanente, não some ao fechar)
+// ══════════════════════════════════════════
+const DB_NAME    = 'ml_calc_db';
+const DB_VERSION = 1;
+const DB_STORE   = 'painel_cache';
+
+function abrirDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' });
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+
+async function salvarCache(itens, tarifas) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ itens, tarifas, ts: Date.now(), sellerId: mlSellerId }));
-  } catch(e) { console.warn('Cache cheio:', e); }
+    const db  = await abrirDB();
+    const key = contaAtiva?.id || 'default';
+    const tx  = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).put({ id: key, itens, tarifas, ts: Date.now(), sellerId: contaAtiva?.sellerId });
+  } catch(e) {
+    // fallback localStorage
+    try { localStorage.setItem('ml_cache_' + (contaAtiva?.id||'x'), JSON.stringify({ itens, tarifas, ts: Date.now(), sellerId: contaAtiva?.sellerId })); } catch {}
+  }
 }
 
-function lerCache() {
-  try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+async function lerCache(contaId) {
+  const key = contaId || contaAtiva?.id || 'default';
+  try {
+    const db = await abrirDB();
+    return new Promise((resolve) => {
+      const tx  = db.transaction(DB_STORE, 'readonly');
+      const req = tx.objectStore(DB_STORE).get(key);
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror   = () => resolve(null);
+    });
+  } catch {
+    // fallback localStorage
+    try { const r = localStorage.getItem('ml_cache_' + key); return r ? JSON.parse(r) : null; } catch { return null; }
+  }
 }
 
-function limparCache() {
-  localStorage.removeItem(CACHE_KEY);
+async function limparCache() {
+  try {
+    const db  = await abrirDB();
+    const key = contaAtiva?.id || 'default';
+    const tx  = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).delete(key);
+  } catch {}
+  try { localStorage.removeItem('ml_cache_' + (contaAtiva?.id||'x')); } catch {}
   document.getElementById('cache-info').textContent = 'Cache apagado.';
   document.getElementById('btn-limpar-cache').style.display = 'none';
+  window._painelItens = null; window._painelTarifas = null;
 }
 
 function atualizarInfoCache(cache) {
   if (!cache) return;
-  const mins = Math.round((Date.now() - cache.ts) / 60000);
-  const label = mins < 1 ? 'agora mesmo' : mins < 60 ? mins + ' min atrás' : Math.round(mins/60) + 'h atrás';
-  document.getElementById('cache-info').textContent = 'Cache: ' + cache.itens.length + ' anúncios — atualizado ' + label;
+  const mins  = Math.round((Date.now() - cache.ts) / 60000);
+  const horas = Math.floor(mins / 60);
+  const label = mins < 1 ? 'agora mesmo'
+              : mins < 60 ? mins + ' min atrás'
+              : horas < 24 ? horas + 'h ' + (mins % 60) + 'min atrás'
+              : Math.floor(horas/24) + 'd atrás';
+  const qtd = cache.itens?.length || 0;
+  document.getElementById('cache-info').textContent = qtd + ' anúncios — última atualização: ' + label;
   document.getElementById('btn-limpar-cache').style.display = 'inline-block';
 }
 
-// Ao abrir o painel verifica se existe cache e carrega automaticamente
-function verificarCacheAoAbrir() {
-  const cache = lerCache();
-  if (cache && cache.sellerId === mlSellerId) {
-    atualizarInfoCache(cache);
-    renderizarTabela(cache.itens, cache.tarifas);
-  } else {
-    document.getElementById('painel-empty').style.display = 'block';
-  }
-}
+// cacheKey mantido para compatibilidade
+function cacheKey(id) { return 'ml_cache_' + (id || contaAtiva?.id || 'default'); }
 
 // ══════════════════════════════════════════
-// PAINEL — CARREGAR TODOS OS ANÚNCIOS ATIVOS
+// PAINEL — CARREGAR DA API
 // ══════════════════════════════════════════
-async function carregarPainel(forcarAtualizacao = false) {
-  if (!mlAccessToken) { abrirModal(); return; }
+async function carregarPainel(forcar = false) {
+  if (!contaAtiva) { alert('Selecione uma conta primeiro.'); return; }
+  if (!contaAtiva.token) { abrirModalParaConta(contaAtiva.id); return; }
 
-  const loading   = document.getElementById('painel-loading');
-  const tableWrap = document.getElementById('painel-table-wrap');
-  const empty     = document.getElementById('painel-empty');
-  const resumo    = document.getElementById('resumo-cards');
-  const tbody     = document.getElementById('painel-tbody');
-  const progressBar = document.getElementById('painel-progress-bar');
-  const progressTxt = document.getElementById('painel-progress-txt');
-
-  // Tenta cache primeiro
-  if (!forcarAtualizacao) {
-    const cache = lerCache();
-    if (cache && cache.sellerId === mlSellerId) {
+  if (!forcar) {
+    const cache = await lerCache();
+    if (cache && cache.sellerId === contaAtiva.sellerId) {
+      window._painelItens = cache.itens; window._painelTarifas = cache.tarifas;
       atualizarInfoCache(cache);
       renderizarTabela(cache.itens, cache.tarifas);
       return;
     }
   }
 
-  loading.style.display = 'block';
-  tableWrap.style.display = 'none';
-  empty.style.display = 'none';
-  resumo.style.display = 'none';
-  tbody.innerHTML = '';
-  progressBar.style.width = '0%';
-  progressTxt.textContent = 'Buscando anúncios ativos...';
+  const loading = document.getElementById('painel-loading');
+  const tableWrap = document.getElementById('painel-table-wrap');
+  const empty = document.getElementById('painel-empty');
+  const resumo = document.getElementById('resumo-cards');
+  const progressBar = document.getElementById('painel-progress-bar');
+  const progressTxt = document.getElementById('painel-progress-txt');
+
+  loading.style.display = 'block'; tableWrap.style.display = 'none';
+  empty.style.display = 'none'; resumo.style.display = 'none';
+  progressBar.style.width = '0%'; progressTxt.textContent = 'Buscando anúncios...';
+
+  const token    = contaAtiva.token;
+  const sellerId = contaAtiva.sellerId;
 
   try {
-    // 1. Busca todos os IDs paginado
-    let allIds = [];
-    let offset = 0;
-    const limit = 100;
-    let total = null;
-    do {
-      const res = await mlGet('/users/' + mlSellerId + '/items/search?status=active&limit=' + limit + '&offset=' + offset);
-      if (!res || res.error) break;
-      if (total === null) total = res.paging?.total || 0;
-      allIds = allIds.concat(res.results || []);
-      offset += limit;
-    } while (allIds.length < total && offset < total);
+    // 1. Busca IDs — tenta Scroll API, com fallback para paginação normal
+    let allIds = [], total = null;
 
-    if (!allIds.length) {
-      loading.style.display = 'none';
-      empty.style.display = 'block';
-      empty.textContent = 'Nenhum anúncio ativo encontrado.';
-      return;
+    // Tenta Scroll API primeiro
+    try {
+      let scrollId = null;
+      const testRes = await mlGet('/users/'+sellerId+'/items/search?status=active&search_type=scan&limit=100');
+      if (testRes && !testRes.error && Array.isArray(testRes.results)) {
+        // Scroll API funcionou
+        total = testRes.paging?.total || 0;
+        allIds = allIds.concat(testRes.results);
+        scrollId = testRes.scroll_id;
+        progressBar.style.width = '10%';
+        progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
+        while (scrollId && allIds.length < total) {
+          const res = await mlGet('/users/'+sellerId+'/items/search?search_type=scan&limit=100&scroll_id='+scrollId);
+          if (!res || res.error || !res.results || res.results.length === 0) break;
+          allIds = allIds.concat(res.results);
+          scrollId = res.scroll_id;
+          progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 30), 30) + '%';
+          progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
+        }
+      } else {
+        throw new Error('Scroll API indisponível: ' + JSON.stringify(testRes));
+      }
+    } catch(scrollErr) {
+      // Fallback: paginação normal com offset
+      console.warn('Scroll API falhou, usando offset:', scrollErr.message);
+      progressTxt.textContent = 'Buscando IDs (offset)...';
+      allIds = []; total = null;
+      let offset = 0;
+      do {
+        const res = await mlGet('/users/'+sellerId+'/items/search?status=active&limit=100&offset='+offset);
+        if (!res || res.error) break;
+        if (total === null) total = res.paging?.total || 0;
+        const ids = res.results || [];
+        if (!ids.length) break;
+        allIds = allIds.concat(ids);
+        offset += 100;
+        progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 30), 30) + '%';
+        progressTxt.textContent = 'IDs (offset): ' + allIds.length + ' / ' + total;
+      } while (allIds.length < total && offset < (total + 100));
     }
 
-    progressTxt.textContent = allIds.length + ' anúncios encontrados. Carregando dados...';
+    if (!allIds.length) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Nenhum anúncio ativo.'; return; }
 
-    // 2. Busca dados em lotes de 20
+    progressTxt.textContent = allIds.length + ' anúncios. Carregando dados...';
+
+    // 2. Dados via Multiget (1 chamada por 20 itens — economiza 95% das chamadas)
     let itens = [];
-    const LOTE = 20;
-    for (let i = 0; i < allIds.length; i += LOTE) {
-      const lote = allIds.slice(i, i + LOTE);
-      const resultados = await Promise.all(lote.map(id => mlGet('/items/' + id).catch(() => null)));
-      itens = itens.concat(resultados.filter(r => r && !r.error));
-      progressBar.style.width = Math.min(Math.round(((i + LOTE) / allIds.length) * 60), 60) + '%';
-      progressTxt.textContent = 'Carregando itens: ' + Math.min(i + LOTE, allIds.length) + ' / ' + allIds.length;
+    for (let i=0; i<allIds.length; i+=20) {
+      const lote = allIds.slice(i, i+20);
+      const res = await mlGet('/items?ids=' + lote.join(','));
+      if (Array.isArray(res)) {
+        const validos = res.filter(r => r.code === 200 && r.body).map(r => r.body);
+        itens = itens.concat(validos);
+      }
+      progressBar.style.width = Math.min(30 + Math.round(((i+20)/allIds.length)*25), 55) + '%';
+      progressTxt.textContent = 'Itens: ' + Math.min(i+20, allIds.length) + '/' + allIds.length;
     }
 
-    // 3. Busca tarifas em lotes de 10
-    progressTxt.textContent = 'Calculando tarifas...';
+    // 3. Tarifas + frete em lotes de 10
+    progressTxt.textContent = 'Calculando tarifas e fretes...';
     const tarifas = {};
-    const LOTE_FEE = 10;
-    for (let i = 0; i < itens.length; i += LOTE_FEE) {
-      const lote = itens.slice(i, i + LOTE_FEE);
+    for (let i=0; i<itens.length; i+=10) {
+      const lote = itens.slice(i,i+10);
       await Promise.all(lote.map(async item => {
         try {
-          const params = new URLSearchParams({
-            price: item.price,
-            category_id: item.category_id,
-            listing_type_id: item.listing_type_id || 'gold_special',
-            logistic_type: item.shipping?.logistic_type || 'not_specified',
-            shipping_modes: item.shipping?.mode || 'not_specified'
-          });
-          const lp = await mlGet('/sites/MLB/listing_prices?' + params.toString());
+          const params = new URLSearchParams({ price:item.price, category_id:item.category_id, listing_type_id:item.listing_type_id||'gold_special', logistic_type:item.shipping?.logistic_type||'not_specified', shipping_modes:item.shipping?.mode||'not_specified' });
+          const lp = await mlGet('/sites/MLB/listing_prices?'+params.toString());
           if (lp && lp.sale_fee_amount !== undefined) {
             const freteFixo   = lp.sale_fee_details?.fixed_fee || 0;
             const comissaoVal = lp.sale_fee_amount - freteFixo;
             const comissaoPct = lp.sale_fee_details?.percentage_fee || 0;
-            // Frete real via shipping_options/free — igual calculadora individual
             let freteReal = 0;
             if (item.shipping?.free_shipping) {
               try {
-                const sr = await mlGet('/users/' + mlSellerId + '/shipping_options/free?item_id=' + item.id);
-                if (sr?.coverage?.all_country?.list_cost) freteReal = sr.coverage.all_country.list_cost;
-                else if (freteFixo > 0) freteReal = freteFixo;
+                const sr = await mlGet('/users/'+sellerId+'/shipping_options/free?item_id='+item.id);
+                freteReal = sr?.coverage?.all_country?.list_cost || freteFixo;
               } catch { freteReal = freteFixo; }
             }
-            tarifas[item.id] = { comissaoVal, comissaoPct, freteFixo, freteReal
-            };
+            tarifas[item.id] = { comissaoVal, comissaoPct, freteFixo, freteReal };
           }
         } catch {}
       }));
-      progressBar.style.width = Math.min(60 + Math.round(((i + LOTE_FEE) / itens.length) * 40), 99) + '%';
-      progressTxt.textContent = 'Calculando tarifas: ' + Math.min(i + LOTE_FEE, itens.length) + ' / ' + itens.length;
+      progressBar.style.width = Math.min(55+Math.round(((i+10)/itens.length)*45),99)+'%';
+      progressTxt.textContent = 'Tarifas: '+Math.min(i+10,itens.length)+'/'+itens.length;
     }
 
-    salvarCache(itens, tarifas);
-    atualizarInfoCache(lerCache());
-    progressBar.style.width = '100%';
-    loading.style.display = 'none';
+    await salvarCache(itens, tarifas);
+    atualizarInfoCache(await lerCache());
+    window._painelItens = itens; window._painelTarifas = tarifas;
+    progressBar.style.width = '100%'; loading.style.display = 'none';
     renderizarTabela(itens, tarifas);
 
-  } catch(e) {
-    loading.style.display = 'none';
-    empty.style.display = 'block';
-    empty.textContent = 'Erro ao carregar: ' + e.message;
-  }
+  } catch(e) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Erro: '+e.message; }
 }
 
-// ── Renderiza a tabela com os dados (cache ou API) ──
-// Usa EXATAMENTE a mesma logica da calculadora individual (processarCalculo)
+// ══════════════════════════════════════════
+// PAINEL — RENDERIZAR TABELA
+// ══════════════════════════════════════════
 function renderizarTabela(itens, tarifas) {
-  const margemInput    = document.getElementById('painel-margem').value;
-  const impostoInput   = document.getElementById('painel-imposto').value;
-  const margemDesejada = margemInput === '' ? 20 : parseFloat(margemInput) || 0;
+  const margemInput  = document.getElementById('painel-margem').value;
+  const impostoInput = document.getElementById('painel-imposto').value;
+  const margemDesejada = margemInput === '' ? 0 : parseFloat(margemInput) || 0;
   const impostoPct     = impostoInput === '' ? 0 : parseFloat(impostoInput) || 0;
 
-  const tableWrap = document.getElementById('painel-table-wrap');
-  const empty     = document.getElementById('painel-empty');
-  const resumo    = document.getElementById('resumo-cards');
-  const tbody     = document.getElementById('painel-tbody');
+  window._painelItens = itens; window._painelTarifas = tarifas;
 
-  window._painelItens   = itens;
-  window._painelTarifas = tarifas;
-
+  const tbody = document.getElementById('painel-tbody');
+  const erp   = contaAtiva ? (erpPorConta[contaAtiva.id] || {}) : {};
   tbody.innerHTML = '';
-  empty.style.display = 'none';
 
-  let cGreen = 0, cYellow = 0, cRed = 0, cBlue = 0, cStockDiff = 0;
+  let cGreen=0, cYellow=0, cRed=0, cBlue=0, cStockDiff=0;
 
   itens.forEach(item => {
-    const preco      = item.price || 0;
-    const tipoLabel  = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Classico';
-    const tipoCls    = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
-    const freeShip   = item.shipping?.free_shipping || false;
+    const preco     = item.price || 0;
+    const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Classico';
+    const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
+    const freeShip  = item.shipping?.free_shipping || false;
 
-    // SKU pelo atributo PART_NUMBER (campo "Numero de peca" do ML)
-    const partNumber = (item.attributes?.find(a => a.id === 'PART_NUMBER')?.value_name || '').trim();
-    const skuItem    = partNumber || String(item.seller_custom_field || '').trim();
-    const erpItem    = skuItem ? (erpData[skuItem] || null) : null;
-    const custo      = erpItem ? erpItem.custo : null;
-    const estoqueERP = erpItem ? erpItem.estoque : null;
+    // SKU via PART_NUMBER
+    const sku    = (item.attributes?.find(a=>a.id==='PART_NUMBER')?.value_name||'').trim() || String(item.seller_custom_field||'').trim();
+    const erpItem = sku ? (erp[sku] || null) : null;
+    const custo   = erpItem?.custo ?? null;
+    const estoqueERP = erpItem?.estoque ?? null;
     const estoqueML  = item.available_quantity ?? null;
 
-    // ── MESMA LOGICA DA CALCULADORA INDIVIDUAL ──
-    // fee vem do cache — inclui freteReal buscado via shipping_options/free
-    const fee = tarifas[item.id];
+    // Tarifa e frete do cache — IGUAL calculadora
+    const fee         = tarifas[item.id];
+    const comissaoVal = fee?.comissaoVal ?? null;
+    const comissaoPct = fee?.comissaoPct ?? null;
+    const freteVal    = freeShip ? (fee?.freteReal || fee?.freteFixo || 0) : 0;
+    const tarifaOk    = comissaoVal !== null;
 
-    const tarifaVal  = fee ? fee.comissaoVal : null;
-    const tarifaPct  = fee ? fee.comissaoPct : null;
-    const tarifaOk   = tarifaVal !== null;
-
-    // freteReal = frete real do vendedor (mesmo endpoint da calculadora individual)
-    const freteVal   = freeShip ? (fee ? (fee.freteReal || fee.freteFixo || 0) : 0) : 0;
-
-    // imposto sobre o preco de venda (igual processarCalculo)
-    const impVal     = preco * (impostoPct / 100);
-
-    // lucro atual (formula identica a calculadora)
-    const lucro      = tarifaOk ? preco - (custo || 0) - freteVal - impVal - tarifaVal : null;
-    const margem     = (lucro !== null && preco > 0) ? (lucro / preco) * 100 : null;
-
-    // preco minimo = sem lucro (lucro = 0)
-    // 0 = P - custo - freteVal - P*impFrac - P*comFrac
-    // P*(1 - impFrac - comFrac) = custo + freteVal
-    // P = (custo + freteVal) / (1 - impFrac - comFrac)
-    // precoMinReal e precoMeta calculados abaixo junto com o innerHTML da linha
-
-    // Status de cor
-    let statusLabel = '—', statusCls = '';
-    if (margem !== null) {
-      if (margem < 0)                        { statusLabel = 'Abaixo minimo';   statusCls = 'status-red';    cRed++;    }
-      else if (margem < margemDesejada)       { statusLabel = 'Margem apertada'; statusCls = 'status-yellow'; cYellow++; }
-      else if (margem >= margemDesejada * 1.5){ statusLabel = 'Muito acima';     statusCls = 'status-blue';   cBlue++;   }
-      else                                   { statusLabel = 'Dentro da meta';  statusCls = 'status-green';  cGreen++;  }
-    }
-
-    // Alerta de estoque
-    let stockAlert = 'Sem ERP', stockCls = 'stock-na';
-    if (estoqueERP !== null && estoqueML !== null) {
-      if (estoqueERP === estoqueML) { stockAlert = 'OK'; stockCls = 'stock-ok'; }
-      else { stockAlert = 'ERP:' + estoqueERP + ' x ML:' + estoqueML; stockCls = 'stock-diff'; cStockDiff++; }
-    }
-
-    // Cor do preco atual
-    let precoCls = '';
-    if (margem !== null) {
-      if (margem < 0) precoCls = 'preco-atual-low';
-      else if (margem >= margemDesejada * 1.5) precoCls = 'preco-atual-high';
-      else precoCls = 'preco-atual-ok';
-    }
-
-
-
-    // Detalhes iguais à calculadora individual
-    const detComissao = tarifaOk
-      ? '<span style="color:#22543D;font-weight:700;">' + brl(tarifaVal) + ' (' + (tarifaPct ? tarifaPct.toFixed(1) : '?') + '%)</span>'
-      : '<span style="color:var(--gray4);">—</span>';
-    const detFrete = freeShip
-      ? '<span style="color:#0C447C;font-weight:700;">' + brl(freteVal) + '</span>'
-      : '<span style="color:var(--gray4);font-size:.68rem;">Comprador paga</span>';
+    // Margem atual — MESMA FÓRMULA DA CALCULADORA
     const impValAtual = preco * (impostoPct / 100);
-    const detImposto = impostoPct > 0
-      ? '<span style="color:#7B5800;font-weight:700;">' + brl(impValAtual) + '</span>'
-      : '<span style="color:var(--gray4);font-size:.68rem;">—</span>';
+    const lucroAtual  = tarifaOk ? preco - (custo||0) - freteVal - impValAtual - comissaoVal : null;
+    const margemAtual = (lucroAtual !== null && preco > 0) ? (lucroAtual / preco) * 100 : null;
 
-    // Preço mínimo = igual calculadora: custo + frete + imposto(preço atual) + comissão(preço atual)
-    const precoMinReal = (custo !== null && tarifaOk)
-      ? custo + freteVal + impValAtual + tarifaVal
-      : null;
+    // Preço mínimo — IGUAL calculadora: custo + frete + imp(atual) + comissao(atual)
+    const precoMin = (custo !== null && tarifaOk) ? custo + freteVal + impValAtual + comissaoVal : null;
 
-    // Preço alvo = preço que deve cobrar para atingir a margem desejada
-    // Resolve: lucro/P = marFrac → P*(1 - impFrac - comFrac - marFrac) = custo + freteVal
+    // Preço alvo (com margem desejada)
     let precoAlvo = null;
     if (custo !== null && tarifaOk && preco > 0) {
-      const impFrac = impostoPct / 100;
-      const comFrac = tarifaPct / 100;
-      const marFrac = margemDesejada / 100;
-      const den = 1 - impFrac - comFrac - marFrac;
-      if (den > 0) {
-        precoAlvo = (custo + freteVal) / den;
-        // Se precoAlvo menor que precoMinReal, usa precoMinReal
-        if (precoMinReal !== null && precoAlvo < precoMinReal) precoAlvo = precoMinReal;
-      }
+      const den = 1 - impostoPct/100 - comissaoPct/100 - margemDesejada/100;
+      if (den > 0) precoAlvo = (custo + freteVal) / den;
     }
 
-    // Diferença preço atual vs alvo
-    const diffAlvo = (precoAlvo !== null) ? preco - precoAlvo : null;
-    const diffAlvoLabel = diffAlvo !== null
-      ? (diffAlvo >= 0
-          ? '<br><span style="font-size:.68rem;font-weight:700;color:#22543D;">+' + brl(diffAlvo) + ' acima</span>'
-          : '<br><span style="font-size:.68rem;font-weight:700;color:#C53030;">' + brl(Math.abs(diffAlvo)) + ' abaixo</span>')
-      : ''
+    // Status
+    let statusLabel='—', statusCls='', statusKey='nodata';
+    if (margemAtual !== null) {
+      if (margemAtual < 0)                         { statusLabel='Abaixo mínimo';  statusCls='status-red';    statusKey='red';    cRed++;    }
+      else if (margemAtual < margemDesejada)        { statusLabel='Margem apertada';statusCls='status-yellow'; statusKey='yellow'; cYellow++; }
+      else if (margemAtual >= margemDesejada * 1.5) { statusLabel='Muito acima';   statusCls='status-blue';   statusKey='blue';   cBlue++;   }
+      else                                         { statusLabel='Dentro da meta'; statusCls='status-green';  statusKey='green';  cGreen++;  }
+    }
 
-    // data attributes para filtro
-    const trStockDiff = (estoqueERP !== null && estoqueML !== null && estoqueERP !== estoqueML);
-    const trNoErp     = custo === null;
-    const trStatus    = statusCls.replace('status-','') || 'nodata';
+    // Estoque
+    const stockDiff = estoqueERP !== null && estoqueML !== null && estoqueERP !== estoqueML;
+    let stockAlert='Sem ERP', stockCls='stock-na';
+    if (estoqueERP !== null && estoqueML !== null) {
+      if (!stockDiff) { stockAlert='OK'; stockCls='stock-ok'; }
+      else { stockAlert='ERP:'+estoqueERP+' ML:'+estoqueML; stockCls='stock-diff'; cStockDiff++; }
+    }
+    if (stockDiff) statusKey += ' stock-diff';
+
+    const precoCls = margemAtual===null?'' : margemAtual<0?'preco-atual-low' : margemAtual>=margemDesejada*1.5?'preco-atual-high':'preco-atual-ok';
+
+    // Detalhes inline
+    const detCom = tarifaOk ? '<span style="color:#22543D;font-weight:700;">'+brl(comissaoVal)+' ('+(comissaoPct?.toFixed(1)||'?')+'%)</span>' : '—';
+    const detFr  = freeShip ? '<span style="color:#0C447C;font-weight:700;">'+brl(freteVal)+'</span>' : '<span style="color:var(--gray4);font-size:.67rem;">Comprador</span>';
+    const detImp = impostoPct>0 ? '<span style="color:#7B5800;font-weight:700;">'+brl(impValAtual)+'</span>' : '<span style="color:var(--gray4);">—</span>';
+
+    const diffAlvo = precoAlvo !== null ? preco - precoAlvo : null;
+    const diffLabel = diffAlvo !== null ? (diffAlvo>=0 ? '<br><span style="font-size:.67rem;font-weight:700;color:#22543D;">+'+brl(diffAlvo)+'</span>' : '<br><span style="font-size:.67rem;font-weight:700;color:#C53030;">-'+brl(Math.abs(diffAlvo))+'</span>') : '';
 
     const tr = document.createElement('tr');
-    tr.dataset.status = trStatus;
-    tr.dataset.stock  = trStockDiff ? 'diff' : 'ok';
-    tr.dataset.noerp  = trNoErp ? '1' : '0';
-    tr.dataset.search = (item.title + ' ' + item.id + ' ' + skuItem).toLowerCase();
+    tr.dataset.status = statusKey;
+    tr.dataset.stock  = stockDiff ? 'diff' : 'ok';
+    tr.dataset.noerp  = custo === null ? '1' : '0';
+    tr.dataset.search = (item.title+' '+item.id+' '+sku).toLowerCase();
+
     tr.innerHTML =
-      '<td><div style="font-weight:800;font-size:.76rem;line-height:1.3;">' + item.title + '</div>' +
-        '<div style="font-size:.67rem;color:var(--gray4);margin-top:1px;">' + item.id + (skuItem ? ' · ' + skuItem : '') + '</div></td>' +
-      '<td><span class="anuncio-badge ' + tipoCls + '">' + tipoLabel + '</span></td>' +
-      '<td class="' + precoCls + '" style="white-space:nowrap;font-weight:800;">' + brl(preco) +
-        (margem !== null ? '<br><span style="font-size:.68rem;color:var(--gray4);font-weight:600;">' + pct(margem) + ' margem</span>' : '') + '</td>' +
-      '<td style="font-weight:700;white-space:nowrap;">' + (custo !== null ? brl(custo) : '<span style="color:var(--gray4);font-size:.72rem;">Sem ERP</span>') + '</td>' +
-      '<td style="font-size:.72rem;line-height:1.8;">' +
-        'Com: ' + detComissao + '<br>' +
-        'Fr: ' + detFrete + '<br>' +
-        'Imp: ' + detImposto +
-      '</td>' +
-      '<td style="font-weight:800;white-space:nowrap;">' + (precoMinReal !== null ? brl(precoMinReal) : '—') + '</td>' +
-      '<td style="font-weight:800;white-space:nowrap;">' + (precoAlvo !== null ? brl(precoAlvo) + diffAlvoLabel : '—') + '</td>' +
-      '<td>' + (statusLabel !== '—' ? '<span class="status-pill ' + statusCls + '">' + statusLabel + '</span>' : '—') + '</td>' +
-      '<td style="font-weight:700;text-align:center;">' + (estoqueML !== null ? estoqueML : '—') + '</td>' +
-      '<td style="font-weight:700;text-align:center;">' + (estoqueERP !== null ? estoqueERP : '—') + '</td>' +
-      '<td><span class="stock-alert ' + stockCls + '">' + stockAlert + '</span></td>';
+      '<td><div style="font-weight:800;font-size:.75rem;line-height:1.3;">'+item.title+'</div><div style="font-size:.66rem;color:var(--gray4);margin-top:1px;">'+item.id+(sku?' · '+sku:'')+'</div></td>'+
+      '<td><span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span></td>'+
+      '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+brl(preco)+(margemAtual!==null?'<br><span style="font-size:.67rem;color:var(--gray4);font-weight:600;">'+pct(margemAtual)+'</span>':'')+'</td>'+
+      '<td style="font-weight:700;white-space:nowrap;">'+(custo!==null?brl(custo):'<span style="color:var(--gray4);font-size:.7rem;">Sem ERP</span>')+'</td>'+
+      '<td style="font-size:.71rem;line-height:1.8;">Com: '+detCom+'<br>Fr: '+detFr+'<br>Imp: '+detImp+'</td>'+
+      '<td style="font-weight:800;white-space:nowrap;">'+(precoMin!==null?brl(precoMin):'—')+'</td>'+
+      '<td style="font-weight:800;white-space:nowrap;">'+(precoAlvo!==null?brl(precoAlvo)+diffLabel:'—')+'</td>'+
+      '<td>'+(statusLabel!=='—'?'<span class="status-pill '+statusCls+'">'+statusLabel+'</span>':'—')+'</td>'+
+      '<td style="font-weight:700;text-align:center;">'+(estoqueML!==null?estoqueML:'—')+'</td>'+
+      '<td style="font-weight:700;text-align:center;">'+(estoqueERP!==null?estoqueERP:'—')+'</td>'+
+      '<td><span class="stock-alert '+stockCls+'">'+stockAlert+'</span></td>';
     tbody.appendChild(tr);
   });
 
@@ -1021,200 +1268,376 @@ function renderizarTabela(itens, tarifas) {
   document.getElementById('rc-red').textContent    = cRed;
   document.getElementById('rc-blue').textContent   = cBlue;
   document.getElementById('rc-stock-diff').textContent = cStockDiff;
-  resumo.style.display = 'grid';
-  tableWrap.style.display = 'block';
-  // Reaplicar filtro ativo após renderização
+  document.getElementById('resumo-cards').style.display = 'grid';
+  document.getElementById('painel-table-wrap').style.display = 'block';
+  document.getElementById('painel-empty').style.display = 'none';
   if (window._filtroAtivo) filtrarTabela();
 }
 
-// ── Filtros ──
-window._filtroAtivo = 'todos';
+function recalcularPainel() {
+  if (window._painelItens && window._painelTarifas)
+    renderizarTabela(window._painelItens, window._painelTarifas);
+}
 
+// ══════════════════════════════════════════
+// FILTROS DO PAINEL
+// ══════════════════════════════════════════
 function setFiltro(filtro) {
   window._filtroAtivo = filtro;
-
-  // Atualiza botões ativos
-  document.querySelectorAll('.filtro-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.filtro === filtro);
-  });
-
+  document.querySelectorAll('.filtro-btn[data-filtro]').forEach(b => b.classList.toggle('active', b.dataset.filtro === filtro));
   filtrarTabela();
 }
 
 function filtrarTabela() {
-  const filtro = window._filtroAtivo;
-  const busca  = (document.getElementById('filtro-busca')?.value || '').toLowerCase().trim();
-  const rows   = document.querySelectorAll('#painel-tbody tr');
-  let visiveis = 0;
+  const filtro = window._filtroAtivo || 'todos';
+  const busca  = (document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
+  let vis = 0;
+  document.querySelectorAll('#painel-tbody tr').forEach(tr => {
+    let ok = true;
+    if (filtro==='green')  ok = tr.dataset.status?.includes('green');
+    else if (filtro==='yellow') ok = tr.dataset.status?.includes('yellow');
+    else if (filtro==='red')    ok = tr.dataset.status?.includes('red');
+    else if (filtro==='blue')   ok = tr.dataset.status?.includes('blue');
+    else if (filtro==='stock')  ok = tr.dataset.stock === 'diff';
+    else if (filtro==='noerp')  ok = tr.dataset.noerp === '1';
+    if (ok && busca) ok = tr.dataset.search?.includes(busca);
+    tr.style.display = ok ? '' : 'none';
+    if (ok) vis++;
+  });
+  document.getElementById('rc-total').textContent = vis + (filtro!=='todos'||busca?' (filtrado)':'');
+}
 
-  rows.forEach(tr => {
-    let mostrar = true;
+// ══════════════════════════════════════════
+// SKUs NÃO CADASTRADOS
+// ══════════════════════════════════════════
+async function analisarSKUs() {
+  if (!contaAtiva) { alert('Selecione uma conta.'); return; }
+  if (!contaAtiva.token) { abrirModalParaConta(contaAtiva.id); return; }
 
-    // Filtro por status
-    if (filtro === 'green')  mostrar = tr.dataset.status === 'green';
-    else if (filtro === 'yellow') mostrar = tr.dataset.status === 'yellow';
-    else if (filtro === 'red')    mostrar = tr.dataset.status === 'red';
-    else if (filtro === 'blue')   mostrar = tr.dataset.status === 'blue';
-    else if (filtro === 'stock')  mostrar = tr.dataset.stock === 'diff';
-    else if (filtro === 'noerp')  mostrar = tr.dataset.noerp === '1';
+  const erp = erpPorConta[contaAtiva.id];
+  if (!erp || !Object.keys(erp).length) { alert('Suba a planilha ERP desta conta primeiro.'); return; }
 
-    // Filtro por busca de texto
-    if (mostrar && busca) {
-      mostrar = tr.dataset.search && tr.dataset.search.includes(busca);
+  // Aviso de ERPs das outras contas
+  const outrasSemERP = contas.filter(c => c.id !== contaAtiva.id && !erpPorConta[c.id]);
+  const avisoEl = document.getElementById('sku-erp-aviso');
+  if (avisoEl) {
+    avisoEl.textContent = outrasSemERP.length
+      ? '⚠ Para ver estoque cruzado, suba ERP de: ' + outrasSemERP.map(c=>c.nome).join(', ')
+      : '✓ ERPs de todas as contas carregados — estoque cruzado ativo';
+    avisoEl.style.color = outrasSemERP.length ? '#C53030' : '#22543D';
+  }
+
+  const loading    = document.getElementById('sku-loading');
+  const lista      = document.getElementById('sku-lista');
+  const empty      = document.getElementById('sku-empty');
+  const progressBar = document.getElementById('sku-progress-bar');
+  const progressTxt = document.getElementById('sku-progress-txt');
+
+  loading.style.display = 'block'; lista.innerHTML = ''; empty.style.display = 'none';
+  document.getElementById('sku-resumo').style.display = 'none';
+  progressBar.style.width = '0%';
+
+  const sellerId = contaAtiva.sellerId;
+  const skusERP  = Object.keys(erp);
+
+  // Busca todos os anúncios do ML (ativos + pausados) — Scroll API
+  progressTxt.textContent = 'Buscando todos os anúncios do ML...';
+  let todosIds = [], scrollId = null, total = null;
+  do {
+    const scanUrl = scrollId
+      ? '/users/'+sellerId+'/items/search?search_type=scan&limit=100&scroll_id='+scrollId
+      : '/users/'+sellerId+'/items/search?search_type=scan&limit=100';
+    const res = await mlGet(scanUrl);
+    if (!res || res.error || !res.results || res.results.length === 0) break;
+    if (total === null) total = res.paging?.total || 0;
+    todosIds = todosIds.concat(res.results);
+    scrollId = res.scroll_id;
+  } while (todosIds.length < total);
+
+  progressTxt.textContent = 'Carregando dados dos anúncios...';
+  progressBar.style.width = '20%';
+
+  // Multiget — 1 chamada por 20 itens
+  let todosItens = [];
+  for (let i=0; i<todosIds.length; i+=20) {
+    const lote = todosIds.slice(i, i+20);
+    const res = await mlGet('/items?ids=' + lote.join(','));
+    if (Array.isArray(res)) {
+      const validos = res.filter(r => r.code === 200 && r.body).map(r => r.body);
+      todosItens = todosItens.concat(validos);
     }
+    progressBar.style.width = Math.min(20 + Math.round(((i+20)/todosIds.length)*60), 80) + '%';
+    progressTxt.textContent = 'Anúncios: ' + Math.min(i+20, todosIds.length) + '/' + todosIds.length;
+  }
 
-    tr.style.display = mostrar ? '' : 'none';
-    if (mostrar) visiveis++;
+  // Mapeia SKU → anúncios via PART_NUMBER
+  const skuParaAnuncios = {};
+  todosItens.forEach(item => {
+    const sku = (item.attributes?.find(a=>a.id==='PART_NUMBER')?.value_name || '').trim()
+             || String(item.seller_custom_field || '').trim();
+    if (!sku) return;
+    if (!skuParaAnuncios[sku]) skuParaAnuncios[sku] = [];
+    skuParaAnuncios[sku].push({ id:item.id, titulo:item.title, status:item.status, preco:item.price });
   });
 
-  // Atualiza contador
-  const total = document.getElementById('rc-total');
-  if (total) total.textContent = visiveis + (filtro !== 'todos' || busca ? ' (filtrado)' : '');
+  progressBar.style.width = '100%'; loading.style.display = 'none';
+
+  // Classifica cada SKU do ERP
+  let cAtivos=0, cPausados=0, cSem=0;
+  const resultados = [];
+
+  skusERP.forEach(sku => {
+    const anuncios = skuParaAnuncios[sku] || [];
+    const temAtivo = anuncios.some(a => a.status === 'active');
+    const temPausado = anuncios.some(a => a.status !== 'active');
+
+    if (temAtivo) { cAtivos++; return; } // OK — tem ativo, ignora
+    else if (temPausado) { cPausados++; resultados.push({ sku, tipo:'pausado', anuncios, erp:erp[sku] }); }
+    else { cSem++; resultados.push({ sku, tipo:'sem', anuncios:[], erp:erp[sku] }); }
+  });
+
+  window._skuResultados = resultados;
+
+  document.getElementById('sku-total').textContent    = skusERP.length;
+  document.getElementById('sku-ativos').textContent   = cAtivos;
+  document.getElementById('sku-pausados').textContent = cPausados;
+  document.getElementById('sku-sem').textContent      = cSem;
+  document.getElementById('sku-resumo').style.display = 'grid';
+
+  renderSKUs(resultados);
 }
 
-// Recalcula na tela sem chamar API — ao mudar margem ou imposto
-function recalcularPainel() {
-  if (window._painelItens && window._painelTarifas) {
-    renderizarTabela(window._painelItens, window._painelTarifas);
+function renderSKUs(resultados) {
+  const lista = document.getElementById('sku-lista');
+  const empty = document.getElementById('sku-empty');
+  lista.innerHTML = '';
+
+  if (!resultados.length) {
+    empty.style.display = 'block';
+    empty.textContent = 'Todos os SKUs têm pelo menos um anúncio ativo!';
+    return;
   }
+  empty.style.display = 'none';
+
+  // Monta mapa de ERPs das outras contas para cruzamento
+  const outrasConta = contas.filter(c => c.id !== contaAtiva?.id);
+  const erpOutras = {}; // { sku: [{nomeConta, estoque}] }
+  outrasConta.forEach(c => {
+    const erp = erpPorConta[c.id] || {};
+    Object.entries(erp).forEach(([sku, dados]) => {
+      if (!erpOutras[sku]) erpOutras[sku] = [];
+      erpOutras[sku].push({ nomeConta: c.nome, cor: c.cor, estoque: dados.estoque, custo: dados.custo });
+    });
+  });
+
+  resultados.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'sku-card ' + r.tipo;
+    div.dataset.tipo   = r.tipo;
+    div.dataset.search = (r.sku + ' ' + (r.erp?.nome||'')).toLowerCase();
+
+    const badgeLabel = r.tipo === 'pausado' ? 'Só pausados' : 'Sem anúncio';
+    const badgeCls   = r.tipo === 'pausado' ? 'sku-badge-pausado' : 'sku-badge-sem';
+
+    // Estoque cruzado nas outras contas
+    const emOutras = erpOutras[r.sku] || [];
+    let cruzadoHtml = '';
+    if (emOutras.length) {
+      cruzadoHtml = emOutras.map(o =>
+        '<span style="display:inline-flex;align-items:center;gap:.3rem;background:#FFF8E1;border:1.5px solid #F6E05E;border-radius:6px;padding:.15rem .5rem;font-size:.68rem;font-weight:800;color:#7B5800;">' +
+          '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+o.cor+';flex-shrink:0;"></span>' +
+          '⚠ Tbm no estoque '+o.nomeConta+': '+o.estoque+' un.' +
+        '</span>'
+      ).join(' ');
+    }
+
+    let anunciosHtml = '';
+    if (r.anuncios.length) {
+      anunciosHtml = r.anuncios.map(a =>
+        '<span style="font-size:.7rem;font-weight:700;color:var(--gray4);">'+a.id+' · '+a.titulo.substring(0,40)+'</span>'
+      ).join('<br>');
+    }
+
+    div.innerHTML =
+      '<span class="sku-badge-status '+badgeCls+'">'+badgeLabel+'</span>'+
+      '<div style="flex:1;">'+
+        '<div style="font-weight:800;font-size:.82rem;">'+r.sku+'</div>'+
+        '<div style="font-size:.75rem;color:var(--gray4);margin-top:2px;">'+(r.erp?.nome||'')+(r.erp?.custo?' · Custo: '+brl(r.erp.custo):'')+(r.erp?.estoque !== undefined?' · Estoque: '+r.erp.estoque+' un.':'')+'</div>'+
+        (cruzadoHtml ? '<div style="margin-top:.4rem;display:flex;flex-wrap:wrap;gap:.3rem;">'+cruzadoHtml+'</div>' : '')+
+        (anunciosHtml ? '<div style="margin-top:.35rem;">'+anunciosHtml+'</div>' : '')+
+      '</div>';
+    lista.appendChild(div);
+  });
+}
+
+function setFiltroSKU(filtro) {
+  window._filtroSKUAtivo = filtro;
+  document.querySelectorAll('.filtro-btn[data-sfiltro]').forEach(b => b.classList.toggle('active', b.dataset.sfiltro === filtro));
+  filtrarSKUs();
+}
+
+function filtrarSKUs() {
+  const filtro = window._filtroSKUAtivo || 'todos';
+  const busca  = (document.getElementById('sku-busca')?.value||'').toLowerCase().trim();
+  document.querySelectorAll('#sku-lista .sku-card').forEach(card => {
+    let ok = true;
+    if (filtro === 'sem')     ok = card.dataset.tipo === 'sem';
+    else if (filtro === 'pausado') ok = card.dataset.tipo === 'pausado';
+    else if (filtro === 'cruzado') ok = card.querySelector('[style*="Tbm no estoque"]') !== null;
+    if (ok && busca) ok = card.dataset.search?.includes(busca);
+    card.style.display = ok ? '' : 'none';
+  });
 }
 
 // ══════════════════════════════════════════
-// CALCULADORA ML — BUSCA INDIVIDUAL
+// CALCULADORA ML INDIVIDUAL
 // ══════════════════════════════════════════
+function atualizarPillML() {
+  const c = contaAtiva || contas[0] || null;
+  const connected = !!c?.token;
+  const dot   = document.getElementById('pill-dot-ml');
+  const label = document.getElementById('pill-label-ml');
+  if (dot)   dot.className   = 'pill-dot ' + (connected?'green':'gray');
+  if (label) label.textContent = connected ? (c.nome) : 'Sem conta';
+}
+
+function setTabML(tab) {
+  document.getElementById('tab-api').classList.toggle('active', tab==='api');
+  document.getElementById('tab-manual').classList.toggle('active', tab==='manual');
+  document.getElementById('section-api').style.display   = tab==='api'    ? '' : 'none';
+  document.getElementById('section-manual').style.display = tab==='manual' ? '' : 'none';
+}
+
+function getToken() { return (contaAtiva || contas[0])?.token || null; }
+function getSellerId() { return (contaAtiva || contas[0])?.sellerId || null; }
+
+async function mlGet(path) {
+  const token = getToken();
+  if (!token) throw new Error('Sem token — conecte uma conta');
+  const r = await fetch(WORKER_URL+'/ml'+path, { headers:{ Authorization:'Bearer '+token }});
+  return r.json();
+}
+
 async function buscarAnuncio() {
-  if (!mlAccessToken) { abrirModal(); return; }
+  const token = getToken();
+  if (!token) { abrirModalParaConta(contaAtiva?.id); return; }
   const skuRaw = document.getElementById('ml-mlb').value.trim();
-  const st   = document.getElementById('search-status');
-  const btn  = document.getElementById('search-btn');
+  const st = document.getElementById('search-status');
+  const btn = document.getElementById('search-btn');
   const wrap = document.getElementById('anuncios-wrap');
   const lista = document.getElementById('anuncios-lista');
-  if (!skuRaw) { st.className='search-status err'; st.textContent='Informe o SKU ou MLB.'; return; }
-  btn.disabled = true;
-  st.className = 'search-status loading'; st.textContent = 'Buscando anúncios...';
-  wrap.style.display = 'none'; lista.innerHTML = '';
+  if (!skuRaw) { st.style.color='#C53030'; st.textContent='Informe o SKU ou MLB.'; return; }
+  btn.disabled=true; st.style.color='var(--gray4)'; st.textContent='Buscando...';
+  wrap.style.display='none'; lista.innerHTML='';
   document.getElementById('ml-result-api').classList.remove('show');
-  anuncioSelecionado = null;
+
   try {
-    let mlbIds = [];
-    if (skuRaw.toUpperCase().startsWith('MLB')) {
-      mlbIds = [skuRaw.toUpperCase()];
-    } else {
-      const sr = await mlGet(`/users/${mlSellerId}/items/search?seller_sku=${encodeURIComponent(skuRaw)}&limit=20`);
-      mlbIds = sr.results || [];
+    let ids = [];
+    if (skuRaw.toUpperCase().startsWith('MLB')) { ids=[skuRaw.toUpperCase()]; }
+    else {
+      const sr = await mlGet('/users/'+getSellerId()+'/items/search?seller_sku='+encodeURIComponent(skuRaw)+'&limit=20');
+      ids = sr.results || [];
     }
-    if (!mlbIds.length) { st.className='search-status err'; st.textContent='Nenhum anúncio encontrado.'; btn.disabled=false; return; }
-    const itens = await Promise.all(mlbIds.slice(0,20).map(id => mlGet(`/items/${id}`).catch(()=>null)));
-    const validos = itens.filter(i => i && !i.error);
-    if (!validos.length) { st.className='search-status err'; st.textContent='Erro ao carregar anúncios.'; btn.disabled=false; return; }
-    document.getElementById('anuncios-label').textContent = validos.length===1 ? 'Anúncio encontrado' : `${validos.length} anúncios — selecione um`;
+    if (!ids.length) { st.style.color='#C53030'; st.textContent='Nenhum anúncio encontrado.'; btn.disabled=false; return; }
+    const itens = await Promise.all(ids.slice(0,20).map(id=>mlGet('/items/'+id).catch(()=>null)));
+    const validos = itens.filter(i=>i&&!i.error);
+    if (!validos.length) { st.style.color='#C53030'; st.textContent='Erro ao carregar.'; btn.disabled=false; return; }
+    document.getElementById('anuncios-label').textContent = validos.length===1?'Anúncio encontrado':validos.length+' anúncios — selecione um';
     validos.forEach(item => {
       const tipoLabel = item.listing_type_id==='gold_pro'?'Premium':'Clássico';
       const tipoCls   = item.listing_type_id==='gold_pro'?'badge-premium':'badge-classico';
-      const statusCls = item.status==='active'?'badge-ativo':'badge-pausado';
-      const statusLabel = item.status==='active'?'Ativo':'Pausado';
       const card = document.createElement('div');
-      card.className = 'anuncio-card';
-      card.innerHTML = `
-        <div class="anuncio-titulo">${item.title}</div>
-        <div class="anuncio-meta">
-          <span class="anuncio-badge ${statusCls}">${statusLabel}</span>
-          <span class="anuncio-badge ${tipoCls}">${tipoLabel}</span>
-          <span style="font-size:.75rem;font-weight:700;color:var(--gray4);">${item.id}</span>
-          <span class="anuncio-preco">${brl(item.price)}</span>
-        </div>
-        <div class="custo-inline">
-          <div class="custo-inline-row">
-            <div class="field"><label>Custo (R$)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" class="custo-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div></div>
-            <div class="field"><label>Embalagem (R$)</label><div class="field-row has-prefix"><span class="prefix">R$</span><input type="number" class="embal-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.55rem .75rem .55rem 28px;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div></div>
-            <div class="field"><label>Imposto (%)</label><input type="number" class="imp-input" placeholder="0" min="0" max="100" step="0.01" style="width:100%;padding:.55rem .75rem;font-family:Nunito,sans-serif;font-size:.9rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div>
-            <button class="custo-inline-btn" onclick="calcularAnuncio(this)">Calcular</button>
-          </div>
-        </div>`;
+      card.style.cssText = 'background:#fff;border:2px solid var(--gray2);border-radius:12px;padding:.9rem 1rem;cursor:pointer;transition:border-color .15s;';
+      card.innerHTML =
+        '<div style="font-weight:800;font-size:.85rem;">'+item.title+'</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;align-items:center;">'+
+          '<span class="anuncio-badge '+(item.status==='active'?'badge-ativo':'badge-pausado')+'">'+(item.status==='active'?'Ativo':'Pausado')+'</span>'+
+          '<span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span>'+
+          '<span style="font-size:.72rem;font-weight:700;color:var(--gray4);">'+item.id+'</span>'+
+          '<span style="font-size:.85rem;font-weight:800;color:var(--ml-blue);margin-left:auto;">'+brl(item.price)+'</span>'+
+        '</div>'+
+        '<div style="margin-top:.65rem;padding-top:.65rem;border-top:1px solid var(--gray2);display:none;" class="custo-inline">'+
+          '<div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end;">'+
+            '<div style="flex:1;min-width:90px;"><label style="font-size:.72rem;font-weight:700;color:#555;display:block;margin-bottom:3px;">Custo (R$)</label><input type="number" class="custo-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.5rem .5rem .5rem 10px;font-family:Nunito,sans-serif;font-size:.88rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div>'+
+            '<div style="flex:1;min-width:90px;"><label style="font-size:.72rem;font-weight:700;color:#555;display:block;margin-bottom:3px;">Embalagem (R$)</label><input type="number" class="embal-input" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:.5rem;font-family:Nunito,sans-serif;font-size:.88rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div>'+
+            '<div style="flex:1;min-width:70px;"><label style="font-size:.72rem;font-weight:700;color:#555;display:block;margin-bottom:3px;">Imposto (%)</label><input type="number" class="imp-input" placeholder="0" min="0" max="100" step="0.01" style="width:100%;padding:.5rem;font-family:Nunito,sans-serif;font-size:.88rem;font-weight:700;border:2px solid var(--gray2);border-radius:8px;background:#fff;color:var(--text);outline:none;-moz-appearance:textfield;"/></div>'+
+            '<button style="flex-shrink:0;padding:.55rem .9rem;border:none;border-radius:8px;background:var(--ml-blue);color:#fff;font-family:DM Sans,sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;" onclick="calcularAnuncio(this)">Calcular</button>'+
+          '</div>'+
+        '</div>';
       card.addEventListener('click', function(e) {
         if (e.target.tagName==='INPUT'||e.target.tagName==='BUTTON') return;
-        document.querySelectorAll('.anuncio-card').forEach(c=>c.classList.remove('selected'));
-        card.classList.add('selected'); anuncioSelecionado = item;
+        document.querySelectorAll('#anuncios-lista > div').forEach(c => { c.style.borderColor='var(--gray2)'; c.style.background='#fff'; c.querySelector('.custo-inline').style.display='none'; });
+        card.style.borderColor='var(--ml-blue)'; card.style.background='#F0F6FF';
+        card.querySelector('.custo-inline').style.display='block';
+        card._item = item;
         card.querySelector('.custo-input').focus();
       });
+      card._item = item;
       lista.appendChild(card);
     });
     wrap.style.display='block';
-    st.className='search-status ok';
-    st.textContent = validos.length===1 ? '✓ Anúncio carregado! Informe o custo e calcule.' : `✓ ${validos.length} anúncios. Clique em um para calcular.`;
-  } catch(e) { st.className='search-status err'; st.textContent='Erro: '+e.message; }
-  btn.disabled = false;
+    st.style.color='#22543D'; st.textContent='✓ '+(validos.length===1?'Anúncio carregado! Informe o custo.':validos.length+' anúncios. Clique para calcular.');
+  } catch(e) { st.style.color='#C53030'; st.textContent='Erro: '+e.message; }
+  btn.disabled=false;
 }
 
 async function calcularAnuncio(btn) {
-  const card = btn.closest('.anuncio-card');
-  document.querySelectorAll('.anuncio-card').forEach(c=>c.classList.remove('selected'));
-  card.classList.add('selected');
-  const mlbEl = card.querySelector('.anuncio-meta span:nth-child(3)');
-  const mlbId = mlbEl ? mlbEl.textContent.trim() : null;
+  const card = btn.closest('div[style*="border-radius:12px"]') || btn.parentElement.parentElement.parentElement;
+  const item  = card._item;
+  if (!item) { alert('Selecione um anúncio.'); return; }
   const custo  = parseFloat(card.querySelector('.custo-input').value)||0;
   const embal  = parseFloat(card.querySelector('.embal-input').value)||0;
   const impPct = parseFloat(card.querySelector('.imp-input').value)||0;
-  let itemData = anuncioSelecionado;
-  if (!itemData && mlbId) {
-    btn.disabled=true; btn.textContent='...';
-    try { itemData = await mlGet(`/items/${mlbId}`); } catch {}
-    btn.disabled=false; btn.textContent='Calcular';
-  }
-  if (!itemData) { alert('Não foi possível carregar os dados do anúncio.'); return; }
-  await processarCalculo(itemData, custo, embal, impPct);
+  await processarCalculo(item, custo, embal, impPct);
 }
 
 async function processarCalculo(item, custo, embal, impPct) {
-  const preco        = item.price || 0;
-  const mlbId        = item.id;
-  const categoryId   = item.category_id;
-  const listingType  = item.listing_type_id || 'gold_special';
-  const tipoLabel    = listingType === 'gold_pro' ? 'Premium' : 'Clássico';
-  const logisticType = item.shipping?.logistic_type || 'not_specified';
-  const shippingMode = item.shipping?.mode || 'not_specified';
-  const freeShipping = item.shipping?.free_shipping || false;
+  const preco       = item.price||0;
+  const mlbId       = item.id;
+  const listingType = item.listing_type_id||'gold_special';
+  const tipoLabel   = listingType==='gold_pro'?'Premium':'Clássico';
+  const freeShipping = item.shipping?.free_shipping||false;
 
-  let tarifaVal = null, tarifaPct = null, freteFixo = 0;
+  let tarifaVal=null, tarifaPct=null, freteFixo=0;
   try {
-    const params = new URLSearchParams({ price: preco, category_id: categoryId, listing_type_id: listingType, logistic_type: logisticType, shipping_modes: shippingMode });
-    const lp = await mlGet(`/sites/MLB/listing_prices?${params.toString()}`);
-    if (lp && lp.sale_fee_amount !== undefined) {
-      freteFixo  = lp.sale_fee_details?.fixed_fee || 0;
+    const params = new URLSearchParams({ price:preco, category_id:item.category_id, listing_type_id:listingType, logistic_type:item.shipping?.logistic_type||'not_specified', shipping_modes:item.shipping?.mode||'not_specified' });
+    const lp = await mlGet('/sites/MLB/listing_prices?'+params.toString());
+    if (lp && lp.sale_fee_amount!==undefined) {
+      freteFixo  = lp.sale_fee_details?.fixed_fee||0;
       tarifaVal  = lp.sale_fee_amount - freteFixo;
-      tarifaPct  = lp.sale_fee_details?.percentage_fee || (preco>0?(tarifaVal/preco)*100:0);
+      tarifaPct  = lp.sale_fee_details?.percentage_fee||(preco>0?(tarifaVal/preco)*100:0);
     }
   } catch {}
 
-  const tarifaOk = tarifaVal !== null;
-  let freteVal = 0, freteFonte = 'comprador paga';
+  const tarifaOk = tarifaVal!==null;
+  let freteVal=0, freteFonte='comprador paga';
   if (freeShipping) {
     try {
-      const shipRes = await mlGet(`/users/${mlSellerId}/shipping_options/free?item_id=${mlbId}`);
-      if (shipRes?.coverage?.all_country?.list_cost) { freteVal = shipRes.coverage.all_country.list_cost; freteFonte = 'frete ME2'; }
-      else if (freteFixo > 0) { freteVal = freteFixo; freteFonte = 'custo fixo API'; }
-    } catch { if (freteFixo>0){ freteVal=freteFixo; freteFonte='custo fixo API'; } }
+      const sr = await mlGet('/users/'+getSellerId()+'/shipping_options/free?item_id='+mlbId);
+      if (sr?.coverage?.all_country?.list_cost) { freteVal=sr.coverage.all_country.list_cost; freteFonte='frete ME2'; }
+      else if (freteFixo>0) { freteVal=freteFixo; freteFonte='custo fixo'; }
+    } catch { if (freteFixo>0){ freteVal=freteFixo; freteFonte='custo fixo'; } }
   }
 
-  const impVal = preco * (impPct / 100);
-  const lucro  = tarifaOk ? preco - custo - embal - freteVal - impVal - tarifaVal : null;
-  const margem = (lucro !== null && preco > 0) ? (lucro / preco) * 100 : null;
+  const impVal = preco*(impPct/100);
+  const lucro  = tarifaOk ? preco-custo-embal-freteVal-impVal-tarifaVal : null;
+  const margem = (lucro!==null&&preco>0) ? (lucro/preco)*100 : null;
 
   document.getElementById('ml-result-titulo-api').textContent = item.title.substring(0,55)+(item.title.length>55?'…':'');
   const tagsEl = document.getElementById('ml-info-tags'); tagsEl.innerHTML='';
-  const addTag = (txt,cls)=>{ const t=document.createElement('span'); t.className=`itag ${cls}`; t.textContent=txt; tagsEl.appendChild(t); };
+  const addTag=(txt,cls)=>{const t=document.createElement('span');t.className='itag '+cls;t.textContent=txt;tagsEl.appendChild(t);};
   addTag(mlbId,'itag-info'); addTag(tipoLabel,'itag-info');
-  if (tarifaOk) addTag(`Comissão: ${tarifaPct.toFixed(1)}% = ${brl(tarifaVal)}`,'itag-ok');
-  else addTag('Tarifa: não retornada pela API','itag-warn');
-  addTag(`Frete: ${freteVal>0?brl(freteVal)+' ('+freteFonte+')':'comprador paga'}`,freteVal>0?'itag-ok':'itag-info');
+  if (tarifaOk) addTag('Comissão: '+(tarifaPct?.toFixed(1)||'?')+'% = '+brl(tarifaVal),'itag-ok');
+  else addTag('Tarifa não retornada','itag-warn');
+  addTag('Frete: '+(freteVal>0?brl(freteVal)+' ('+freteFonte+')':'comprador paga'),freteVal>0?'itag-ok':'itag-info');
 
-  document.getElementById('label-tarifa-tipo').textContent = `(-) Comissão ML — ${tipoLabel}`;
+  document.getElementById('label-tarifa-tipo').textContent = '(-) Comissão ML — '+tipoLabel;
   document.getElementById('ml-ra-preco').textContent    = brl(preco);
   document.getElementById('ml-ra-custo').textContent    = '- '+brl(custo);
   document.getElementById('ml-ra-embalagem').textContent = '- '+brl(embal);
   document.getElementById('ml-ra-frete').textContent    = '- '+brl(freteVal);
   document.getElementById('ml-ra-imposto').textContent  = '- '+brl(impVal);
-  document.getElementById('ml-ra-tarifa').textContent   = tarifaOk ? '- '+brl(tarifaVal) : '—';
+  document.getElementById('ml-ra-tarifa').textContent   = tarifaOk?'- '+brl(tarifaVal):'—';
 
   const big = document.getElementById('ml-big-api');
   big.className = 'big-result '+(lucro!==null?(lucro>=0?'positive':'negative'):'positive');
@@ -1222,9 +1645,8 @@ async function processarCalculo(item, custo, embal, impPct) {
   document.getElementById('ml-ra-margem').textContent = margem!==null?pct(margem)+' de margem':'informe o custo';
 
   const minEl = document.getElementById('ml-ra-precomin');
-  if (custo>0 && tarifaOk) {
-    const precoMin = custo+embal+freteVal+impVal+tarifaVal;
-    minEl.textContent = `💡 Preço mínimo para não ter prejuízo: ${brl(precoMin)}`;
+  if (custo>0&&tarifaOk) {
+    minEl.textContent = '💡 Preço mínimo: '+brl(custo+embal+freteVal+impVal+tarifaVal);
     minEl.style.display='block';
   } else { minEl.style.display='none'; }
 
@@ -1239,12 +1661,8 @@ function resetMLApi() {
   document.getElementById('anuncios-wrap').style.display='none';
   document.getElementById('anuncios-lista').innerHTML='';
   document.getElementById('ml-result-api').classList.remove('show');
-  anuncioSelecionado=null;
 }
 
-// ══════════════════════════════════════════
-// CALCULADORA ML MANUAL
-// ══════════════════════════════════════════
 function calcML() {
   const custo=+document.getElementById('ml-custo').value||0, embal=+document.getElementById('ml-embalagem').value||0;
   const impPct=+document.getElementById('ml-imposto').value||0, tarPct=+document.getElementById('ml-tarifa').value||0;
@@ -1271,7 +1689,7 @@ function shopeeRate(p){if(p<80)return{pct:.20,fixed:4,label:'até R$79,99: 20% +
 function calcSH(){
   const custo=+document.getElementById('sh-custo').value||0,embal=+document.getElementById('sh-embalagem').value||0;
   const impPct=+document.getElementById('sh-imposto').value||0,marPct=+document.getElementById('sh-margem').value||0;
-  if(custo<=0){alert('Informe o custo do produto.');return;}
+  if(custo<=0){alert('Informe o custo.');return;}
   const ct=custo+embal,mar=marPct/100,imp=impPct/100;
   let P=ct/(1-imp-0.14-mar);
   for(let i=0;i<200;i++){const r=shopeeRate(P);const Pn=(ct+r.fixed+P*mar)/(1-imp-r.pct);if(Math.abs(Pn-P)<0.001){P=Pn;break;}P=Pn;}
@@ -1291,9 +1709,576 @@ function resetSH(){['sh-custo','sh-embalagem','sh-imposto','sh-margem'].forEach(
 function brl(v){return 'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function pct(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';}
 
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('ml-mlb')?.addEventListener('keydown',e=>{if(e.key==='Enter')buscarAnuncio();});
+
+// ══════════════════════════════════════════
+// VENDAS
+// ══════════════════════════════════════════
+let vendasContaAtiva = null;
+let vendasCache = [];   // lista completa buscada
+window._vfiltroAtivo = 'todos';
+
+function iniciarVendas() {
+  renderVendasTabs();
+  if (!vendasContaAtiva && contas.length) selecionarContaVendas(contas[0].id);
+  // Preencher período padrão: últimos 60 dias
+  const hoje = new Date();
+  const ini  = new Date(); ini.setDate(hoje.getDate() - 60);
+  document.getElementById('vendas-data-fim').value = hoje.toISOString().split('T')[0];
+  document.getElementById('vendas-data-ini').value = ini.toISOString().split('T')[0];
+  atualizarPillVendas();
+}
+
+function renderVendasTabs() {
+  const tabs = document.getElementById('vendas-tabs');
+  tabs.innerHTML = '';
+  contas.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'conta-tab' + (vendasContaAtiva?.id === c.id ? ' active' : '') + (!c.token ? ' offline' : '');
+    btn.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.cor+';margin-right:.4rem;"></span>'+c.nome;
+    btn.onclick = () => selecionarContaVendas(c.id);
+    tabs.appendChild(btn);
+  });
+}
+
+function selecionarContaVendas(id) {
+  vendasContaAtiva = contas.find(c => c.id === id) || null;
+  vendasCache = [];
+  document.getElementById('vendas-lista').innerHTML = '';
+  document.getElementById('vendas-empty').style.display = 'block';
+  document.getElementById('vendas-resumo').style.display = 'none';
+  document.getElementById('btn-export-vendas').style.display = 'none';
+  renderVendasTabs();
+  atualizarPillVendas();
+}
+
+function atualizarPillVendas() {
+  const c = vendasContaAtiva;
+  document.getElementById('pill-dot-vendas').className = 'pill-dot ' + (c?.token ? 'green' : 'gray');
+  document.getElementById('pill-label-vendas').textContent = c ? c.nome : 'Sem conta';
+}
+
+function getTokenVendas() { return vendasContaAtiva?.token || null; }
+function getSellerIdVendas() { return vendasContaAtiva?.sellerId || null; }
+
+async function mlGetVendas(path) {
+  const token = getTokenVendas();
+  if (!token) throw new Error('Sem token');
+  const r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }});
+  return r.json();
+}
+
+async function mpGetVendas(path) {
+  const token = getTokenVendas();
+  if (!token) throw new Error('Sem token');
+  const r = await fetch(WORKER_URL + '/mp' + path, { headers: { Authorization: 'Bearer ' + token }});
+  return r.json();
+}
+
+async function buscarVendas() {
+  if (!vendasContaAtiva) { alert('Selecione uma conta.'); return; }
+  if (!vendasContaAtiva.token) { abrirModalParaConta(vendasContaAtiva.id); return; }
+
+  const dataIni = document.getElementById('vendas-data-ini').value;
+  const dataFim = document.getElementById('vendas-data-fim').value;
+  if (!dataIni || !dataFim) { alert('Informe o período.'); return; }
+
+  const loading = document.getElementById('vendas-loading');
+  const lista   = document.getElementById('vendas-lista');
+  const empty   = document.getElementById('vendas-empty');
+  const pBar    = document.getElementById('vendas-progress-bar');
+  const pTxt    = document.getElementById('vendas-progress-txt');
+
+  loading.style.display = 'block'; lista.innerHTML = '';
+  empty.style.display = 'none';
+  document.getElementById('vendas-resumo').style.display = 'none';
+  document.getElementById('btn-export-vendas').style.display = 'none';
+  pBar.style.width = '0%'; pTxt.textContent = 'Buscando vendas...';
+  vendasCache = [];
+
+  try {
+    const sellerId = getSellerIdVendas();
+
+    // Igual ao Apps Script: busca por data criada sem filtro de status
+    let allVendas = [], offset = 0, total = null;
+    do {
+      const res = await mlGetVendas(
+        '/orders/search?seller=' + sellerId +
+        '&order.date_created.from=' + dataIni + 'T00:00:00.000-00:00' +
+        '&order.date_created.to='   + dataFim + 'T23:59:59.999-00:00' +
+        '&sort=date_desc&offset=' + offset + '&limit=50'
+      );
+      if (!res || res.error) {
+        console.error('Erro orders/search:', res);
+        break;
+      }
+      if (total === null) total = res.paging?.total || 0;
+      allVendas = allVendas.concat(res.results || []);
+      offset += 50;
+      pBar.style.width = Math.min(Math.round((allVendas.length / Math.max(total, 1)) * 50), 50) + '%';
+      pTxt.textContent = 'Buscando: ' + allVendas.length + ' / ' + total;
+    } while (allVendas.length < total && offset < total && allVendas.length < 2000);
+
+    if (!allVendas.length) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.textContent = 'Nenhuma venda encontrada no período.';
+      return;
+    }
+
+    pTxt.textContent = allVendas.length + ' vendas. Buscando notas fiscais...';
+
+    // Busca NFs em lotes de 10 — igual Apps Script
+    const nfMap = {};
+    for (let i = 0; i < allVendas.length; i += 10) {
+      const lote = allVendas.slice(i, i + 10);
+      await Promise.all(lote.map(async v => {
+        try {
+          const nf = await mlGetVendas('/users/' + sellerId + '/invoices/orders/' + v.id);
+          nfMap[v.id] = (nf && !nf.error) ? nf : null;
+        } catch { nfMap[v.id] = null; }
+      }));
+      pBar.style.width = Math.min(50 + Math.round(((i + 10) / allVendas.length) * 50), 99) + '%';
+      pTxt.textContent = 'NFs: ' + Math.min(i + 10, allVendas.length) + ' / ' + allVendas.length;
+    }
+
+    pBar.style.width = '100%';
+    loading.style.display = 'none';
+
+    vendasCache = allVendas.map(v => ({ venda: v, nf: nfMap[v.id], detalhes: null }));
+    renderVendas();
+    document.getElementById('btn-export-vendas').style.display = 'inline-block';
+
+  } catch(e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = 'Erro: ' + e.message;
+    console.error(e);
+  }
+}
+
+function classificarVenda(v, nf) {
+  const tags   = v.tags || [];
+  const status = v.status || '';
+  const ehDev  = tags.some(t => ['return','claim','mediated','refund_pending','refunded'].includes(t));
+  const ehCancel = status === 'cancelled' && !ehDev;
+
+  if (ehCancel) return 'cancelamento';
+  if (ehDev)    return 'devolucao';
+  return 'normal';
+}
+
+function statusNFLabel(nf) {
+  if (!nf) return { label:'Sem NF', cls:'nf-sem', key:'sem-nf' };
+  if (nf.status === 'authorized') return { label:'NF Emitida', cls:'nf-ok', key:'com-nf' };
+  if (nf.status === 'pending' || nf.status === 'processing') return { label:'NF Pendente', cls:'nf-pend', key:'sem-nf' };
+  return { label: nf.status || 'Sem NF', cls:'nf-sem', key:'sem-nf' };
+}
+
+function renderVendas() {
+  const lista  = document.getElementById('vendas-lista');
+  const empty  = document.getElementById('vendas-empty');
+  const filtro = window._vfiltroAtivo || 'todos';
+  const busca  = (document.getElementById('vendas-busca')?.value||'').toLowerCase().trim();
+
+  lista.innerHTML = ''; empty.style.display = 'none';
+
+  let totFat=0, totLiq=0, cNF=0, cSemNF=0, cDev=0, cCancel=0, cVis=0;
+
+  vendasCache.forEach(entry => {
+    const v    = entry.venda;
+    const nf   = entry.nf;
+    const tipo = classificarVenda(v, nf);
+    const nfInfo = statusNFLabel(nf);
+    const dataStr = v.date_created ? v.date_created.split('T')[0].split('-').reverse().join('/') : '';
+    const cliente = ((v.buyer?.first_name||'') + ' ' + (v.buyer?.last_name||v.buyer?.nickname||'')).trim();
+    const sku     = v.order_items?.[0]?.item?.seller_sku || '';
+
+    // Filtro tipo
+    let ok = true;
+    if (filtro === 'normal')       ok = tipo === 'normal';
+    else if (filtro === 'devolucao')   ok = tipo === 'devolucao';
+    else if (filtro === 'cancelamento') ok = tipo === 'cancelamento';
+    else if (filtro === 'com-nf')  ok = nfInfo.key === 'com-nf';
+    else if (filtro === 'sem-nf')  ok = nfInfo.key === 'sem-nf';
+
+    // Filtro busca
+    const searchStr = (v.id+' '+cliente+' '+sku).toLowerCase();
+    if (ok && busca) ok = searchStr.includes(busca);
+
+    if (!ok) return;
+
+    cVis++;
+    totFat += v.total_amount || 0;
+    if (nfInfo.key === 'com-nf') cNF++;
+    else cSemNF++;
+    if (tipo === 'devolucao')   cDev++;
+    if (tipo === 'cancelamento') cCancel++;
+
+    const tipoCls  = tipo==='devolucao'?'tipo-dev':tipo==='cancelamento'?'tipo-cancel':'tipo-cross';
+    const tipoLabel = tipo==='devolucao'?'Devolução':tipo==='cancelamento'?'Cancelamento':'Normal';
+
+    const row = document.createElement('div');
+    row.className = 'venda-row';
+    row.dataset.tipo   = tipo;
+    row.dataset.nf     = nfInfo.key;
+    row.dataset.search = searchStr;
+    row.innerHTML =
+      '<div class="venda-header" onclick="toggleVenda(this)">' +
+        '<span class="venda-id">#'+v.id+'</span>'+
+        '<span class="venda-data">'+dataStr+'</span>'+
+        '<span class="venda-tipo '+tipoCls+'">'+tipoLabel+'</span>'+
+        '<span class="venda-nf-pill '+nfInfo.cls+'">'+nfInfo.label+'</span>'+
+        '<span class="venda-cliente">'+cliente+(sku?' · <span style="color:var(--gray4);">'+sku+'</span>':'')+'</span>'+
+        '<span class="venda-valor">'+brl(v.total_amount||0)+'</span>'+
+        '<span style="font-size:.8rem;color:var(--gray4);margin-left:.5rem;">▼</span>'+
+      '</div>'+
+      '<div class="venda-detalhe" id="det-'+v.id+'">'+
+        '<div class="det-loading" id="det-loading-'+v.id+'">Carregando detalhes...</div>'+
+      '</div>';
+
+    row._entry = entry;
+    lista.appendChild(row);
+  });
+
+  // Resumo
+  document.getElementById('vr-total').textContent   = cVis;
+  document.getElementById('vr-faturado').textContent = brl(totFat);
+  document.getElementById('vr-liquido').textContent  = '—';
+  document.getElementById('vr-comnf').textContent    = cNF;
+  document.getElementById('vr-semnf').textContent    = cSemNF;
+  document.getElementById('vr-dev').textContent      = cDev;
+  document.getElementById('vr-cancel').textContent   = cCancel;
+  document.getElementById('vendas-resumo').style.display = 'grid';
+
+  if (!cVis) { empty.style.display='block'; empty.textContent='Nenhuma venda encontrada com esse filtro.'; }
+}
+
+async function toggleVenda(header) {
+  const row   = header.closest('.venda-row');
+  const entry = row._entry;
+  const v     = entry.venda;
+  const arrow = header.querySelector('span:last-child');
+
+  if (row.classList.contains('expandido')) {
+    row.classList.remove('expandido');
+    arrow.textContent = '▼';
+    return;
+  }
+  row.classList.add('expandido');
+  arrow.textContent = '▲';
+
+  if (entry.detalhes) { renderDetalhe(entry); return; }
+
+  const detEl = document.getElementById('det-' + v.id);
+  detEl.innerHTML = '<div class="det-loading">Carregando detalhes...</div>';
+
+  try {
+    const sellerId = getSellerIdVendas();
+
+    // 1. Tipo de envio via shipment — igual Apps Script buscarDetalhesFrete
+    let freteData = null;
+    if (v.shipping?.id) {
+      freteData = await mlGetVendas('/shipments/' + v.shipping.id).catch(() => null);
+    }
+
+    // 2. Dados fiscais — igual Apps Script buscarDadosFiscais
+    const fiscalData = await mlGetVendas('/orders/' + v.id + '/billing_info').catch(() => null);
+
+    // 3. Financeiro via Mercado Pago — igual Apps Script buscarFinanceiroVenda
+    let pagamentoData = null;
+    const pagAprovado = v.payments?.find(p => p.status === 'approved') || v.payments?.[0];
+    if (pagAprovado?.id) {
+      pagamentoData = await mpGetVendas('/v1/payments/' + pagAprovado.id).catch(() => null);
+    }
+
+    // 4. NF já vem do cache — mas busca impostos se autorizada
+    let impostosData = { icms: 0, difal: 0 };
+    const nf = entry.nf;
+    if (nf?.id && nf?.status === 'authorized') {
+      try {
+        // XML para extrair ICMS e DIFAL — igual Apps Script extrairImpostosXML
+        const xmlRes = await mlGetVendas('/users/' + sellerId + '/invoices/documents/xml/' + nf.id + '/authorized');
+        // xmlRes pode ser texto XML ou JSON dependendo do endpoint
+        impostosData = extrairImpostosDoRetorno(xmlRes);
+      } catch {}
+    }
+
+    entry.detalhes = { freteData, fiscalData, pagamentoData, impostosData };
+    renderDetalhe(entry);
+
+  } catch(e) {
+    document.getElementById('det-' + v.id).innerHTML = '<div class="det-loading">Erro: ' + e.message + '</div>';
+    console.error(e);
+  }
+}
+
+function extrairImpostosDoRetorno(data) {
+  // Tenta extrair ICMS e DIFAL do retorno (pode ser string XML ou objeto)
+  try {
+    const str = typeof data === 'string' ? data : JSON.stringify(data);
+    const icmsMatch = str.match(/<vICMS>([0-9.]+)<\/vICMS>/);
+    const difalMatch = str.match(/<vICMSUFDest>([0-9.]+)<\/vICMSUFDest>/);
+    return {
+      icms:  icmsMatch  ? parseFloat(icmsMatch[1])  : 0,
+      difal: difalMatch ? parseFloat(difalMatch[1]) : 0
+    };
+  } catch { return { icms: 0, difal: 0 }; }
+}
+
+function renderDetalhe(entry) {
+  const v   = entry.venda;
+  const nf  = entry.nf;
+  const det = entry.detalhes || {};
+  const el  = document.getElementById('det-' + v.id);
+
+  // ── FINANCEIRO (igual buscarFinanceiroVenda) ──
+  const pag = det.pagamentoData;
+  let tarifaTotal = 0, valorLiquido = 0;
+  if (pag?.fee_details && Array.isArray(pag.fee_details)) {
+    tarifaTotal = pag.fee_details.reduce((soma, fee) => soma + (fee.amount || 0), 0);
+  }
+  valorLiquido = pag?.transaction_details?.net_received_amount ?? pag?.net_received_amount ?? 0;
+
+  // ── FRETE (igual buscarDetalhesFrete) ──
+  const frete = det.freteData;
+  const comp  = frete?.shipping_option?.cost_components || {};
+  const fretePagoVendedor = Number(comp.seller_cost ?? frete?.shipping_option?.list_cost ?? 0);
+  const freteTotal        = Number(frete?.shipping_option?.cost ?? 0);
+  const custoFrete        = fretePagoVendedor - freteTotal;
+  const tipoEnvio         = frete?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS';
+
+  // ── DADOS FISCAIS (igual buscarDadosFiscais) ──
+  const billing     = det.fiscalData?.buyer?.billing_info || {};
+  const addr        = billing.address || {};
+  const taxes       = billing.taxes || {};
+  const inscriptions = taxes.inscriptions || {};
+  const nomeFiscal  = (billing.name || '') + (billing.last_name ? ' ' + billing.last_name : '');
+  const documento   = billing.identification?.number || '';
+  const regEstadual = inscriptions.state_registration || '';
+
+  // ── NOTA FISCAL ──
+  const chaveNF   = nf?.attributes?.invoice_key || '';
+  const nfNumero  = nf?.invoice_number || nf?.id || '';
+  const nfStatus  = nf?.status || '';
+  const dataEmissao = nf?.issued_date ? nf.issued_date.split('T')[0].split('-').reverse().join('/') : '';
+  const urlDANFE  = (nf?.id && chaveNF) ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/danfe/'+chaveNF : '';
+  const urlXML    = nf?.id ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/xml/authorized' : '';
+
+  // ── IMPOSTOS ──
+  const imp = det.impostosData || {};
+
+  // ── OCORRÊNCIA (igual traduzirStatus) ──
+  const tags      = v.tags || [];
+  const ehDev     = tags.some(t => ['return','claim','mediated','refund_pending','refunded'].includes(t));
+  const ehCancel  = v.status === 'cancelled' && !ehDev;
+  let ocorrencia  = 'Venda normal, sem ocorrências';
+  if (ehCancel) ocorrencia = 'Venda cancelada antes da conclusão';
+  else if (ehDev && pag?.status === 'refunded') ocorrencia = 'Venda devolvida e já reembolsada';
+  else if (ehDev && tags.includes('refund_pending')) ocorrencia = 'Venda devolvida, reembolso pendente';
+  else if (ehDev) ocorrencia = 'Venda concluída, mas o cliente devolveu o produto';
+
+  // ── VALOR LÍQUIDO REAL (igual calcularValorLiquidoReal) ──
+  const notaEmitida = chaveNF && chaveNF.trim() !== '';
+  let valorLiquidoReal = notaEmitida ? valorLiquido : 0;
+  if (ehDev && valorLiquidoReal === 0) valorLiquidoReal = v.total_amount || 0;
+
+  el.innerHTML =
+    // OCORRÊNCIA
+    '<div style="background:'+(ehCancel?'#FFF0F0':ehDev?'#FFF8E1':'#EBF8F1')+';border-radius:8px;padding:.5rem .75rem;margin-bottom:.75rem;font-size:.78rem;font-weight:700;color:'+(ehCancel?'#C53030':ehDev?'#7B5800':'#22543D')+'">'+ ocorrencia +'</div>'+
+
+    // FINANCEIRO
+    '<div class="det-section">💰 Financeiro</div>'+
+    '<div class="det-grid">'+
+      dItem('Valor total',       brl(v.total_amount || 0))+
+      dItem('Valor líquido',     valorLiquidoReal ? brl(valorLiquidoReal) : '— (sem NF)')+
+      dItem('Tarifa ML',         tarifaTotal ? brl(tarifaTotal) : '—')+
+      dItem('Custo frete',       custoFrete  ? brl(custoFrete)  : 'R$ 0,00')+
+      dItem('Tipo envio',        tipoEnvio)+
+      dItem('Pack ID',           v.pack_id ? '#'+v.pack_id : '—')+
+      dItem('Shipment ID',       v.shipping?.id || '—')+
+      dItem('Transação MP',      pag?.id ? '#'+pag.id : '—')+
+    '</div>'+
+
+    // NOTA FISCAL
+    '<div class="det-section">📄 Nota Fiscal</div>'+
+    '<div class="det-grid">'+
+      dItem('Número NF',     nfNumero || '—')+
+      dItem('Status NF',     nfStatus || 'Sem NF')+
+      dItem('Data emissão',  dataEmissao || '—')+
+      dItem('ICMS',          imp.icms ? brl(imp.icms) : '—')+
+      dItem('DIFAL',         imp.difal ? brl(imp.difal) : '—')+
+    '</div>'+
+    (chaveNF ? '<div style="font-size:.68rem;color:var(--gray4);font-weight:700;margin-bottom:.5rem;word-break:break-all;">Chave: '+chaveNF+'</div>' : '')+
+    (urlDANFE || urlXML ?
+      '<div class="venda-acoes">'+
+        (urlDANFE ? '<a href="'+urlDANFE+'" target="_blank" class="btn-danfe">📥 DANFE</a>' : '')+
+        (urlXML   ? '<a href="'+urlXML+'"   target="_blank" class="btn-xml">📥 XML</a>'   : '')+
+      '</div>' : '')+
+
+    // DADOS FISCAIS
+    '<div class="det-section">👤 Dados fiscais do comprador</div>'+
+    '<div class="det-grid">'+
+      dItem('Nome fiscal',      nomeFiscal || '—')+
+      dItem('CPF/CNPJ',        documento  || '—')+
+      dItem('Reg. estadual',   regEstadual || '—')+
+      dItem('Rua',             addr.street_name || '—')+
+      dItem('Número',          addr.street_number || '—')+
+      dItem('Cidade',          addr.city_name || '—')+
+      dItem('Estado',          addr.state?.name || '—')+
+      dItem('CEP',             addr.zip_code || '—')+
+    '</div>'+
+
+    // ITENS DO PEDIDO
+    '<div class="det-section">📦 Itens do pedido</div>'+
+    '<div class="det-grid">'+
+      (v.order_items || []).map(oi =>
+        dItem(
+          oi.item?.title || 'Produto',
+          'SKU: '+(oi.item?.seller_sku||'—')+
+          ' · Qtd: '+oi.quantity+
+          ' · Unit: '+brl(oi.unit_price)+
+          ' · Total: '+brl(oi.unit_price * oi.quantity)
+        )
+      ).join('')+
+    '</div>';
+
+  // Atualiza líquido no resumo
+  if (valorLiquidoReal > 0) {
+    document.getElementById('vr-liquido').textContent = '≈ calculando...';
+  }
+}
+
+function dItem(label, value) {
+  return '<div class="det-item"><div class="det-label">'+label+'</div><div class="det-value">'+value+'</div></div>';
+}
+
+function setFiltroVendas(filtro) {
+  window._vfiltroAtivo = filtro;
+  document.querySelectorAll('.filtro-btn[data-vfiltro]').forEach(b => b.classList.toggle('active', b.dataset.vfiltro === filtro));
+  renderVendas();
+}
+
+function filtrarVendas() { renderVendas(); }
+
+// ── Export Excel ──
+function exportarVendasXLSX() {
+  if (!vendasCache.length) return;
+  const rows = [['Venda ID','Data','Status','Tipo','Cliente','SKU','Valor Total','Valor Líquido','Tarifa','Frete','Tipo Envio','NF Número','Status NF','Chave NF','Data NF','DANFE','XML']];
+  vendasCache.forEach(entry => {
+    const v   = entry.venda;
+    const nf  = entry.nf;
+    const det = entry.detalhes;
+    const tipo = classificarVenda(v, nf);
+    const cliente = ((v.buyer?.first_name||'')+ ' '+(v.buyer?.last_name||v.buyer?.nickname||'')).trim();
+    const data = v.date_created ? v.date_created.split('T')[0].split('-').reverse().join('/') : '';
+    const sku  = v.order_items?.[0]?.item?.seller_sku || '';
+    const chaveNF = nf?.attributes?.invoice_key || '';
+    const urlDANFE = (nf?.id && chaveNF) ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/danfe/'+chaveNF : '';
+    const urlXML   = nf?.id ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/xml/authorized' : '';
+
+    let liq=0, tarifa=0, frete=0, tipoEnvio='CROSS';
+    if (det) {
+      const pag = det.pagamentoData;
+      if (pag?.fee_details) tarifa = pag.fee_details.reduce((s,f)=>s+(f.amount||0),0);
+      liq = pag?.transaction_details?.net_received_amount || 0;
+      const comp = det.freteData?.shipping_option?.cost_components || {};
+      frete = Number(comp.seller_cost ?? det.freteData?.shipping_option?.list_cost ?? 0) - Number(det.freteData?.shipping_option?.cost ?? 0);
+      tipoEnvio = det.freteData?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS';
+    }
+
+    rows.push([
+      v.id, data, v.status||'', tipo, cliente, sku,
+      v.total_amount||0, liq, tarifa, frete, tipoEnvio,
+      nf?.invoice_number||nf?.id||'',
+      nf?.status||'Sem NF',
+      chaveNF,
+      nf?.issued_date ? nf.issued_date.split('T')[0].split('-').reverse().join('/') : '',
+      urlDANFE, urlXML
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Vendas');
+  const conta = vendasContaAtiva?.nome || 'vendas';
+  const data  = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, 'vendas_'+conta+'_'+data+'.xlsx');
+}
+
+// ══════════════════════════════════════════
+// INICIALIZAÇÃO
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  carregarContas();
+  document.getElementById('ml-mlb')?.addEventListener('keydown', e=>{ if(e.key==='Enter') buscarAnuncio(); });
 });
 </script>
+
+<!-- ══ VENDAS ══ -->
+<div id="screen-vendas" class="screen">
+  <div class="topbar topbar-dark">
+    <button class="back-btn" onclick="goto('home')">&#8592;</button>
+    <span class="topbar-title">Relatório de Vendas</span>
+    <button class="api-pill" id="api-pill-vendas" onclick="goto('gestao')" style="margin-left:auto;">
+      <span class="pill-dot gray" id="pill-dot-vendas"></span>
+      <span id="pill-label-vendas">Sem conta</span>
+    </button>
+  </div>
+  <div class="content">
+
+    <!-- Abas por conta -->
+    <div class="conta-tabs" id="vendas-tabs" style="margin-bottom:1rem;"></div>
+
+    <!-- Período + filtros -->
+    <div class="vendas-periodo">
+      <div class="field">
+        <label>Data inicial</label>
+        <input type="date" id="vendas-data-ini"/>
+      </div>
+      <div class="field">
+        <label>Data final</label>
+        <input type="date" id="vendas-data-fim"/>
+      </div>
+      <button class="toolbar-btn btn-primary" style="background:#38A169;" onclick="buscarVendas()">🔍 Buscar</button>
+      <button class="toolbar-btn btn-secondary" id="btn-export-vendas" onclick="exportarVendasXLSX()" style="display:none;">⬇ Exportar Excel</button>
+    </div>
+
+    <!-- Filtros rápidos -->
+    <div class="filtros-bar" style="margin-bottom:.75rem;">
+      <button class="filtro-btn active" data-vfiltro="todos" onclick="setFiltroVendas('todos')">Todas</button>
+      <button class="filtro-btn" data-vfiltro="normal" onclick="setFiltroVendas('normal')">✓ Normais</button>
+      <button class="filtro-btn" data-vfiltro="devolucao" onclick="setFiltroVendas('devolucao')">↩ Devoluções</button>
+      <button class="filtro-btn" data-vfiltro="cancelamento" onclick="setFiltroVendas('cancelamento')">✕ Cancelamentos</button>
+      <button class="filtro-btn" data-vfiltro="com-nf" onclick="setFiltroVendas('com-nf')">📄 Com NF</button>
+      <button class="filtro-btn" data-vfiltro="sem-nf" onclick="setFiltroVendas('sem-nf')">⚠ Sem NF</button>
+      <input type="text" class="busca-input" id="vendas-busca" placeholder="Buscar por ID, cliente, SKU..." oninput="filtrarVendas()"/>
+    </div>
+
+    <!-- Resumo -->
+    <div class="vendas-resumo" id="vendas-resumo" style="display:none;">
+      <div class="vr-card"><div class="vr-label">Total vendas</div><div class="vr-value" id="vr-total" style="color:var(--gray4);">—</div></div>
+      <div class="vr-card"><div class="vr-label">Faturado</div><div class="vr-value" id="vr-faturado" style="color:#22543D;">—</div></div>
+      <div class="vr-card"><div class="vr-label">Líquido</div><div class="vr-value" id="vr-liquido" style="color:#22543D;">—</div></div>
+      <div class="vr-card"><div class="vr-label">Com NF</div><div class="vr-value" id="vr-comnf" style="color:#22543D;">—</div></div>
+      <div class="vr-card"><div class="vr-label">Sem NF</div><div class="vr-value" id="vr-semnf" style="color:#D69E2E;">—</div></div>
+      <div class="vr-card"><div class="vr-label">Devoluções</div><div class="vr-value" id="vr-dev" style="color:#D69E2E;">—</div></div>
+      <div class="vr-card"><div class="vr-label">Cancelamentos</div><div class="vr-value" id="vr-cancel" style="color:#C53030;">—</div></div>
+    </div>
+
+    <!-- Loading -->
+    <div id="vendas-loading" class="painel-loading" style="display:none;">
+      <div id="vendas-progress-txt">Buscando vendas...</div>
+      <div class="painel-progress"><div class="painel-progress-bar" id="vendas-progress-bar" style="width:0%;background:#38A169;"></div></div>
+    </div>
+
+    <!-- Lista de vendas -->
+    <div id="vendas-lista"></div>
+    <div id="vendas-empty" style="text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
+      Selecione o período e clique em Buscar.
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
