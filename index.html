@@ -1128,64 +1128,24 @@ async function carregarPainel(forcar = false) {
   const sellerId = contaAtiva.sellerId;
 
   try {
-    // 1. Busca IDs — tenta Scroll API, com fallback para paginação normal
-    let allIds = [], total = null;
-
-    // Tenta Scroll API primeiro
-    try {
-      let scrollId = null;
-      const testRes = await mlGet('/users/'+sellerId+'/items/search?status=active&search_type=scan&limit=100');
-      if (testRes && !testRes.error && Array.isArray(testRes.results)) {
-        // Scroll API funcionou
-        total = testRes.paging?.total || 0;
-        allIds = allIds.concat(testRes.results);
-        scrollId = testRes.scroll_id;
-        progressBar.style.width = '10%';
-        progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
-        let tentativas = 0;
-        while (allIds.length < total && tentativas < 50) {
-          tentativas++;
-          // Se scroll_id acabou mas ainda faltam IDs, usa offset como complemento
-          if (!scrollId) {
-            console.warn('scroll_id nulo com', allIds.length, '/', total, 'IDs — complementando com offset');
-            const offset = allIds.length;
-            const res2 = await mlGet('/users/'+sellerId+'/items/search?status=active&limit=100&offset='+offset);
-            if (!res2 || res2.error || !res2.results?.length) break;
-            const novos = res2.results.filter(id => !allIds.includes(id));
-            if (!novos.length) break;
-            allIds = allIds.concat(novos);
-            progressTxt.textContent = 'IDs (offset complementar): ' + allIds.length + ' / ' + total;
-            continue;
-          }
-          const res = await mlGet('/users/'+sellerId+'/items/search?search_type=scan&limit=100&scroll_id='+scrollId);
-          if (!res || res.error || !res.results || res.results.length === 0) break;
-          allIds = allIds.concat(res.results);
-          scrollId = res.scroll_id;
-          progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 30), 30) + '%';
-          progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
-        }
-        console.log('IDs encontrados:', allIds.length, '/ Total esperado:', total);
-      } else {
-        throw new Error('Scroll API indisponível: ' + JSON.stringify(testRes));
-      }
-    } catch(scrollErr) {
-      // Fallback: paginação normal com offset
-      console.warn('Scroll API falhou, usando offset:', scrollErr.message);
-      progressTxt.textContent = 'Buscando IDs (offset)...';
-      allIds = []; total = null;
-      let offset = 0;
-      do {
-        const res = await mlGet('/users/'+sellerId+'/items/search?status=active&limit=100&offset='+offset);
-        if (!res || res.error) break;
-        if (total === null) total = res.paging?.total || 0;
-        const ids = res.results || [];
-        if (!ids.length) break;
-        allIds = allIds.concat(ids);
-        offset += 100;
-        progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 30), 30) + '%';
-        progressTxt.textContent = 'IDs (offset): ' + allIds.length + ' / ' + total;
-      } while (allIds.length < total && offset < (total + 100));
-    }
+    // 1. Scroll API — IDs de todos os anúncios
+    //    Filtro status=active aplicado no Multiget (passo 2)
+    let allIds = [], total = null, scrollId = null;
+    progressTxt.textContent = 'Buscando anúncios...';
+    do {
+      const url = scrollId
+        ? '/users/'+sellerId+'/items/search?search_type=scan&limit=100&scroll_id='+scrollId
+        : '/users/'+sellerId+'/items/search?search_type=scan&limit=100';
+      const res = await mlGet(url);
+      if (!res || res.error || !res.results?.length) break;
+      if (total === null) total = res.paging?.total || 0;
+      allIds = allIds.concat(res.results);
+      scrollId = res.scroll_id;
+      progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 25), 25) + '%';
+      progressTxt.textContent = 'Buscando: ' + allIds.length + ' de ' + total;
+    } while (scrollId && allIds.length < total);
+    allIds = [...new Set(allIds)];
+    console.log('IDs total encontrados:', allIds.length, '(ativos serão filtrados no próximo passo)');
 
     if (!allIds.length) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Nenhum anúncio ativo.'; return; }
 
@@ -1197,7 +1157,10 @@ async function carregarPainel(forcar = false) {
       const lote = allIds.slice(i, i+20);
       const res = await mlGet('/items?ids=' + lote.join(','));
       if (Array.isArray(res)) {
-        const validos = res.filter(r => r.code === 200 && r.body).map(r => r.body);
+        // Filtra SOMENTE ativos — pausados não entram no painel
+        const validos = res.filter(r => r.code === 200 && r.body && r.body.status === 'active').map(r => r.body);
+        const falhos  = res.filter(r => r.code !== 200).map(r => r.body?.id || '?');
+        if (falhos.length) console.warn('Itens não carregados:', falhos.length);
         itens = itens.concat(validos);
       }
       progressBar.style.width = Math.min(30 + Math.round(((i+20)/allIds.length)*25), 55) + '%';
@@ -1221,7 +1184,12 @@ async function carregarPainel(forcar = false) {
             if (item.shipping?.free_shipping) {
               try {
                 const sr = await mlGet('/users/'+sellerId+'/shipping_options/free?item_id='+item.id);
-                freteReal = sr?.coverage?.all_country?.list_cost || freteFixo;
+                // 500 ou erro — usa freteFixo como fallback silencioso
+                if (sr && !sr.error && sr.coverage?.all_country?.list_cost) {
+                  freteReal = sr.coverage.all_country.list_cost;
+                } else {
+                  freteReal = freteFixo;
+                }
               } catch { freteReal = freteFixo; }
             }
             tarifas[item.id] = { comissaoVal, comissaoPct, freteFixo, freteReal };
@@ -1372,8 +1340,11 @@ function renderizarTabela(itens, tarifas) {
       '</td>'+
       '<td><span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span></td>'+
       '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+
-        (precoPromocional ? '<span style="font-size:.67rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;margin-bottom:2px;display:inline-block;">PROMO '+brl(precoAtual)+'</span><br>' : '')+
-        brl(preco)+
+        (precoPromocional
+          ? '<span style="font-size:.67rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;margin-bottom:2px;display:inline-block;">🏷 PROMO</span><br>'+
+            '<span style="font-weight:800;">'+brl(precoAtual)+'</span>'+
+            '<br><span style="font-size:.67rem;color:var(--gray4);text-decoration:line-through;">'+brl(preco)+'</span>'
+          : brl(preco))+
         (margemAtual!==null?'<br><span style="font-size:.67rem;color:var(--gray4);font-weight:600;">'+pct(margemAtual)+'</span>':'')+
       '</td>'+
       '<td style="font-weight:700;white-space:nowrap;">'+(custo!==null?brl(custo):'<span style="color:var(--gray4);font-size:.7rem;">Sem ERP</span>')+'</td>'+
