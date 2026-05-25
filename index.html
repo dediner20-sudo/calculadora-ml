@@ -448,6 +448,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <button class="toolbar-btn btn-secondary" onclick="carregarPainel(false)">▶ Usar Cache</button>
         <button class="toolbar-btn btn-danger" onclick="limparCache()" id="btn-limpar-cache" style="display:none;">🗑 Cache</button>
         <button class="toolbar-btn" id="btn-modo-lucro" onclick="toggleModoLucro()" style="background:#EBF8F1;color:#22543D;border:1.5px solid #9FE1CB;">💰 Receita</button>
+        <button class="toolbar-btn btn-secondary" onclick="exportarPainelXLSX()">⬇ Excel</button>
         <span class="cache-info" id="cache-info"></span>
       </div>
 
@@ -464,17 +465,29 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <div class="resumo-card"><div class="rc-label">Estoque divergente</div><div class="rc-value rc-red" id="rc-stock-diff">—</div></div>
       </div>
 
-      <div class="filtros-bar">
-        <button class="filtro-btn active" data-filtro="todos" onclick="setFiltro('todos')">Todos</button>
-        <button class="filtro-btn" data-filtro="itemativo" onclick="setFiltro('itemativo')">🟢 Ativos</button>
-        <button class="filtro-btn" data-filtro="itempausado" onclick="setFiltro('itempausado')">🔴 Pausados</button>
-        <button class="filtro-btn" data-filtro="green" onclick="setFiltro('green')">✓ Dentro</button>
-        <button class="filtro-btn" data-filtro="yellow" onclick="setFiltro('yellow')">⚠ Apertada</button>
-        <button class="filtro-btn" data-filtro="red" onclick="setFiltro('red')">✕ Abaixo</button>
-        <button class="filtro-btn" data-filtro="blue" onclick="setFiltro('blue')">↑ Muito acima</button>
-        <button class="filtro-btn" data-filtro="stock" onclick="setFiltro('stock')">⚡ Estoque divergente</button>
-        <button class="filtro-btn" data-filtro="noerp" onclick="setFiltro('noerp')">? Sem ERP</button>
-        <input type="text" class="busca-input" id="filtro-busca" placeholder="Buscar título ou SKU..." oninput="filtrarTabela()"/>
+      <!-- Filtros combinados por grupo -->
+      <div style="background:#fff;border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.5rem;">
+          <span style="font-size:.68rem;font-weight:800;color:var(--gray4);min-width:60px;">STATUS</span>
+          <button class="filtro-btn multi active" data-grupo="status" data-valor="active" onclick="toggleFiltro(this)">🟢 Ativo</button>
+          <button class="filtro-btn multi" data-grupo="status" data-valor="paused" onclick="toggleFiltro(this)">⏸ Pausado</button>
+          <button class="filtro-btn multi" data-grupo="status" data-valor="under_review" onclick="toggleFiltro(this)">⚠ Em revisão</button>
+          <button class="filtro-btn multi" data-grupo="status" data-valor="closed" onclick="toggleFiltro(this)">✕ Finalizado</button>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.5rem;">
+          <span style="font-size:.68rem;font-weight:800;color:var(--gray4);min-width:60px;">MARGEM</span>
+          <button class="filtro-btn multi" data-grupo="margem" data-valor="green" onclick="toggleFiltro(this)">✓ Dentro</button>
+          <button class="filtro-btn multi" data-grupo="margem" data-valor="yellow" onclick="toggleFiltro(this)">⚠ Apertada</button>
+          <button class="filtro-btn multi" data-grupo="margem" data-valor="red" onclick="toggleFiltro(this)">✕ Abaixo</button>
+          <button class="filtro-btn multi" data-grupo="margem" data-valor="blue" onclick="toggleFiltro(this)">↑ Muito acima</button>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:.68rem;font-weight:800;color:var(--gray4);min-width:60px;">ESTOQUE</span>
+          <button class="filtro-btn multi" data-grupo="estoque" data-valor="stock" onclick="toggleFiltro(this)">⚡ Divergente</button>
+          <button class="filtro-btn multi" data-grupo="estoque" data-valor="noerp" onclick="toggleFiltro(this)">? Sem ERP</button>
+          <input type="text" class="busca-input" id="filtro-busca" placeholder="Buscar título ou SKU..." oninput="filtrarTabela()" style="margin-left:auto;"/>
+          <button onclick="limparFiltros()" style="padding:.32rem .8rem;border:2px solid var(--gray2);border-radius:20px;background:#fff;font-family:Nunito,sans-serif;font-size:.75rem;font-weight:800;color:var(--gray4);cursor:pointer;">✕ Limpar</button>
+        </div>
       </div>
 
       <div id="painel-loading" class="painel-loading" style="display:none;">
@@ -512,6 +525,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
     <div id="section-skus" style="display:none;">
       <div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
         <button class="toolbar-btn btn-primary" onclick="analisarSKUs()">🔍 Analisar SKUs</button>
+        <button class="toolbar-btn btn-secondary" id="btn-export-skus" onclick="exportarSKUsXLSX()" style="display:none;">⬇ Excel</button>
         <span style="font-size:.72rem;font-weight:700;color:var(--gray4);" id="sku-erp-aviso"></span>
         <div class="filtros-bar" style="margin-bottom:0;">
           <button class="filtro-btn active" data-sfiltro="todos" onclick="setFiltroSKU('todos')">Todos</button>
@@ -951,8 +965,9 @@ async function selecionarConta(id) {
   if (cache) {
     window._painelItens   = cache.itens;
     window._painelTarifas = cache.tarifas;
+    window._painelPromos  = cache.precosPromo || {};
     atualizarInfoCache(cache);
-    renderizarTabela(cache.itens, cache.tarifas);
+    renderizarTabela(cache.itens, cache.tarifas, cache.precosPromo || {});
   } else {
     document.getElementById('painel-table-wrap').style.display = 'none';
     document.getElementById('resumo-cards').style.display = 'none';
@@ -1041,15 +1056,14 @@ async function limparCacheSV(contaId) {
   } catch(e) { console.warn('Erro limpar cache SV:', e); }
 }
 
-async function salvarCache(itens, tarifas) {
+async function salvarCache(itens, tarifas, precosPromo = {}) {
   try {
     const db  = await abrirDB();
     const key = contaAtiva?.id || 'default';
     const tx  = db.transaction(DB_STORE, 'readwrite');
-    tx.objectStore(DB_STORE).put({ id: key, itens, tarifas, ts: Date.now(), sellerId: contaAtiva?.sellerId });
+    tx.objectStore(DB_STORE).put({ id: key, itens, tarifas, precosPromo, ts: Date.now(), sellerId: contaAtiva?.sellerId });
   } catch(e) {
-    // fallback localStorage
-    try { localStorage.setItem('ml_cache_' + (contaAtiva?.id||'x'), JSON.stringify({ itens, tarifas, ts: Date.now(), sellerId: contaAtiva?.sellerId })); } catch {}
+    try { localStorage.setItem('ml_cache_' + (contaAtiva?.id||'x'), JSON.stringify({ itens, tarifas, precosPromo, ts: Date.now(), sellerId: contaAtiva?.sellerId })); } catch {}
   }
 }
 
@@ -1108,9 +1122,9 @@ async function carregarPainel(forcar = false) {
   if (!forcar) {
     const cache = await lerCache();
     if (cache && cache.sellerId === contaAtiva.sellerId) {
-      window._painelItens = cache.itens; window._painelTarifas = cache.tarifas;
+      window._painelItens = cache.itens; window._painelTarifas = cache.tarifas; window._painelPromos = cache.precosPromo || {};
       atualizarInfoCache(cache);
-      renderizarTabela(cache.itens, cache.tarifas);
+      renderizarTabela(cache.itens, cache.tarifas, cache.precosPromo || {});
       return;
     }
   }
@@ -1130,8 +1144,7 @@ async function carregarPainel(forcar = false) {
   const sellerId = contaAtiva.sellerId;
 
   try {
-    // 1. Scroll API — IDs de todos os anúncios
-    //    Filtro status=active aplicado no Multiget (passo 2)
+    // 1. Scroll API sem filtro de status — traz todos, filtramos no app
     let allIds = [], total = null, scrollId = null;
     progressTxt.textContent = 'Buscando anúncios...';
     do {
@@ -1143,11 +1156,11 @@ async function carregarPainel(forcar = false) {
       if (total === null) total = res.paging?.total || 0;
       allIds = allIds.concat(res.results);
       scrollId = res.scroll_id;
-      progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 25), 25) + '%';
-      progressTxt.textContent = 'Buscando: ' + allIds.length + ' de ' + total;
+      progressBar.style.width = Math.min(Math.round((allIds.length/Math.max(total,1))*25),25)+'%';
+      progressTxt.textContent = 'Buscando: ' + allIds.length + ' / ' + total;
     } while (scrollId && allIds.length < total);
     allIds = [...new Set(allIds)];
-    console.log('IDs ativos encontrados:', allIds.length);
+    console.log('Total IDs:', allIds.length, '/ Esperado:', total);
 
     if (!allIds.length) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Nenhum anúncio ativo.'; return; }
 
@@ -1157,10 +1170,11 @@ async function carregarPainel(forcar = false) {
     let itens = [];
     for (let i=0; i<allIds.length; i+=20) {
       const lote = allIds.slice(i, i+20);
-      const res = await mlGet('/items?ids=' + lote.join(','));
+      const res = await mlGet('/items?ids=' + lote.join(',') + '&attributes=id,title,price,sale_price,original_price,status,listing_type_id,shipping,available_quantity,category_id,attributes,seller_custom_field,thumbnail');
       if (Array.isArray(res)) {
         // Filtra SOMENTE ativos — pausados não entram no painel
-        const validos = res.filter(r => r.code === 200 && r.body && r.body.status === 'active').map(r => r.body);
+        const validos = res.filter(r => r.code === 200 && r.body).map(r => r.body);
+
         const falhos  = res.filter(r => r.code !== 200).map(r => r.body?.id || '?');
         if (falhos.length) console.warn('Itens não carregados:', falhos.length);
 
@@ -1203,11 +1217,38 @@ async function carregarPainel(forcar = false) {
       progressTxt.textContent = 'Tarifas: '+Math.min(i+10,itens.length)+'/'+itens.length;
     }
 
-    await salvarCache(itens, tarifas);
+    // 4. Busca preços de promoção em lotes de 10
+    progressTxt.textContent = 'Buscando preços promocionais...';
+    const precosPromo = {};
+    for (let i = 0; i < itens.length; i += 10) {
+      const lote = itens.slice(i, i + 10);
+      await Promise.all(lote.map(async item => {
+        try {
+          const r = await fetch(WORKER_URL + '/ml/items/' + item.id + '/prices', {
+            headers: { Authorization: 'Bearer ' + getToken() }
+          });
+          if (!r.ok) return;
+          const d = await r.json();
+          // Log do primeiro item para debug
+          if (i === 0) console.log('Exemplo preços:', JSON.stringify(d?.prices?.slice(0,3)));
+          // ML retorna type=standard com regular_amount preenchido quando em promoção
+          // regular_amount = preço original, amount = preço promocional
+          const precoEntry = d?.prices?.find(p => p.regular_amount && p.regular_amount > p.amount);
+          if (precoEntry) {
+            precosPromo[item.id] = { promo: precoEntry.amount, original: precoEntry.regular_amount };
+          }
+        } catch {}
+      }));
+      progressBar.style.width = Math.min(85 + Math.round(((i+10)/itens.length)*14), 99) + '%';
+      progressTxt.textContent = 'Preços promo: ' + Math.min(i+10, itens.length) + '/' + itens.length;
+    }
+    console.log('Promos encontradas:', Object.keys(precosPromo).length);
+
+    await salvarCache(itens, tarifas, precosPromo);
     atualizarInfoCache(await lerCache());
-    window._painelItens = itens; window._painelTarifas = tarifas;
+    window._painelItens = itens; window._painelTarifas = tarifas; window._painelPromos = precosPromo;
     progressBar.style.width = '100%'; loading.style.display = 'none';
-    renderizarTabela(itens, tarifas);
+    renderizarTabela(itens, tarifas, precosPromo);
 
   } catch(e) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Erro: '+e.message; }
 }
@@ -1215,7 +1256,7 @@ async function carregarPainel(forcar = false) {
 // ══════════════════════════════════════════
 // PAINEL — RENDERIZAR TABELA
 // ══════════════════════════════════════════
-function renderizarTabela(itens, tarifas) {
+function renderizarTabela(itens, tarifas, precosPromo = {}) {
   const margemInput  = document.getElementById('painel-margem').value;
   const impostoInput = document.getElementById('painel-imposto').value;
   const margemDesejada = margemInput === '' ? 0 : parseFloat(margemInput) || 0;
@@ -1230,11 +1271,13 @@ function renderizarTabela(itens, tarifas) {
   let cGreen=0, cYellow=0, cRed=0, cBlue=0, cStockDiff=0;
 
   itens.forEach(item => {
-    // Se item está em promoção, usa original_price como preço base para cálculo
-    // item.price = preço promocional (menor), item.original_price = preço real
-    const precoPromocional = item.original_price && item.original_price > item.price;
-    const preco     = (precoPromocional ? item.original_price : item.price) || 0;
-    const precoAtual = item.price || 0; // preço que o cliente vê
+    // Preço final: usa preço de promoção do cache se existir
+    const precoBase       = item.price || 0;
+    const promoCache      = precosPromo[item.id] || null;
+    const precoFinal      = promoCache ? promoCache.promo : precoBase;
+    const precoOriginal   = promoCache ? promoCache.original : precoBase;
+    const precoPromocional = promoCache !== null;
+    const preco = precoFinal; // cálculos usam preço real de venda
     const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Classico';
     const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
     const freeShip  = item.shipping?.free_shipping || false;
@@ -1349,10 +1392,10 @@ function renderizarTabela(itens, tarifas) {
       '</td>'+
       '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+
         (precoPromocional
-          ? '<span style="font-size:.67rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;margin-bottom:2px;display:inline-block;">🏷 PROMO</span><br>'+
-            '<span style="font-weight:800;">'+brl(precoAtual)+'</span>'+
-            '<br><span style="font-size:.67rem;color:var(--gray4);text-decoration:line-through;">'+brl(preco)+'</span>'
-          : brl(preco))+
+          ? '<span style="font-size:.65rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;display:inline-block;margin-bottom:1px;">🏷 PROMO</span><br>'+
+            '<span style="font-weight:800;">'+brl(precoFinal)+'</span>'+
+            '<br><span style="font-size:.67rem;color:var(--gray4);text-decoration:line-through;">'+brl(precoOriginal)+'</span>'
+          : brl(precoFinal))+
         (margemAtual!==null?'<br><span style="font-size:.67rem;color:var(--gray4);font-weight:600;">'+pct(margemAtual)+'</span>':'')+
       '</td>'+
       '<td style="font-weight:700;white-space:nowrap;">'+(custo!==null?brl(custo):'<span style="color:var(--gray4);font-size:.7rem;">Sem ERP</span>')+'</td>'+
@@ -1409,39 +1452,73 @@ function toggleDetPainel(itemId) {
 
 function recalcularPainel() {
   if (window._painelItens && window._painelTarifas)
-    renderizarTabela(window._painelItens, window._painelTarifas);
+    renderizarTabela(window._painelItens, window._painelTarifas, window._painelPromos || {});
 }
 
 // ══════════════════════════════════════════
 // FILTROS DO PAINEL
 // ══════════════════════════════════════════
-function setFiltro(filtro) {
-  window._filtroAtivo = filtro;
-  document.querySelectorAll('.filtro-btn[data-filtro]').forEach(b => b.classList.toggle('active', b.dataset.filtro === filtro));
+// ── Filtros combinados por grupo ──
+window._filtrosAtivos = { status: new Set(['active']), margem: new Set(), estoque: new Set() };
+
+function toggleFiltro(btn) {
+  const grupo = btn.dataset.grupo;
+  const valor = btn.dataset.valor;
+  const set   = window._filtrosAtivos[grupo];
+  if (set.has(valor)) { set.delete(valor); btn.classList.remove('active'); }
+  else { set.add(valor); btn.classList.add('active'); }
   filtrarTabela();
 }
 
+function limparFiltros() {
+  window._filtrosAtivos = { status: new Set(['active']), margem: new Set(), estoque: new Set() };
+  document.querySelectorAll('.filtro-btn.multi').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.grupo === 'status' && b.dataset.valor === 'active') b.classList.add('active');
+  });
+  if (document.getElementById('filtro-busca')) document.getElementById('filtro-busca').value = '';
+  filtrarTabela();
+}
+
+// Manter compatibilidade com código antigo
+function setFiltro(filtro) { filtrarTabela(); }
+
 function filtrarTabela() {
-  const filtro = window._filtroAtivo || 'todos';
-  const busca  = (document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
+  const fStatus  = window._filtrosAtivos?.status  || new Set();
+  const fMargem  = window._filtrosAtivos?.margem  || new Set();
+  const fEstoque = window._filtrosAtivos?.estoque || new Set();
+  const busca    = (document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
   let vis = 0;
+
   document.querySelectorAll('#painel-tbody tr').forEach(tr => {
-    if (!tr.dataset.status) return; // pula linhas de detalhe
+    if (!tr.dataset.itemstatus) return;
     let ok = true;
-    if (filtro==='itemativo')   ok = tr.dataset.itemstatus === 'active';
-    else if (filtro==='itempausado') ok = ['paused','closed','under_review'].includes(tr.dataset.itemstatus);
-    else if (filtro==='green')  ok = tr.dataset.status?.includes('green');
-    else if (filtro==='yellow') ok = tr.dataset.status?.includes('yellow');
-    else if (filtro==='red')    ok = tr.dataset.status?.includes('red');
-    else if (filtro==='blue')   ok = tr.dataset.status?.includes('blue');
-    else if (filtro==='stock')  ok = tr.dataset.stock === 'diff';
-    else if (filtro==='noerp')  ok = tr.dataset.noerp === '1';
-    if (ok && busca) ok = tr.dataset.search?.includes(busca);
+
+    // Status — AND entre grupos, OR dentro do grupo
+    if (fStatus.size > 0) ok = ok && fStatus.has(tr.dataset.itemstatus);
+
+    // Margem — OR dentro do grupo
+    if (fMargem.size > 0) {
+      const statusKey = tr.dataset.status || '';
+      ok = ok && [...fMargem].some(m => statusKey.includes(m));
+    }
+
+    // Estoque — AND entre os selecionados
+    if (fEstoque.has('stock')) ok = ok && tr.dataset.stock === 'diff';
+    if (fEstoque.has('noerp')) ok = ok && tr.dataset.noerp === '1';
+
+    // Busca texto
+    if (busca) ok = ok && (tr.dataset.search||'').includes(busca);
+
     tr.style.display = ok ? '' : 'none';
     if (ok) vis++;
   });
-  document.getElementById('rc-total').textContent = vis + (filtro!=='todos'||busca?' (filtrado)':'');
+
+  const temFiltro = fStatus.size > 0 || fMargem.size > 0 || fEstoque.size > 0 || busca;
+  const rcTotal = document.getElementById('rc-total');
+  if (rcTotal) rcTotal.textContent = vis + (temFiltro ? ' (filtrado)' : '');
 }
+
 
 // ══════════════════════════════════════════
 // SKUs NÃO CADASTRADOS
@@ -1563,6 +1640,7 @@ async function analisarSKUs() {
   const todosResultados = [...resultados, ...ativosSemERP];
   window._skuResultados = todosResultados;
   renderSKUs(todosResultados);
+  document.getElementById('btn-export-skus').style.display = 'inline-block';
 }
 
 function renderSKUs(resultados) {
@@ -2080,26 +2158,86 @@ async function buscarVendas() {
       return;
     }
 
-    pTxt.textContent = allVendas.length + ' vendas. Buscando notas fiscais...';
+    pTxt.textContent = allVendas.length + ' vendas. Buscando detalhes...';
 
-    // Busca NFs em lotes de 10 — igual Apps Script
-    const nfMap = {};
-    for (let i = 0; i < allVendas.length; i += 10) {
-      const lote = allVendas.slice(i, i + 10);
+    // Busca NFs + financeiro + frete + fiscal em paralelo — tudo de uma vez
+    const nfMap = {}, detMap = {};
+
+    for (let i = 0; i < allVendas.length; i += 5) {
+      const lote = allVendas.slice(i, i + 5);
       await Promise.all(lote.map(async v => {
         try {
-          const nf = await mlGetVendas('/users/' + sellerId + '/invoices/orders/' + v.id);
-          nfMap[v.id] = (nf && !nf.error) ? nf : null;
-        } catch { nfMap[v.id] = null; }
+          // 1. NF
+          const nfRes = await mlGetVendas('/users/' + sellerId + '/invoices/orders/' + v.id).catch(() => null);
+          const nf = (nfRes && !nfRes.error) ? nfRes : null;
+          nfMap[v.id] = nf;
+
+          // 2. Financeiro MP
+          const pagAprovado = v.payments?.find(p => p.status === 'approved') || v.payments?.[0];
+          const pagamentoData = pagAprovado?.id
+            ? await mpGetVendas('/v1/payments/' + pagAprovado.id).catch(e => { console.error('Erro MP:', e.message); return null; })
+            : null;
+          if (pagamentoData?.error) console.warn('MP retornou erro:', JSON.stringify(pagamentoData));
+          else if (pagamentoData) {
+            const tarifaCalc = pagamentoData?.fee_details?.reduce((s,f)=>s+(f.amount||0),0) || 0;
+            const liqCalc = pagamentoData?.transaction_details?.net_received_amount || pagamentoData?.net_received_amount || 0;
+            // Log detalhado só para os primeiros 3 pagamentos para ver a estrutura
+            if (Math.random() < 0.05) console.log('MP DETALHE:', pagAprovado.id, JSON.stringify({
+              fee_details: pagamentoData?.fee_details,
+              transaction_details: pagamentoData?.transaction_details,
+              net_received_amount: pagamentoData?.net_received_amount
+            }));
+          }
+
+          // 3. Frete
+          const freteData = v.shipping?.id
+            ? await mlGetVendas('/shipments/' + v.shipping.id).catch(() => null)
+            : null;
+
+          // 4. Dados fiscais
+          const fiscalData = await mlGetVendas('/orders/' + v.id + '/billing_info').catch(() => null);
+
+          // 5. ICMS/DIFAL do XML
+          let impostosData = { icms: 0, difal: 0 };
+          if (nf?.id && nf?.status === 'authorized') {
+            try {
+              // Usa rota /xml/ que retorna texto bruto sem tentar converter para JSON
+              const r = await fetch(WORKER_URL + '/xml/users/' + sellerId + '/invoices/documents/xml/' + nf.id + '/authorized', {
+                headers: { Authorization: 'Bearer ' + getTokenVendas() }
+              });
+              if (r.ok) {
+                const txt = await r.text();
+                console.log('XML recebido:', txt.substring(0, 200));
+                const icmsMatch  = txt.match(/<vICMS>([0-9.]+)<\/vICMS>/);
+                const difalMatch = txt.match(/<vICMSUFDest>([0-9.]+)<\/vICMSUFDest>/);
+                impostosData = {
+                  icms:  icmsMatch  ? parseFloat(icmsMatch[1])  : 0,
+                  difal: difalMatch ? parseFloat(difalMatch[1]) : 0
+                };
+                console.log('Impostos:', impostosData);
+              } else {
+                console.warn('XML status:', r.status);
+              }
+            } catch(e) { console.error('Erro XML:', e.message); }
+          }
+
+          const tipoEnvio = freteData?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS';
+          detMap[v.id] = { freteData, fiscalData, pagamentoData, impostosData, tipoEnvio };
+
+        } catch(e) {
+          nfMap[v.id] = null;
+          detMap[v.id] = null;
+        }
       }));
-      pBar.style.width = Math.min(50 + Math.round(((i + 10) / allVendas.length) * 50), 99) + '%';
-      pTxt.textContent = 'NFs: ' + Math.min(i + 10, allVendas.length) + ' / ' + allVendas.length;
+
+      pBar.style.width = Math.min(50 + Math.round(((i + 5) / allVendas.length) * 49), 99) + '%';
+      pTxt.textContent = 'Detalhes: ' + Math.min(i + 5, allVendas.length) + ' / ' + allVendas.length;
     }
 
     pBar.style.width = '100%';
     loading.style.display = 'none';
 
-    vendasCache = allVendas.map(v => ({ venda: v, nf: nfMap[v.id], detalhes: null }));
+    vendasCache = allVendas.map(v => ({ venda: v, nf: nfMap[v.id], detalhes: detMap[v.id] }));
     renderVendas();
     document.getElementById('btn-export-vendas').style.display = 'inline-block';
 
@@ -2172,23 +2310,63 @@ function renderVendas() {
     const tipoCls  = tipo==='devolucao'?'tipo-dev':tipo==='cancelamento'?'tipo-cancel':'tipo-cross';
     const tipoLabel = tipo==='devolucao'?'Devolução':tipo==='cancelamento'?'Cancelamento':'Normal';
 
+    // Extrair detalhes já carregados para mostrar na linha
+    const det     = entry.detalhes || {};
+    const pag     = det.pagamentoData;
+    const billing = det.fiscalData?.buyer?.billing_info || {};
+    const addr    = billing.address || {};
+    const imp     = det.impostosData || {};
+    const chaveNF = entry.nf?.attributes?.invoice_key || '';
+    const nfNum   = entry.nf?.invoice_number || entry.nf?.id || '';
+    const estado  = addr.state?.name || '—';
+    const cidade  = addr.city_name || '—';
+    const doc     = billing.identification?.number || '—';
+
+    let tarifa = 0, liq = 0;
+    if (pag?.fee_details) tarifa = pag.fee_details.reduce((s,f)=>s+(f.amount||0),0);
+    liq = pag?.transaction_details?.net_received_amount || pag?.net_received_amount || 0;
+    const notaEmitida = chaveNF && chaveNF.trim() !== '';
+    const ehDev2 = (v.tags||[]).some(t => ['return','claim','mediated','refund_pending','refunded'].includes(t));
+    let liqReal = notaEmitida ? liq : 0;
+    if (ehDev2 && liqReal === 0) liqReal = v.total_amount || 0;
+
+    const comp       = det.freteData?.shipping_option?.cost_components || {};
+    const fretePago  = Number(comp.seller_cost ?? det.freteData?.shipping_option?.list_cost ?? 0);
+    const freteTotal = Number(det.freteData?.shipping_option?.cost ?? 0);
+    const custoFrete = fretePago - freteTotal;
+    const tipoEnvio  = det.tipoEnvio || 'CROSS';
+
+    const urlDANFE = (entry.nf?.id && chaveNF) ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+entry.nf.id+'/danfe/'+chaveNF : '';
+    const urlXML   = entry.nf?.id ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+entry.nf.id+'/xml/authorized' : '';
+
     const row = document.createElement('div');
     row.className = 'venda-row';
     row.dataset.tipo   = tipo;
     row.dataset.nf     = nfInfo.key;
     row.dataset.search = searchStr;
     row.innerHTML =
-      '<div class="venda-header" onclick="toggleVenda(this)">' +
+      '<div class="venda-header">' +
         '<span class="venda-id">#'+v.id+'</span>'+
         '<span class="venda-data">'+dataStr+'</span>'+
         '<span class="venda-tipo '+tipoCls+'">'+tipoLabel+'</span>'+
         '<span class="venda-nf-pill '+nfInfo.cls+'">'+nfInfo.label+'</span>'+
         '<span class="venda-cliente">'+cliente+(sku?' · <span style="color:var(--gray4);">'+sku+'</span>':'')+'</span>'+
         '<span class="venda-valor">'+brl(v.total_amount||0)+'</span>'+
-        '<span style="font-size:.8rem;color:var(--gray4);margin-left:.5rem;">▼</span>'+
       '</div>'+
-      '<div class="venda-detalhe" id="det-'+v.id+'">'+
-        '<div class="det-loading" id="det-loading-'+v.id+'">Carregando detalhes...</div>'+
+      // Detalhes direto na linha — sem precisar clicar
+      '<div style="display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;padding:.5rem 1rem .75rem;border-top:1px solid var(--gray2);background:#FAFAFA;font-size:.72rem;">'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Líquido: </span><span style="font-weight:800;color:#22543D;">'+brl(liqReal)+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Tarifa: </span><span style="font-weight:800;">'+brl(tarifa)+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Frete: </span><span style="font-weight:800;">'+brl(custoFrete)+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Envio: </span><span style="font-weight:800;">'+tipoEnvio+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">ICMS: </span><span style="font-weight:800;">'+(imp.icms ? brl(imp.icms) : '—')+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">DIFAL: </span><span style="font-weight:800;">'+(imp.difal ? brl(imp.difal) : '—')+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Estado: </span><span style="font-weight:800;">'+estado+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Cidade: </span><span style="font-weight:800;">'+cidade+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">Doc: </span><span style="font-weight:800;">'+doc+'</span></div>'+
+        '<div><span style="color:var(--gray4);font-weight:700;">NF: </span><span style="font-weight:800;">'+(nfNum||'—')+'</span></div>'+
+        (urlDANFE ? '<a href="'+urlDANFE+'" target="_blank" class="btn-danfe" style="font-size:.7rem;padding:.18rem .5rem;">📥 DANFE</a>' : '')+
+        (urlXML   ? '<a href="'+urlXML+'"   target="_blank" class="btn-xml"   style="font-size:.7rem;padding:.18rem .5rem;">📥 XML</a>'   : '')+
       '</div>';
 
     row._entry = entry;
@@ -2230,35 +2408,41 @@ async function toggleVenda(header) {
   try {
     const sellerId = getSellerIdVendas();
 
-    // 1. Tipo de envio via shipment — igual Apps Script buscarDetalhesFrete
-    let freteData = null;
-    if (v.shipping?.id) {
-      freteData = await mlGetVendas('/shipments/' + v.shipping.id).catch(() => null);
-    }
+    // Busca tudo em paralelo — igual ao Apps Script
+    const [freteData, fiscalData, pagamentoData] = await Promise.all([
+      v.shipping?.id
+        ? mlGetVendas('/shipments/' + v.shipping.id).catch(() => null)
+        : Promise.resolve(null),
+      mlGetVendas('/orders/' + v.id + '/billing_info').catch(() => null),
+      (v.payments?.find(p => p.status === 'approved') || v.payments?.[0])?.id
+        ? mpGetVendas('/v1/payments/' + (v.payments.find(p => p.status === 'approved') || v.payments[0]).id).catch(() => null)
+        : Promise.resolve(null)
+    ]);
 
-    // 2. Dados fiscais — igual Apps Script buscarDadosFiscais
-    const fiscalData = await mlGetVendas('/orders/' + v.id + '/billing_info').catch(() => null);
-
-    // 3. Financeiro via Mercado Pago — igual Apps Script buscarFinanceiroVenda
-    let pagamentoData = null;
-    const pagAprovado = v.payments?.find(p => p.status === 'approved') || v.payments?.[0];
-    if (pagAprovado?.id) {
-      pagamentoData = await mpGetVendas('/v1/payments/' + pagAprovado.id).catch(() => null);
-    }
-
-    // 4. NF já vem do cache — mas busca impostos se autorizada
+    // Impostos do XML da NF — igual Apps Script extrairImpostosXML
     let impostosData = { icms: 0, difal: 0 };
     const nf = entry.nf;
     if (nf?.id && nf?.status === 'authorized') {
       try {
-        // XML para extrair ICMS e DIFAL — igual Apps Script extrairImpostosXML
-        const xmlRes = await mlGetVendas('/users/' + sellerId + '/invoices/documents/xml/' + nf.id + '/authorized');
-        // xmlRes pode ser texto XML ou JSON dependendo do endpoint
-        impostosData = extrairImpostosDoRetorno(xmlRes);
+        const r = await fetch(WORKER_URL + '/ml/users/' + sellerId + '/invoices/documents/xml/' + nf.id + '/authorized', {
+          headers: { Authorization: 'Bearer ' + getTokenVendas() }
+        });
+        if (r.ok) {
+          const txt = await r.text();
+          const icmsMatch  = txt.match(/<vICMS>([0-9.]+)<\/vICMS>/);
+          const difalMatch = txt.match(/<vICMSUFDest>([0-9.]+)<\/vICMSUFDest>/);
+          impostosData = {
+            icms:  icmsMatch  ? parseFloat(icmsMatch[1])  : 0,
+            difal: difalMatch ? parseFloat(difalMatch[1]) : 0
+          };
+        }
       } catch {}
     }
 
-    entry.detalhes = { freteData, fiscalData, pagamentoData, impostosData };
+    // Tipo de envio — igual Apps Script
+    const tipoEnvio = freteData?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS';
+
+    entry.detalhes = { freteData, fiscalData, pagamentoData, impostosData, tipoEnvio };
     renderDetalhe(entry);
 
   } catch(e) {
@@ -2415,45 +2599,133 @@ function setFiltroVendas(filtro) {
 
 function filtrarVendas() { renderVendas(); }
 
-// ── Export Excel ──
+// ── Export Excel completo — igual ao Apps Script ──
 function exportarVendasXLSX() {
   if (!vendasCache.length) return;
-  const rows = [['Venda ID','Data','Status','Tipo','Cliente','SKU','Valor Total','Valor Líquido','Tarifa','Frete','Tipo Envio','NF Número','Status NF','Chave NF','Data NF','DANFE','XML']];
+
+  // Exporta só os visíveis
+  const visiveis = new Set(
+    [...document.querySelectorAll('.venda-row')]
+      .filter(r => r.style.display !== 'none')
+      .map(r => r._entry?.venda?.id)
+      .filter(Boolean)
+  );
+
+  const rows = [[
+    'Venda ID','Data Venda','Hora Venda','Status da Venda','Descrição Ocorrência',
+    'Nome Cliente','Nome Fiscal','CPF/CNPJ','Registro Estadual',
+    'Rua','Número','Cidade','Estado','CEP',
+    'SKU','Valor Total','Valor Líquido','Custo Frete','Tarifa Total',
+    'Nota Fiscal Número','Chave Acesso','Status NF','Data Emissão NF','Hora Emissão NF',
+    'URL DANFE','URL XML','Tipo de Envio','Transação MP','Pack ID','Shipment ID',
+    'ICMS','DIFAL'
+  ]];
+
   vendasCache.forEach(entry => {
     const v   = entry.venda;
-    const nf  = entry.nf;
-    const det = entry.detalhes;
-    const tipo = classificarVenda(v, nf);
-    const cliente = ((v.buyer?.first_name||'')+ ' '+(v.buyer?.last_name||v.buyer?.nickname||'')).trim();
-    const data = v.date_created ? v.date_created.split('T')[0].split('-').reverse().join('/') : '';
-    const sku  = v.order_items?.[0]?.item?.seller_sku || '';
-    const chaveNF = nf?.attributes?.invoice_key || '';
-    const urlDANFE = (nf?.id && chaveNF) ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/danfe/'+chaveNF : '';
-    const urlXML   = nf?.id ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/xml/authorized' : '';
+    if (!visiveis.has(v.id)) return;
 
-    let liq=0, tarifa=0, frete=0, tipoEnvio='CROSS';
-    if (det) {
-      const pag = det.pagamentoData;
-      if (pag?.fee_details) tarifa = pag.fee_details.reduce((s,f)=>s+(f.amount||0),0);
-      liq = pag?.transaction_details?.net_received_amount || 0;
-      const comp = det.freteData?.shipping_option?.cost_components || {};
-      frete = Number(comp.seller_cost ?? det.freteData?.shipping_option?.list_cost ?? 0) - Number(det.freteData?.shipping_option?.cost ?? 0);
-      tipoEnvio = det.freteData?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS';
-    }
+    const nf  = entry.nf;
+    const det = entry.detalhes || {};
+
+    const tipo       = classificarVenda(v, nf);
+    const tags       = v.tags || [];
+    const ehDev      = tags.some(t => ['return','claim','mediated','refund_pending','refunded'].includes(t));
+    const ehCancel   = v.status === 'cancelled' && !ehDev;
+    const pag        = det.pagamentoData;
+    const payStatus  = pag?.status || '';
+
+    // Ocorrência — igual traduzirStatus do Apps Script
+    let ocorrencia = 'Venda normal, sem ocorrências';
+    if (ehCancel) ocorrencia = 'Venda cancelada antes da conclusão';
+    else if (ehDev && payStatus === 'refunded') ocorrencia = 'Venda devolvida e já reembolsada';
+    else if (ehDev && tags.includes('refund_pending')) ocorrencia = 'Venda devolvida, reembolso pendente';
+    else if (ehDev) ocorrencia = 'Venda concluída, mas o cliente devolveu o produto';
+    else if (nf?.status === 'denied') ocorrencia = 'Venda com problema na emissão de NF';
+
+    // Data/hora
+    const dataHora = v.date_created ? v.date_created.split('T') : ['',''];
+    const dataVenda = dataHora[0].split('-').reverse().join('/');
+    const horaVenda = dataHora[1] ? dataHora[1].substring(0,8) : '';
+
+    // Financeiro
+    let tarifa = 0, liq = 0;
+    if (pag?.fee_details) tarifa = pag.fee_details.reduce((s,f)=>s+(f.amount||0),0);
+    liq = pag?.transaction_details?.net_received_amount || pag?.net_received_amount || 0;
+
+    // Valor líquido real — igual calcularValorLiquidoReal do Apps Script
+    const chaveNF    = nf?.attributes?.invoice_key || '';
+    const notaEmitida = chaveNF && chaveNF.trim() !== '';
+    let liqReal = notaEmitida ? liq : 0;
+    if (ehDev && liqReal === 0) liqReal = v.total_amount || 0;
+
+    // Frete — igual buscarDetalhesFrete
+    const comp        = det.freteData?.shipping_option?.cost_components || {};
+    const fretePago   = Number(comp.seller_cost ?? det.freteData?.shipping_option?.list_cost ?? 0);
+    const freteTotal  = Number(det.freteData?.shipping_option?.cost ?? 0);
+    const custoFrete  = fretePago - freteTotal;
+    const tipoEnvio   = det.tipoEnvio || (det.freteData?.logistic_type === 'fulfillment' ? 'FULL' : 'CROSS');
+
+    // Dados fiscais
+    const billing      = det.fiscalData?.buyer?.billing_info || {};
+    const addr         = billing.address || {};
+    const taxes        = billing.taxes || {};
+    const inscriptions = taxes.inscriptions || {};
+    const nomeFiscal   = ((billing.name||'') + ' ' + (billing.last_name||'')).trim();
+    const documento    = billing.identification?.number || '';
+    const regEstadual  = inscriptions.state_registration || '';
+
+    // NF
+    const nfNumero    = nf?.invoice_number || nf?.id || '';
+    const nfStatus    = nf?.status || 'Sem NF';
+    const dataHoraNF  = nf?.issued_date ? nf.issued_date.split('T') : ['',''];
+    const dataEmissao = dataHoraNF[0] ? dataHoraNF[0].split('-').reverse().join('/') : '';
+    const horaEmissao = dataHoraNF[1] ? dataHoraNF[1].substring(0,8) : '';
+    const urlDANFE    = (nf?.id && chaveNF) ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/danfe/'+chaveNF : '';
+    const urlXML      = nf?.id ? 'https://myaccount.mercadolivre.com.br/invoices/api/invoices/'+nf.id+'/xml/authorized' : '';
+
+    // Impostos
+    const imp = det.impostosData || {};
+
+    const cliente = ((v.buyer?.first_name||'') + ' ' + (v.buyer?.last_name||v.buyer?.nickname||'')).trim();
+    const sku     = v.order_items?.[0]?.item?.seller_sku || '';
+    const transacaoMP = pag?.id ? String(pag.id) : '';
 
     rows.push([
-      v.id, data, v.status||'', tipo, cliente, sku,
-      v.total_amount||0, liq, tarifa, frete, tipoEnvio,
-      nf?.invoice_number||nf?.id||'',
-      nf?.status||'Sem NF',
-      chaveNF,
-      nf?.issued_date ? nf.issued_date.split('T')[0].split('-').reverse().join('/') : '',
-      urlDANFE, urlXML
+      String(v.id),
+      dataVenda, horaVenda,
+      v.status || '',
+      ocorrencia,
+      cliente, nomeFiscal, documento, regEstadual,
+      addr.street_name||'', addr.street_number||'',
+      addr.city_name||'', addr.state?.name||'', addr.zip_code||'',
+      sku,
+      v.total_amount || 0,
+      liqReal,
+      custoFrete,
+      tarifa,
+      nfNumero, chaveNF, nfStatus, dataEmissao, horaEmissao,
+      urlDANFE, urlXML,
+      tipoEnvio,
+      transacaoMP,
+      v.pack_id ? String(v.pack_id) : '',
+      v.shipping?.id ? String(v.shipping.id) : '',
+      imp.icms || 0,
+      imp.difal || 0
     ]);
   });
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Formatar colunas de moeda
+  [15,16,17,18,30,31].forEach(c => {
+    for (let r = 1; r < rows.length; r++) {
+      const cell = XLSX.utils.encode_cell({r, c});
+      if (ws[cell]) ws[cell].z = 'R$ #,##0.00';
+    }
+  });
+
   XLSX.utils.book_append_sheet(wb, ws, 'Vendas');
   const conta = vendasContaAtiva?.nome || 'vendas';
   const data  = new Date().toISOString().split('T')[0];
@@ -2735,6 +3007,160 @@ function exportarSemVendaXLSX() {
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, 'Sem venda '+dias+'d');
   XLSX.writeFile(wb, 'sem_venda_'+dias+'dias_'+(svContaAtiva?.nome||'conta')+'_'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
+
+
+// ══════════════════════════════════════════
+// EXPORTAÇÕES EXCEL
+// ══════════════════════════════════════════
+
+function exportarPainelXLSX() {
+  if (!window._painelItens || !window._painelItens.length) {
+    alert('Carregue os anúncios primeiro.');
+    return;
+  }
+
+  const margemInput  = document.getElementById('painel-margem').value;
+  const impostoInput = document.getElementById('painel-imposto').value;
+  const margemDesejada = margemInput === '' ? 0 : parseFloat(margemInput) || 0;
+  const impostoPct     = impostoInput === '' ? 0 : parseFloat(impostoInput) || 0;
+  const erp    = contaAtiva ? (erpPorConta[contaAtiva.id] || {}) : {};
+  const tarifas = window._painelTarifas || {};
+  const promos  = window._painelPromos  || {};
+
+  // Pegar só linhas visíveis
+  const linhasVisiveis = [...document.querySelectorAll('#painel-tbody tr')]
+    .filter(tr => tr.style.display !== 'none' && tr.dataset.itemstatus);
+
+  const rows = [[
+    'MLB', 'Título', 'SKU', 'Status', 'Tipo',
+    'Preço atual', 'Preço promo', 'Custo ERP',
+    'Comissão R$', 'Comissão %', 'Frete', 'Imposto',
+    'Preço mínimo', 'Vender por', 'Receita', 'Lucro líq.',
+    'Margem atual %', 'Margem status',
+    'Estoque ML', 'Estoque ERP', 'Alerta estoque'
+  ]];
+
+  linhasVisiveis.forEach(tr => {
+    const itemId = tr.dataset.itemid;
+    const item   = window._painelItens.find(i => i.id === itemId);
+    if (!item) return;
+
+    const sku      = (item.attributes?.find(a=>a.id==='PART_NUMBER')?.value_name||'').trim() || String(item.seller_custom_field||'').trim();
+    const erpItem  = sku ? (erp[sku] || null) : null;
+    const custo    = erpItem?.custo ?? '';
+    const estoqueERP = erpItem?.estoque ?? '';
+    const estoqueML  = item.available_quantity ?? '';
+
+    const promoCache   = promos[item.id] || null;
+    const precoFinal   = promoCache ? promoCache.promo : (item.price || 0);
+    const precoOriginal = promoCache ? promoCache.original : (item.price || 0);
+
+    const fee         = tarifas[item.id];
+    const comissaoVal = fee?.comissaoVal ?? '';
+    const comissaoPct = fee?.comissaoPct ?? '';
+    const freeShip    = item.shipping?.free_shipping || false;
+    const freteVal    = freeShip ? (fee?.freteReal || fee?.freteFixo || 0) : 0;
+    const impVal      = precoFinal * (impostoPct / 100);
+
+    const lucro   = (custo !== '' && comissaoVal !== '') ? precoFinal - custo - freteVal - impVal - comissaoVal : '';
+    const margem  = (lucro !== '' && precoFinal > 0) ? (lucro / precoFinal * 100) : '';
+    const precoMin = (custo !== '' && comissaoVal !== '') ? custo + freteVal + impVal + comissaoVal : '';
+    const comFrac  = comissaoPct !== '' ? comissaoPct / 100 : 0;
+    const den      = 1 - impostoPct/100 - comFrac - margemDesejada/100;
+    const precoAlvo = (custo !== '' && den > 0) ? (custo + freteVal) / den : '';
+    const receita   = comissaoVal !== '' ? precoFinal - comissaoVal - freteVal : '';
+
+    const stockAlert = (estoqueERP !== '' && estoqueML !== '' && estoqueERP !== estoqueML)
+      ? 'Divergente (ERP:'+estoqueERP+' ML:'+estoqueML+')' : (estoqueERP !== '' ? 'OK' : 'Sem ERP');
+
+    rows.push([
+      item.id,
+      item.title,
+      sku || '',
+      item.status || '',
+      item.listing_type_id === 'gold_pro' ? 'Premium' : 'Clássico',
+      precoFinal,
+      promoCache ? promoCache.promo : '',
+      custo,
+      comissaoVal,
+      comissaoPct,
+      freteVal,
+      impVal,
+      precoMin,
+      precoAlvo,
+      receita,
+      lucro,
+      margem,
+      tr.dataset.status || '',
+      estoqueML,
+      estoqueERP,
+      stockAlert
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Formatar colunas numéricas
+  const fmtBRL = 'R$ #,##0.00';
+  const fmtPct = '0.00"%"';
+  [5,6,7,8,10,11,12,13,14,15].forEach(c => {
+    for (let r = 1; r < rows.length; r++) {
+      const cell = XLSX.utils.encode_cell({r, c});
+      if (ws[cell]) ws[cell].z = fmtBRL;
+    }
+  });
+  [9,16].forEach(c => {
+    for (let r = 1; r < rows.length; r++) {
+      const cell = XLSX.utils.encode_cell({r, c});
+      if (ws[cell]) ws[cell].z = fmtPct;
+    }
+  });
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Painel');
+  const conta = contaAtiva?.nome || 'conta';
+  const data  = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, 'painel_'+conta+'_'+data+'.xlsx');
+}
+
+function exportarSKUsXLSX() {
+  if (!window._skuResultados?.length) { alert('Analise os SKUs primeiro.'); return; }
+
+  // Pegar só cards visíveis
+  const visiveis = [...document.querySelectorAll('#sku-lista .sku-card')]
+    .filter(c => c.style.display !== 'none')
+    .map(c => c.dataset.search?.split(' ')[0] || '')
+    .filter(Boolean);
+
+  const resultados = window._skuResultados.filter(r => visiveis.includes(r.sku.toLowerCase()) || visiveis.includes(r.sku));
+
+  const rows = [['SKU', 'Descrição', 'Tipo', 'Custo', 'Estoque ERP', 'Anúncios pausados', 'Tbm em outro estoque']];
+  const erp = contaAtiva ? (erpPorConta[contaAtiva.id] || {}) : {};
+  const outrasConta = contas.filter(c => c.id !== contaAtiva?.id);
+
+  resultados.forEach(r => {
+    const erpOutras = outrasConta.map(c => {
+      const e = (erpPorConta[c.id] || {})[r.sku];
+      return e ? c.nome+': '+e.estoque+' un.' : null;
+    }).filter(Boolean).join(', ');
+
+    rows.push([
+      r.sku,
+      r.erp?.nome || '',
+      r.tipo === 'pausado' ? 'Só pausados' : r.tipo === 'ativo-sem-erp' ? 'Ativo sem ERP' : 'Sem anúncio',
+      r.erp?.custo || '',
+      r.erp?.estoque ?? '',
+      (r.pausados||[]).map(a => a.id).join(', '),
+      erpOutras
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'SKUs');
+  const conta = contaAtiva?.nome || 'conta';
+  XLSX.writeFile(wb, 'skus_'+conta+'_'+new Date().toISOString().split('T')[0]+'.xlsx');
 }
 
 // ══════════════════════════════════════════
