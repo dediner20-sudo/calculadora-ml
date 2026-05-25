@@ -357,6 +357,20 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <button class="card-btn" style="background:#38A169;">Ver Vendas</button>
       </div>
     </div>
+    <div class="platform-card" style="border:2px solid transparent;" onclick="goto('semvenda')">
+      <div class="card-header" style="background:linear-gradient(135deg,#744210,#D69E2E);">
+        <svg viewBox="0 0 140 60" width="140" fill="none">
+          <text x="10" y="35" font-family="DM Sans,Arial" font-size="28" font-weight="900" fill="rgba(255,255,255,0.3)">📉</text>
+          <text x="54" y="22" font-family="DM Sans,Arial" font-size="12" font-weight="900" fill="white">SEM VENDA</text>
+          <text x="54" y="38" font-family="DM Sans,Arial" font-size="10" font-weight="700" fill="rgba(255,255,255,0.7)">X dias parado</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3>Anúncios sem venda</h3>
+        <p>Ativos parados há X dias — com ou sem estoque.</p>
+        <button class="card-btn" style="background:#D69E2E;color:#fff;">Ver parados</button>
+      </div>
+    </div>
     <div class="platform-card card-sh" onclick="goto('sh')">
       <div class="card-header">
         <svg class="logo-sh" viewBox="0 0 180 60" fill="none">
@@ -433,6 +447,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
         <button class="toolbar-btn btn-primary" onclick="carregarPainel(true)">↺ Atualizar API</button>
         <button class="toolbar-btn btn-secondary" onclick="carregarPainel(false)">▶ Usar Cache</button>
         <button class="toolbar-btn btn-danger" onclick="limparCache()" id="btn-limpar-cache" style="display:none;">🗑 Cache</button>
+        <button class="toolbar-btn" id="btn-modo-lucro" onclick="toggleModoLucro()" style="background:#EBF8F1;color:#22543D;border:1.5px solid #9FE1CB;">💰 Receita</button>
         <span class="cache-info" id="cache-info"></span>
       </div>
 
@@ -474,12 +489,13 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
               <th style="width:10%;">Preço atual</th>
               <th style="width:8%;">Custo ERP</th>
               <th style="width:15%;">Comissão · Frete · Imp.</th>
-              <th style="width:9%;">Preço mínimo</th>
-              <th style="width:9%;">Vender por</th>
-              <th style="width:10%;">Status</th>
+              <th style="width:8%;">Preço mínimo</th>
+              <th style="width:8%;">Vender por</th>
+              <th style="width:8%;" id="th-receita">Receita</th>
+              <th style="width:9%;">Status</th>
               <th style="width:4%;text-align:center;">ML</th>
               <th style="width:4%;text-align:center;">ERP</th>
-              <th style="width:6%;">Estoque</th>
+              <th style="width:5%;">Estoque</th>
             </tr>
           </thead>
           <tbody id="painel-tbody"></tbody>
@@ -499,6 +515,7 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
           <button class="filtro-btn active" data-sfiltro="todos" onclick="setFiltroSKU('todos')">Todos</button>
           <button class="filtro-btn" data-sfiltro="sem" onclick="setFiltroSKU('sem')">Sem anúncio</button>
           <button class="filtro-btn" data-sfiltro="pausado" onclick="setFiltroSKU('pausado')">Só pausados</button>
+          <button class="filtro-btn" data-sfiltro="ativo-sem-erp" onclick="setFiltroSKU('ativo-sem-erp')">⚡ Ativo sem ERP</button>
           <button class="filtro-btn" data-sfiltro="cruzado" onclick="setFiltroSKU('cruzado')">⚠ Estoque cruzado</button>
         </div>
         <input type="text" class="busca-input" id="sku-busca" placeholder="Buscar SKU ou produto..." oninput="filtrarSKUs()"/>
@@ -698,6 +715,7 @@ function goto(page) {
     if (page === 'painel') iniciarPainel();
     if (page === 'ml')     atualizarPillML();
     if (page === 'vendas') iniciarVendas();
+    if (page === 'semvenda') iniciarSemVenda();
   }
   window.scrollTo(0, 0);
 }
@@ -830,6 +848,14 @@ function renderGestao() {
         </label>
         <button class="btn-sm btn-excluir" onclick="excluirConta('${c.id}')">✕</button>
       </div>`;
+    // Event delegation para botões dinâmicos
+    div.addEventListener('click', function(e) {
+      const tb = e.target.closest('.sku-toggle-btn');
+      if (tb) {
+        const el = document.getElementById(tb.dataset.target);
+        if (el) { const h = el.style.display==='none'; el.style.display=h?'block':'none'; tb.textContent=(h?'▼ ':'▶ ')+todosAnuncios.length+' anúncio(s)'; }
+      }
+    });
     lista.appendChild(div);
   });
 }
@@ -961,17 +987,56 @@ function setSubTab(tab) {
 // ══════════════════════════════════════════
 // CACHE — IndexedDB (permanente, não some ao fechar)
 // ══════════════════════════════════════════
-const DB_NAME    = 'ml_calc_db';
-const DB_VERSION = 1;
+const DB_NAME    = 'ml_calc_db_v2';
+const DB_VERSION = 2;
 const DB_STORE   = 'painel_cache';
+
+const DB_STORE_SV = 'semvenda_cache';
 
 function abrirDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' });
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(DB_STORE))    db.createObjectStore(DB_STORE,    { keyPath: 'id' });
+      if (!db.objectStoreNames.contains(DB_STORE_SV)) db.createObjectStore(DB_STORE_SV, { keyPath: 'id' });
+    };
     req.onsuccess = e => resolve(e.target.result);
     req.onerror   = e => reject(e.target.error);
   });
+}
+
+// ── Cache de resultados de sem venda ──
+async function salvarCacheSV(contaId, dias, resultados) {
+  try {
+    const db = await abrirDB();
+    const tx = db.transaction(DB_STORE_SV, 'readwrite');
+    tx.objectStore(DB_STORE_SV).put({ id: contaId + '_' + dias, contaId, dias, resultados, ts: Date.now() });
+    console.log('Cache SV salvo:', resultados.length, 'itens');
+  } catch(e) { console.warn('Erro ao salvar cache SV:', e); }
+}
+
+async function lerCacheSV(contaId, dias) {
+  try {
+    const db = await abrirDB();
+    return new Promise(resolve => {
+      const tx  = db.transaction(DB_STORE_SV, 'readonly');
+      const req = tx.objectStore(DB_STORE_SV).get(contaId + '_' + dias);
+      req.onsuccess = e => resolve(e.target.result || null);
+      req.onerror   = () => resolve(null);
+    });
+  } catch { return null; }
+}
+
+async function limparCacheSV(contaId) {
+  try {
+    const db = await abrirDB();
+    const tx = db.transaction(DB_STORE_SV, 'readwrite');
+    const store = tx.objectStore(DB_STORE_SV);
+    // Limpa todas as entradas desta conta
+    const all = await new Promise(r => { const req = store.getAll(); req.onsuccess = e => r(e.target.result); req.onerror = () => r([]); });
+    all.filter(x => x.contaId === contaId).forEach(x => store.delete(x.id));
+  } catch(e) { console.warn('Erro limpar cache SV:', e); }
 }
 
 async function salvarCache(itens, tarifas) {
@@ -1077,7 +1142,21 @@ async function carregarPainel(forcar = false) {
         scrollId = testRes.scroll_id;
         progressBar.style.width = '10%';
         progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
-        while (scrollId && allIds.length < total) {
+        let tentativas = 0;
+        while (allIds.length < total && tentativas < 50) {
+          tentativas++;
+          // Se scroll_id acabou mas ainda faltam IDs, usa offset como complemento
+          if (!scrollId) {
+            console.warn('scroll_id nulo com', allIds.length, '/', total, 'IDs — complementando com offset');
+            const offset = allIds.length;
+            const res2 = await mlGet('/users/'+sellerId+'/items/search?status=active&limit=100&offset='+offset);
+            if (!res2 || res2.error || !res2.results?.length) break;
+            const novos = res2.results.filter(id => !allIds.includes(id));
+            if (!novos.length) break;
+            allIds = allIds.concat(novos);
+            progressTxt.textContent = 'IDs (offset complementar): ' + allIds.length + ' / ' + total;
+            continue;
+          }
           const res = await mlGet('/users/'+sellerId+'/items/search?search_type=scan&limit=100&scroll_id='+scrollId);
           if (!res || res.error || !res.results || res.results.length === 0) break;
           allIds = allIds.concat(res.results);
@@ -1085,6 +1164,7 @@ async function carregarPainel(forcar = false) {
           progressBar.style.width = Math.min(Math.round((allIds.length / Math.max(total,1)) * 30), 30) + '%';
           progressTxt.textContent = 'IDs (scroll): ' + allIds.length + ' / ' + total;
         }
+        console.log('IDs encontrados:', allIds.length, '/ Total esperado:', total);
       } else {
         throw new Error('Scroll API indisponível: ' + JSON.stringify(testRes));
       }
@@ -1179,7 +1259,11 @@ function renderizarTabela(itens, tarifas) {
   let cGreen=0, cYellow=0, cRed=0, cBlue=0, cStockDiff=0;
 
   itens.forEach(item => {
-    const preco     = item.price || 0;
+    // Se item está em promoção, usa original_price como preço base para cálculo
+    // item.price = preço promocional (menor), item.original_price = preço real
+    const precoPromocional = item.original_price && item.original_price > item.price;
+    const preco     = (precoPromocional ? item.original_price : item.price) || 0;
+    const precoAtual = item.price || 0; // preço que o cliente vê
     const tipoLabel = item.listing_type_id === 'gold_pro' ? 'Premium' : 'Classico';
     const tipoCls   = item.listing_type_id === 'gold_pro' ? 'badge-premium' : 'badge-classico';
     const freeShip  = item.shipping?.free_shipping || false;
@@ -1207,10 +1291,19 @@ function renderizarTabela(itens, tarifas) {
     const precoMin = (custo !== null && tarifaOk) ? custo + freteVal + impValAtual + comissaoVal : null;
 
     // Preço alvo (com margem desejada)
+    // Fórmula: P = (custo + frete) / (1 - imp% - com% - mar%)
+    // Itera para convergir pois a comissão em R$ muda com o preço
     let precoAlvo = null;
     if (custo !== null && tarifaOk && preco > 0) {
-      const den = 1 - impostoPct/100 - comissaoPct/100 - margemDesejada/100;
-      if (den > 0) precoAlvo = (custo + freteVal) / den;
+      const impFrac = impostoPct / 100;
+      const comFrac = comissaoPct / 100;
+      const marFrac = margemDesejada / 100;
+      const den = 1 - impFrac - comFrac - marFrac;
+      if (den > 0) {
+        precoAlvo = (custo + freteVal) / den;
+        // Garantir que precoAlvo >= precoMin (nunca pode ser menor)
+        if (precoMin !== null && precoAlvo < precoMin) precoAlvo = precoMin;
+      }
     }
 
     // Status
@@ -1241,25 +1334,60 @@ function renderizarTabela(itens, tarifas) {
     const diffAlvo = precoAlvo !== null ? preco - precoAlvo : null;
     const diffLabel = diffAlvo !== null ? (diffAlvo>=0 ? '<br><span style="font-size:.67rem;font-weight:700;color:#22543D;">+'+brl(diffAlvo)+'</span>' : '<br><span style="font-size:.67rem;font-weight:700;color:#C53030;">-'+brl(Math.abs(diffAlvo))+'</span>') : '';
 
+    // Receita = preço - comissão - frete (o que o ML deposita)
+    const receita   = tarifaOk ? preco - comissaoVal - freteVal : null;
+    // Lucro líquido = receita - custo - imposto
+    const lucroLiq  = (receita !== null && custo !== null) ? receita - custo - impValAtual : null;
+
+    // Exibe receita ou lucro dependendo do modo
+    const modoLucro = window._modoLucro || false;
+    let receitaLabel = '—', receitaCls = '';
+    if (modoLucro && lucroLiq !== null) {
+      receitaLabel = brl(lucroLiq);
+      receitaCls   = lucroLiq >= 0 ? 'preco-atual-ok' : 'preco-atual-low';
+    } else if (!modoLucro && receita !== null) {
+      receitaLabel = brl(receita);
+      receitaCls   = 'preco-atual-ok';
+    }
+
     const tr = document.createElement('tr');
-    tr.dataset.status = statusKey;
-    tr.dataset.stock  = stockDiff ? 'diff' : 'ok';
-    tr.dataset.noerp  = custo === null ? '1' : '0';
-    tr.dataset.search = (item.title+' '+item.id+' '+sku).toLowerCase();
+    tr.dataset.status  = statusKey;
+    tr.dataset.stock   = stockDiff ? 'diff' : 'ok';
+    // Sem ERP: só conta se ativo (pausado sem ERP = sem estoque, normal)
+    tr.dataset.noerp   = (custo === null && item.status === 'active') ? '1' : '0';
+    tr.dataset.itemstatus = item.status || 'active';
+    tr.dataset.search  = (item.title+' '+item.id+' '+sku).toLowerCase();
+    tr.dataset.itemid  = item.id;
+    tr.style.cursor    = 'pointer';
+
+    const detRow = document.createElement('tr');
+    detRow.id = 'det-painel-' + item.id;
+    detRow.style.display = 'none';
+    detRow.innerHTML = '<td colspan="11" style="padding:0;"></td>';
 
     tr.innerHTML =
-      '<td><div style="font-weight:800;font-size:.75rem;line-height:1.3;">'+item.title+'</div><div style="font-size:.66rem;color:var(--gray4);margin-top:1px;">'+item.id+(sku?' · '+sku:'')+'</div></td>'+
+      '<td onclick="toggleDetPainel(\"'+item.id+'\")" style="cursor:pointer;">'+
+        '<div style="font-weight:800;font-size:.75rem;line-height:1.3;">'+item.title+'</div>'+
+        '<div style="font-size:.66rem;color:var(--gray4);margin-top:1px;">'+item.id+(sku?' · '+sku:'')+'</div>'+
+      '</td>'+
       '<td><span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span></td>'+
-      '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+brl(preco)+(margemAtual!==null?'<br><span style="font-size:.67rem;color:var(--gray4);font-weight:600;">'+pct(margemAtual)+'</span>':'')+'</td>'+
+      '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+
+        (precoPromocional ? '<span style="font-size:.67rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;margin-bottom:2px;display:inline-block;">PROMO '+brl(precoAtual)+'</span><br>' : '')+
+        brl(preco)+
+        (margemAtual!==null?'<br><span style="font-size:.67rem;color:var(--gray4);font-weight:600;">'+pct(margemAtual)+'</span>':'')+
+      '</td>'+
       '<td style="font-weight:700;white-space:nowrap;">'+(custo!==null?brl(custo):'<span style="color:var(--gray4);font-size:.7rem;">Sem ERP</span>')+'</td>'+
       '<td style="font-size:.71rem;line-height:1.8;">Com: '+detCom+'<br>Fr: '+detFr+'<br>Imp: '+detImp+'</td>'+
       '<td style="font-weight:800;white-space:nowrap;">'+(precoMin!==null?brl(precoMin):'—')+'</td>'+
       '<td style="font-weight:800;white-space:nowrap;">'+(precoAlvo!==null?brl(precoAlvo)+diffLabel:'—')+'</td>'+
+      '<td class="'+receitaCls+'" style="font-weight:800;white-space:nowrap;">'+receitaLabel+'</td>'+
       '<td>'+(statusLabel!=='—'?'<span class="status-pill '+statusCls+'">'+statusLabel+'</span>':'—')+'</td>'+
       '<td style="font-weight:700;text-align:center;">'+(estoqueML!==null?estoqueML:'—')+'</td>'+
       '<td style="font-weight:700;text-align:center;">'+(estoqueERP!==null?estoqueERP:'—')+'</td>'+
       '<td><span class="stock-alert '+stockCls+'">'+stockAlert+'</span></td>';
+
     tbody.appendChild(tr);
+    tbody.appendChild(detRow);
   });
 
   document.getElementById('rc-total').textContent  = itens.length;
@@ -1273,6 +1401,32 @@ function renderizarTabela(itens, tarifas) {
   document.getElementById('painel-empty').style.display = 'none';
   if (window._filtroAtivo) filtrarTabela();
 }
+
+// ── Modo Receita / Lucro líquido ──
+window._modoLucro = false;
+function toggleModoLucro() {
+  window._modoLucro = !window._modoLucro;
+  const btn = document.getElementById('btn-modo-lucro');
+  const th  = document.getElementById('th-receita');
+  if (window._modoLucro) {
+    btn.textContent = '📊 Lucro líquido';
+    btn.style.background = '#EBF2FF'; btn.style.color = '#0C447C'; btn.style.borderColor = '#90CDF4';
+    if (th) th.textContent = 'Lucro líq.';
+  } else {
+    btn.textContent = '💰 Receita';
+    btn.style.background = '#EBF8F1'; btn.style.color = '#22543D'; btn.style.borderColor = '#9FE1CB';
+    if (th) th.textContent = 'Receita';
+  }
+  if (window._painelItens && window._painelTarifas) recalcularPainel();
+}
+
+// ── Expandir anúncio no painel ──
+function toggleDetPainel(itemId) {
+  const detRow = document.getElementById('det-painel-' + itemId);
+  if (!detRow) return;
+  detRow.style.display = detRow.style.display !== 'none' ? 'none' : '';
+}
+
 
 function recalcularPainel() {
   if (window._painelItens && window._painelTarifas)
@@ -1383,17 +1537,36 @@ async function analisarSKUs() {
   progressBar.style.width = '100%'; loading.style.display = 'none';
 
   // Classifica cada SKU do ERP
+  // Regra: se tem pelo menos 1 ATIVO → OK, ignora (não aparece para correção)
+  // Agrupa anúncios por SKU mostrando ativos e pausados separados
   let cAtivos=0, cPausados=0, cSem=0;
   const resultados = [];
 
   skusERP.forEach(sku => {
-    const anuncios = skuParaAnuncios[sku] || [];
-    const temAtivo = anuncios.some(a => a.status === 'active');
-    const temPausado = anuncios.some(a => a.status !== 'active');
+    const anuncios    = skuParaAnuncios[sku] || [];
+    const ativos      = anuncios.filter(a => a.status === 'active');
+    const pausados    = anuncios.filter(a => a.status !== 'active');
+    const temAtivo    = ativos.length > 0;
 
-    if (temAtivo) { cAtivos++; return; } // OK — tem ativo, ignora
-    else if (temPausado) { cPausados++; resultados.push({ sku, tipo:'pausado', anuncios, erp:erp[sku] }); }
-    else { cSem++; resultados.push({ sku, tipo:'sem', anuncios:[], erp:erp[sku] }); }
+    if (temAtivo) { cAtivos++; return; } // tem ativo → OK, ignora
+    else if (pausados.length) {
+      cPausados++;
+      resultados.push({ sku, tipo:'pausado', ativos:[], pausados, erp:erp[sku] });
+    } else {
+      cSem++;
+      resultados.push({ sku, tipo:'sem', ativos:[], pausados:[], erp:erp[sku] });
+    }
+  });
+
+  // Também mostra anúncios ATIVOS sem ERP (controle de estoque)
+  // Busca anúncios ativos cujo SKU NÃO está no ERP
+  const skusERPSet = new Set(skusERP);
+  const ativosSemERP = [];
+  todosItens.forEach(item => {
+    if (item.status !== 'active') return;
+    const sku = (item.attributes?.find(a=>a.id==='PART_NUMBER')?.value_name||'').trim() || String(item.seller_custom_field||'').trim();
+    if (!sku || skusERPSet.has(sku)) return;
+    ativosSemERP.push({ sku: sku||item.id, tipo:'ativo-sem-erp', ativos:[{id:item.id, titulo:item.title, status:'active', preco:item.price}], pausados:[], erp:null });
   });
 
   window._skuResultados = resultados;
@@ -1404,7 +1577,10 @@ async function analisarSKUs() {
   document.getElementById('sku-sem').textContent      = cSem;
   document.getElementById('sku-resumo').style.display = 'grid';
 
-  renderSKUs(resultados);
+  // Combina resultados: sem/pausados + ativos sem ERP
+  const todosResultados = [...resultados, ...ativosSemERP];
+  window._skuResultados = todosResultados;
+  renderSKUs(todosResultados);
 }
 
 function renderSKUs(resultados) {
@@ -1412,9 +1588,18 @@ function renderSKUs(resultados) {
   const empty = document.getElementById('sku-empty');
   lista.innerHTML = '';
 
-  if (!resultados.length) {
+  const visiveis = resultados.filter(r => {
+    const filtro = window._filtroSKUAtivo || 'todos';
+    if (filtro === 'sem')           return r.tipo === 'sem';
+    if (filtro === 'pausado')       return r.tipo === 'pausado';
+    if (filtro === 'ativo-sem-erp') return r.tipo === 'ativo-sem-erp';
+    if (filtro === 'cruzado')       return false; // será filtrado depois
+    return true;
+  });
+
+  if (!visiveis.length) {
     empty.style.display = 'block';
-    empty.textContent = 'Todos os SKUs têm pelo menos um anúncio ativo!';
+    empty.textContent = 'Nenhum resultado para este filtro.';
     return;
   }
   empty.style.display = 'none';
@@ -1430,14 +1615,20 @@ function renderSKUs(resultados) {
     });
   });
 
-  resultados.forEach(r => {
+  visiveis.forEach(r => {
     const div = document.createElement('div');
     div.className = 'sku-card ' + r.tipo;
     div.dataset.tipo   = r.tipo;
     div.dataset.search = (r.sku + ' ' + (r.erp?.nome||'')).toLowerCase();
 
-    const badgeLabel = r.tipo === 'pausado' ? 'Só pausados' : 'Sem anúncio';
-    const badgeCls   = r.tipo === 'pausado' ? 'sku-badge-pausado' : 'sku-badge-sem';
+    const badgeLabel = r.tipo === 'pausado' ? 'Só pausados'
+                     : r.tipo === 'ativo-sem-erp' ? '⚡ Ativo sem ERP'
+                     : 'Sem anúncio';
+    const badgeCls   = r.tipo === 'pausado' ? 'sku-badge-pausado'
+                     : r.tipo === 'ativo-sem-erp' ? '' : 'sku-badge-sem';
+    const badgeStyle = r.tipo === 'ativo-sem-erp'
+      ? 'background:#EBF2FF;color:#0C447C;font-size:.7rem;font-weight:800;padding:.2rem .6rem;border-radius:6px;flex-shrink:0;'
+      : '';
 
     // Estoque cruzado nas outras contas
     const emOutras = erpOutras[r.sku] || [];
@@ -1458,13 +1649,38 @@ function renderSKUs(resultados) {
       ).join('<br>');
     }
 
+    // Anúncios pausados expansíveis
+    const todosAnuncios = [...(r.ativos||[]), ...(r.pausados||[])];
+    const anunciosId = 'sku-anuncios-' + r.sku.replace(/[^a-z0-9]/gi,'_');
+    let anunciosHtml2 = '';
+    if (todosAnuncios.length) {
+      anunciosHtml2 = todosAnuncios.map(a =>
+        '<div style="display:flex;align-items:center;gap:.4rem;padding:.2rem 0;border-bottom:1px solid var(--gray2);">'+
+          '<span style="font-size:.67rem;font-weight:800;padding:.1rem .4rem;border-radius:4px;background:'+(a.status==='active'?'#EBF8F1':'#FFF0F0')+';color:'+(a.status==='active'?'#22543D':'#C53030')+'">'+(a.status==='active'?'Ativo':'Pausado')+'</span>'+
+          '<span style="font-size:.72rem;font-weight:700;color:var(--gray4);">'+a.id+'</span>'+
+          '<span style="font-size:.72rem;font-weight:700;flex:1;">'+a.titulo.substring(0,45)+'</span>'+
+          '<span style="font-size:.72rem;font-weight:800;color:#22543D;">'+brl(a.preco)+'</span>'+
+        '</div>'
+      ).join('');
+    }
+
     div.innerHTML =
-      '<span class="sku-badge-status '+badgeCls+'">'+badgeLabel+'</span>'+
+      '<span class="sku-badge-status '+badgeCls+'" style="'+badgeStyle+'">'+badgeLabel+'</span>'+
       '<div style="flex:1;">'+
         '<div style="font-weight:800;font-size:.82rem;">'+r.sku+'</div>'+
         '<div style="font-size:.75rem;color:var(--gray4);margin-top:2px;">'+(r.erp?.nome||'')+(r.erp?.custo?' · Custo: '+brl(r.erp.custo):'')+(r.erp?.estoque !== undefined?' · Estoque: '+r.erp.estoque+' un.':'')+'</div>'+
         (cruzadoHtml ? '<div style="margin-top:.4rem;display:flex;flex-wrap:wrap;gap:.3rem;">'+cruzadoHtml+'</div>' : '')+
-        (anunciosHtml ? '<div style="margin-top:.35rem;">'+anunciosHtml+'</div>' : '')+
+        (todosAnuncios.length ?
+          '<div style="margin-top:.4rem;">'+
+            '<button class="sku-toggle-btn" data-target="'+anunciosId+'" '+
+              'style="font-size:.7rem;font-weight:800;background:none;border:none;color:var(--ml-blue);cursor:pointer;padding:0;">'+
+              '▶ '+todosAnuncios.length+' anúncio(s) — clique para ver'+
+            '</button>'+
+            '<div id="'+anunciosId+'" style="display:none;margin-top:.35rem;border:1px solid var(--gray2);border-radius:8px;padding:.4rem .6rem;background:#fff;">'+
+              anunciosHtml2+
+            '</div>'+
+          '</div>'
+        : '')+
       '</div>';
     lista.appendChild(div);
   });
@@ -1477,16 +1693,15 @@ function setFiltroSKU(filtro) {
 }
 
 function filtrarSKUs() {
-  const filtro = window._filtroSKUAtivo || 'todos';
-  const busca  = (document.getElementById('sku-busca')?.value||'').toLowerCase().trim();
-  document.querySelectorAll('#sku-lista .sku-card').forEach(card => {
-    let ok = true;
-    if (filtro === 'sem')     ok = card.dataset.tipo === 'sem';
-    else if (filtro === 'pausado') ok = card.dataset.tipo === 'pausado';
-    else if (filtro === 'cruzado') ok = card.querySelector('[style*="Tbm no estoque"]') !== null;
-    if (ok && busca) ok = card.dataset.search?.includes(busca);
-    card.style.display = ok ? '' : 'none';
-  });
+  // Re-renderiza com o filtro ativo
+  if (window._skuResultados) renderSKUs(window._skuResultados);
+  // Depois aplica busca de texto
+  const busca = (document.getElementById('sku-busca')?.value||'').toLowerCase().trim();
+  if (busca) {
+    document.querySelectorAll('#sku-lista .sku-card').forEach(card => {
+      card.style.display = card.dataset.search?.includes(busca) ? '' : 'none';
+    });
+  }
 }
 
 // ══════════════════════════════════════════
@@ -1511,10 +1726,48 @@ function setTabML(tab) {
 function getToken() { return (contaAtiva || contas[0])?.token || null; }
 function getSellerId() { return (contaAtiva || contas[0])?.sellerId || null; }
 
+// ── Renovação automática de token ──
+async function renovarToken(conta) {
+  if (!conta?.clientId || !conta?.clientSecret || !conta?.refreshToken) return false;
+  try {
+    const body = new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: conta.clientId,
+      client_secret: conta.clientSecret,
+      refresh_token: conta.refreshToken
+    }).toString();
+    const r = await fetch(WORKER_URL + '/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      conta.token = d.access_token;
+      if (d.refresh_token) conta.refreshToken = d.refresh_token;
+      salvarContas();
+      console.log('Token renovado automaticamente para', conta.nome);
+      return true;
+    }
+    return false;
+  } catch { return false; }
+}
+
 async function mlGet(path) {
-  const token = getToken();
+  const conta = contaAtiva || contas[0];
+  let token = getToken();
   if (!token) throw new Error('Sem token — conecte uma conta');
-  const r = await fetch(WORKER_URL+'/ml'+path, { headers:{ Authorization:'Bearer '+token }});
+
+  let r = await fetch(WORKER_URL+'/ml'+path, { headers:{ Authorization:'Bearer '+token }});
+
+  // Token expirado — tenta renovar automaticamente
+  if (r.status === 401 || r.status === 403) {
+    const renovado = await renovarToken(conta);
+    if (renovado) {
+      token = conta.token;
+      r = await fetch(WORKER_URL+'/ml'+path, { headers:{ Authorization:'Bearer '+token }});
+    }
+  }
   return r.json();
 }
 
@@ -1761,16 +2014,36 @@ function getTokenVendas() { return vendasContaAtiva?.token || null; }
 function getSellerIdVendas() { return vendasContaAtiva?.sellerId || null; }
 
 async function mlGetVendas(path) {
-  const token = getTokenVendas();
+  const conta = vendasContaAtiva;
+  let token = getTokenVendas();
   if (!token) throw new Error('Sem token');
-  const r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }});
+
+  let r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }});
+
+  if (r.status === 401 || r.status === 403) {
+    const renovado = await renovarToken(conta);
+    if (renovado) {
+      token = conta.token;
+      r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }});
+    }
+  }
   return r.json();
 }
 
 async function mpGetVendas(path) {
-  const token = getTokenVendas();
+  const conta = vendasContaAtiva;
+  let token = getTokenVendas();
   if (!token) throw new Error('Sem token');
-  const r = await fetch(WORKER_URL + '/mp' + path, { headers: { Authorization: 'Bearer ' + token }});
+
+  let r = await fetch(WORKER_URL + '/mp' + path, { headers: { Authorization: 'Bearer ' + token }});
+
+  if (r.status === 401 || r.status === 403) {
+    const renovado = await renovarToken(conta);
+    if (renovado) {
+      token = conta.token;
+      r = await fetch(WORKER_URL + '/mp' + path, { headers: { Authorization: 'Bearer ' + token }});
+    }
+  }
   return r.json();
 }
 
@@ -2205,12 +2478,301 @@ function exportarVendasXLSX() {
   XLSX.writeFile(wb, 'vendas_'+conta+'_'+data+'.xlsx');
 }
 
+
+// ══════════════════════════════════════════
+// ANÚNCIOS SEM VENDA
+// ══════════════════════════════════════════
+let svContaAtiva  = null;
+let svResultados  = [];
+window._svFiltro  = 'todos';
+
+async function iniciarSemVenda() {
+  svRenderTabs();
+  if (!svContaAtiva && contas.length) svSelecionarConta(contas[0].id);
+  atualizarPillSV();
+  // Tenta carregar o último cache salvo
+  if (svContaAtiva) {
+    const dias = parseInt(document.getElementById('sv-dias')?.value) || 30;
+    const cache = await lerCacheSV(svContaAtiva.id, dias);
+    if (cache) {
+      const mins = Math.round((Date.now() - cache.ts) / 60000);
+      const label = mins < 60 ? mins+'min' : Math.floor(mins/60)+'h';
+      svResultados = cache.resultados;
+      document.getElementById('sv-dias-label').textContent = dias + ' dias (cache ' + label + ' atrás)';
+      document.getElementById('sv-resumo').style.display = 'grid';
+      document.getElementById('btn-export-semvenda').style.display = 'inline-block';
+      document.getElementById('sv-empty').style.display = 'none';
+      renderSV();
+    }
+  }
+}
+
+function svRenderTabs() {
+  const tabs = document.getElementById('semvenda-tabs');
+  if (!tabs) return;
+  tabs.innerHTML = '';
+  contas.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'conta-tab' + (svContaAtiva?.id === c.id ? ' active' : '') + (!c.token ? ' offline' : '');
+    btn.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.cor+';margin-right:.4rem;"></span>'+c.nome;
+    btn.onclick = () => svSelecionarConta(c.id);
+    tabs.appendChild(btn);
+  });
+}
+
+function svSelecionarConta(id) {
+  svContaAtiva = contas.find(c => c.id === id) || null;
+  svResultados = [];
+  document.getElementById('sv-lista').innerHTML = '';
+  document.getElementById('sv-empty').style.display = 'block';
+  document.getElementById('sv-resumo').style.display = 'none';
+  document.getElementById('btn-export-semvenda').style.display = 'none';
+  svRenderTabs();
+  atualizarPillSV();
+}
+
+function atualizarPillSV() {
+  const pill = document.getElementById('semvenda-conta-pill');
+  if (pill) pill.textContent = svContaAtiva ? svContaAtiva.nome : 'Sem conta';
+}
+
+function getTokenSV()    { return svContaAtiva?.token || null; }
+function getSellerIdSV() { return svContaAtiva?.sellerId || null; }
+
+async function mlGetSV(path) {
+  const conta = svContaAtiva;
+  let token = getTokenSV();
+  if (!token) throw new Error('Sem token');
+  let r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }});
+  if (r.status === 401 || r.status === 403) {
+    const ok = await renovarToken(conta);
+    if (ok) { token = conta.token; r = await fetch(WORKER_URL + '/ml' + path, { headers: { Authorization: 'Bearer ' + token }}); }
+  }
+  return r.json();
+}
+
+async function buscarSemVenda(forcar = false) {
+  if (!svContaAtiva) { alert('Selecione uma conta.'); return; }
+  if (!svContaAtiva.token) { abrirModalParaConta(svContaAtiva.id); return; }
+
+  const dias       = parseInt(document.getElementById('sv-dias').value) || 30;
+  const dataCorte  = new Date(); dataCorte.setDate(dataCorte.getDate() - dias);
+  const dataCorteISO = dataCorte.toISOString().split('T')[0];
+
+  const loading  = document.getElementById('sv-loading');
+  const lista    = document.getElementById('sv-lista');
+  const empty    = document.getElementById('sv-empty');
+  const pBar     = document.getElementById('sv-progress-bar');
+  const pTxt     = document.getElementById('sv-progress-txt');
+
+  // Tenta usar cache se não forçar atualização
+  if (!forcar) {
+    const cache = await lerCacheSV(svContaAtiva.id, dias);
+    if (cache) {
+      const mins = Math.round((Date.now() - cache.ts) / 60000);
+      const label = mins < 60 ? mins+'min' : Math.floor(mins/60)+'h';
+      svResultados = cache.resultados;
+      document.getElementById('sv-dias-label').textContent = dias + ' dias (cache ' + label + ' atrás)';
+      document.getElementById('sv-resumo').style.display = 'grid';
+      document.getElementById('btn-export-semvenda').style.display = 'inline-block';
+      renderSV();
+      return;
+    }
+  }
+
+  loading.style.display = 'block'; lista.innerHTML = '';
+  empty.style.display = 'none';
+  document.getElementById('sv-resumo').style.display = 'none';
+  document.getElementById('btn-export-semvenda').style.display = 'none';
+  pBar.style.width = '0%';
+  svResultados = [];
+
+  const sellerId = getSellerIdSV();
+
+  try {
+    // 1. Busca anúncios do cache ou da API
+    pTxt.textContent = 'Carregando anúncios...';
+    let itens = window._painelItens;
+    if (!itens || !itens.length) {
+      // Tenta carregar do IndexedDB
+      const cache = await lerCache(svContaAtiva.id);
+      if (cache?.itens?.length) itens = cache.itens;
+    }
+
+    if (!itens || !itens.length) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.textContent = 'Carregue os anúncios no Painel primeiro para usar esta tela.';
+      return;
+    }
+
+    // Considera apenas ativos E pausados (para separar os grupos)
+    const todosTipos = itens;
+    pBar.style.width = '20%';
+
+    // 2. Busca vendas do período para saber quem vendeu
+    pTxt.textContent = 'Buscando vendas dos últimos '+dias+' dias...';
+    const itemsQueVenderam = new Set();
+    let offset = 0, total = null;
+    do {
+      const res = await mlGetSV(
+        '/orders/search?seller='+sellerId+
+        '&order.date_created.from='+dataCorteISO+'T00:00:00.000-00:00'+
+        '&sort=date_desc&offset='+offset+'&limit=50'
+      );
+      if (!res || res.error) break;
+      if (total === null) total = res.paging?.total || 0;
+      (res.results || []).forEach(order => {
+        (order.order_items || []).forEach(oi => {
+          if (oi.item?.id) itemsQueVenderam.add(oi.item.id);
+        });
+      });
+      offset += 50;
+      pBar.style.width = Math.min(20 + Math.round((offset / Math.max(total,1)) * 50), 70) + '%';
+      pTxt.textContent = 'Vendas encontradas: ' + itemsQueVenderam.size + ' itens únicos vendidos';
+    } while (offset < total && offset < 5000);
+
+    pBar.style.width = '80%';
+    pTxt.textContent = 'Classificando anúncios...';
+
+    // 3. Filtra anúncios que NÃO venderam no período
+    svResultados = [];
+    todosTipos.forEach(item => {
+      if (itemsQueVenderam.has(item.id)) return; // vendeu → ignora
+
+      const estoque = item.available_quantity ?? 0;
+      const status  = item.status || 'active';
+      const sku     = (item.attributes?.find(a=>a.id==='PART_NUMBER')?.value_name||'').trim() || String(item.seller_custom_field||'').trim();
+
+      // Grupos:
+      // com-estoque: tem estoque (>0) — seja ativo ou pausado — mas não vendeu
+      // sem-estoque: sem estoque (=0) e pausado
+      let grupo = null;
+      if (estoque > 0) grupo = 'com-estoque';
+      else if (estoque === 0 && status !== 'active') grupo = 'sem-estoque';
+      // ativo com estoque 0 é outro caso — inclui em com-estoque para visibilidade
+      else if (estoque === 0 && status === 'active') grupo = 'com-estoque';
+
+      if (grupo) svResultados.push({ item, sku, estoque, status, grupo });
+    });
+
+    pBar.style.width = '100%';
+    loading.style.display = 'none';
+
+    // Salva no IndexedDB
+    await salvarCacheSV(svContaAtiva.id, dias, svResultados);
+
+    renderSV();
+    document.getElementById('btn-export-semvenda').style.display = 'inline-block';
+    document.getElementById('sv-dias-label').textContent = dias + ' dias';
+
+  } catch(e) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.textContent = 'Erro: ' + e.message;
+    console.error(e);
+  }
+}
+
+function renderSV() {
+  const lista   = document.getElementById('sv-lista');
+  const empty   = document.getElementById('sv-empty');
+  const filtro  = window._svFiltro || 'todos';
+  const busca   = (document.getElementById('sv-busca')?.value||'').toLowerCase().trim();
+
+  lista.innerHTML = ''; empty.style.display = 'none';
+
+  let cCom = 0, cSem = 0;
+  const visiveis = svResultados.filter(r => {
+    if (filtro === 'com-estoque' && r.grupo !== 'com-estoque') return false;
+    if (filtro === 'sem-estoque' && r.grupo !== 'sem-estoque') return false;
+    if (busca && !(r.item.title.toLowerCase().includes(busca) || r.sku.toLowerCase().includes(busca) || r.item.id.toLowerCase().includes(busca))) return false;
+    return true;
+  });
+
+  svResultados.forEach(r => { if (r.grupo==='com-estoque') cCom++; else cSem++; });
+  document.getElementById('sv-total').textContent       = svResultados.length;
+  document.getElementById('sv-com-estoque').textContent = cCom;
+  document.getElementById('sv-sem-estoque').textContent = cSem;
+  document.getElementById('sv-resumo').style.display    = 'grid';
+
+  if (!visiveis.length) {
+    empty.style.display = 'block';
+    empty.textContent = filtro === 'todos' ? '✓ Nenhum anúncio parado neste período!' : 'Nenhum resultado para este filtro.';
+    return;
+  }
+
+  visiveis.forEach(r => {
+    const item    = r.item;
+    const isCom   = r.grupo === 'com-estoque';
+    const statusLabel = item.status === 'active' ? 'Ativo' : 'Pausado';
+    const statusCls   = item.status === 'active' ? '#EBF8F1' : '#FFF0F0';
+    const statusTxt   = item.status === 'active' ? '#22543D' : '#C53030';
+
+    const div = document.createElement('div');
+    div.style.cssText = 'background:#fff;border:1.5px solid '+(isCom?'#F6AD55':'var(--gray2)')+';border-radius:10px;padding:.75rem 1rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;';
+    div.dataset.grupo  = r.grupo;
+    div.dataset.search = (item.title+' '+item.id+' '+r.sku).toLowerCase();
+
+    div.innerHTML =
+      '<div style="flex:1;min-width:200px;">'+
+        '<div style="font-weight:800;font-size:.82rem;line-height:1.3;">'+item.title+'</div>'+
+        '<div style="font-size:.7rem;color:var(--gray4);margin-top:2px;">'+item.id+(r.sku?' · '+r.sku:'')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;flex-shrink:0;">'+
+        '<span style="font-size:.7rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;background:'+statusCls+';color:'+statusTxt+'">'+statusLabel+'</span>'+
+        '<span style="font-size:.7rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;background:'+(isCom?'#FFF8E1':'var(--gray1)')+';color:'+(isCom?'#7B5800':'var(--gray4)')+'">'+
+          (isCom ? '📦 Estoque: '+r.estoque+' un.' : '⚠ Sem estoque')+
+        '</span>'+
+        '<span style="font-size:.75rem;font-weight:800;color:#22543D;">'+brl(item.price||0)+'</span>'+
+        '<a href="https://www.mercadolivre.com.br/anuncio/'+item.id+'" target="_blank" '+
+          'style="font-size:.7rem;font-weight:800;padding:.18rem .55rem;border-radius:6px;background:#EBF2FF;color:#0C447C;text-decoration:none;">'+
+          '↗ Ver no ML'+
+        '</a>'+
+      '</div>';
+    lista.appendChild(div);
+  });
+}
+
+function setFiltroSV(filtro) {
+  window._svFiltro = filtro;
+  document.querySelectorAll('.filtro-btn[data-svfiltro]').forEach(b => b.classList.toggle('active', b.dataset.svfiltro === filtro));
+  renderSV();
+}
+
+function filtrarSV() { renderSV(); }
+
+function exportarSemVendaXLSX() {
+  if (!svResultados.length) return;
+  const dias = parseInt(document.getElementById('sv-dias').value) || 30;
+  const rows = [['MLB','Título','SKU','Status','Estoque','Preço','Grupo']];
+  svResultados.forEach(r => {
+    rows.push([r.item.id, r.item.title, r.sku, r.item.status, r.estoque, r.item.price, r.grupo]);
+  });
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Sem venda '+dias+'d');
+  XLSX.writeFile(wb, 'sem_venda_'+dias+'dias_'+(svContaAtiva?.nome||'conta')+'_'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
+
 // ══════════════════════════════════════════
 // INICIALIZAÇÃO
 // ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   carregarContas();
   document.getElementById('ml-mlb')?.addEventListener('keydown', e=>{ if(e.key==='Enter') buscarAnuncio(); });
+
+  // Renova tokens automaticamente ao abrir (tokens expiram em 6h)
+  for (const conta of contas) {
+    if (!conta.token && conta.refreshToken && conta.clientId && conta.clientSecret) {
+      console.log('Renovando token de', conta.nome, '...');
+      await renovarToken(conta);
+    }
+  }
+
+  // Atualiza pills após renovação
+  atualizarPillML();
+  if (document.getElementById('pill-dot-vendas')) atualizarPillVendas?.();
 });
 </script>
 
@@ -2277,6 +2839,64 @@ document.addEventListener('DOMContentLoaded', () => {
       Selecione o período e clique em Buscar.
     </div>
 
+  </div>
+</div>
+
+
+<!-- ══ SEM VENDA ══ -->
+<div id="screen-semvenda" class="screen">
+  <div class="topbar topbar-dark">
+    <button class="back-btn" onclick="goto('home')">&#8592;</button>
+    <span class="topbar-title">Anúncios sem venda</span>
+    <div id="semvenda-conta-pill" style="margin-left:auto;font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7);"></div>
+  </div>
+  <div class="content">
+
+    <div class="conta-tabs" id="semvenda-tabs"></div>
+
+    <!-- Config -->
+    <div style="background:#fff;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+      <div class="field" style="margin-bottom:0;min-width:160px;">
+        <label>Sem venda há mais de</label>
+        <div class="field-row has-suffix">
+          <input type="number" id="sv-dias" value="30" min="1" max="365" style="padding:.6rem .75rem;font-family:Nunito,sans-serif;font-size:1rem;font-weight:700;border:2px solid var(--gray2);border-radius:10px;width:100%;outline:none;"/>
+          <span class="suffix">dias</span>
+        </div>
+      </div>
+      <button class="toolbar-btn btn-primary" style="background:#D69E2E;" onclick="buscarSemVenda(false)">▶ Usar Cache</button>
+      <button class="toolbar-btn btn-secondary" onclick="buscarSemVenda(true)">↺ Atualizar API</button>
+      <button class="toolbar-btn btn-secondary" id="btn-export-semvenda" onclick="exportarSemVendaXLSX()" style="display:none;">⬇ Exportar Excel</button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-bar" style="margin-bottom:.75rem;">
+      <button class="filtro-btn active" data-svfiltro="todos" onclick="setFiltroSV('todos')">Todos</button>
+      <button class="filtro-btn" data-svfiltro="com-estoque" onclick="setFiltroSV('com-estoque')">📦 Com estoque parado</button>
+      <button class="filtro-btn" data-svfiltro="sem-estoque" onclick="setFiltroSV('sem-estoque')">⚠ Sem estoque pausado</button>
+      <input type="text" class="busca-input" id="sv-busca" placeholder="Buscar por título ou SKU..." oninput="filtrarSV()"/>
+    </div>
+
+    <!-- Resumo -->
+    <div id="sv-resumo" style="display:none;margin-bottom:1rem;">
+      <div class="resumo-cards">
+        <div class="resumo-card"><div class="rc-label">Total parados</div><div class="rc-value rc-gray" id="sv-total">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Com estoque parado</div><div class="rc-value rc-yellow" id="sv-com-estoque">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Sem estoque pausado</div><div class="rc-value rc-red" id="sv-sem-estoque">—</div></div>
+        <div class="resumo-card"><div class="rc-label">Dias analisados</div><div class="rc-value rc-blue" id="sv-dias-label">—</div></div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="sv-loading" class="painel-loading" style="display:none;">
+      <div id="sv-progress-txt">Analisando...</div>
+      <div class="painel-progress"><div class="painel-progress-bar" id="sv-progress-bar" style="width:0%;background:#D69E2E;"></div></div>
+    </div>
+
+    <!-- Lista -->
+    <div id="sv-lista"></div>
+    <div id="sv-empty" style="text-align:center;padding:3rem;color:var(--gray4);font-weight:700;">
+      Configure o período e clique em Analisar.
+    </div>
   </div>
 </div>
 
