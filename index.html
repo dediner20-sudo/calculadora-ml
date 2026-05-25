@@ -466,6 +466,8 @@ body{font-family:'Nunito',sans-serif;background:#F0F0F6;min-height:100vh;color:v
 
       <div class="filtros-bar">
         <button class="filtro-btn active" data-filtro="todos" onclick="setFiltro('todos')">Todos</button>
+        <button class="filtro-btn" data-filtro="itemativo" onclick="setFiltro('itemativo')">🟢 Ativos</button>
+        <button class="filtro-btn" data-filtro="itempausado" onclick="setFiltro('itempausado')">🔴 Pausados</button>
         <button class="filtro-btn" data-filtro="green" onclick="setFiltro('green')">✓ Dentro</button>
         <button class="filtro-btn" data-filtro="yellow" onclick="setFiltro('yellow')">⚠ Apertada</button>
         <button class="filtro-btn" data-filtro="red" onclick="setFiltro('red')">✕ Abaixo</button>
@@ -1145,7 +1147,7 @@ async function carregarPainel(forcar = false) {
       progressTxt.textContent = 'Buscando: ' + allIds.length + ' de ' + total;
     } while (scrollId && allIds.length < total);
     allIds = [...new Set(allIds)];
-    console.log('IDs total encontrados:', allIds.length, '(ativos serão filtrados no próximo passo)');
+    console.log('IDs ativos encontrados:', allIds.length);
 
     if (!allIds.length) { loading.style.display='none'; empty.style.display='block'; empty.textContent='Nenhum anúncio ativo.'; return; }
 
@@ -1161,6 +1163,7 @@ async function carregarPainel(forcar = false) {
         const validos = res.filter(r => r.code === 200 && r.body && r.body.status === 'active').map(r => r.body);
         const falhos  = res.filter(r => r.code !== 200).map(r => r.body?.id || '?');
         if (falhos.length) console.warn('Itens não carregados:', falhos.length);
+
         itens = itens.concat(validos);
       }
       progressBar.style.width = Math.min(30 + Math.round(((i+20)/allIds.length)*25), 55) + '%';
@@ -1183,12 +1186,12 @@ async function carregarPainel(forcar = false) {
             let freteReal = 0;
             if (item.shipping?.free_shipping) {
               try {
-                const sr = await mlGet('/users/'+sellerId+'/shipping_options/free?item_id='+item.id);
-                // 500 ou erro — usa freteFixo como fallback silencioso
-                if (sr && !sr.error && sr.coverage?.all_country?.list_cost) {
-                  freteReal = sr.coverage.all_country.list_cost;
+                const r = await fetch(WORKER_URL+'/ml/users/'+sellerId+'/shipping_options/free?item_id='+item.id, {headers:{Authorization:'Bearer '+getToken()}});
+                if (r.ok) {
+                  const sr = await r.json();
+                  freteReal = sr?.coverage?.all_country?.list_cost || freteFixo;
                 } else {
-                  freteReal = freteFixo;
+                  freteReal = freteFixo; // 500/404 — silencioso
                 }
               } catch { freteReal = freteFixo; }
             }
@@ -1323,7 +1326,7 @@ function renderizarTabela(itens, tarifas) {
     tr.dataset.stock   = stockDiff ? 'diff' : 'ok';
     // Sem ERP: só conta se ativo (pausado sem ERP = sem estoque, normal)
     tr.dataset.noerp   = (custo === null && item.status === 'active') ? '1' : '0';
-    tr.dataset.itemstatus = item.status || 'active';
+    tr.dataset.itemstatus = item.status || 'unknown';
     tr.dataset.search  = (item.title+' '+item.id+' '+sku).toLowerCase();
     tr.dataset.itemid  = item.id;
     tr.style.cursor    = 'pointer';
@@ -1338,7 +1341,12 @@ function renderizarTabela(itens, tarifas) {
         '<div style="font-weight:800;font-size:.75rem;line-height:1.3;">'+item.title+'</div>'+
         '<div style="font-size:.66rem;color:var(--gray4);margin-top:1px;">'+item.id+(sku?' · '+sku:'')+'</div>'+
       '</td>'+
-      '<td><span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span></td>'+
+      '<td>'+
+        '<span class="anuncio-badge '+tipoCls+'">'+tipoLabel+'</span>'+
+        (item.status === 'paused' ? '<br><span style="font-size:.65rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:3px;padding:.1rem .3rem;">Pausado</span>' :
+          item.status === 'closed' ? '<br><span style="font-size:.65rem;font-weight:800;background:#F7F7F9;color:#888;border-radius:3px;padding:.1rem .3rem;">Finalizado</span>' :
+          item.status === 'under_review' ? '<br><span style="font-size:.65rem;font-weight:800;background:#FFF8E1;color:#7B5800;border-radius:3px;padding:.1rem .3rem;">Em revisão</span>' : '')+
+      '</td>'+
       '<td class="'+precoCls+'" style="white-space:nowrap;font-weight:800;">'+
         (precoPromocional
           ? '<span style="font-size:.67rem;font-weight:800;background:#FFF0F0;color:#C53030;border-radius:4px;padding:.1rem .3rem;margin-bottom:2px;display:inline-block;">🏷 PROMO</span><br>'+
@@ -1418,8 +1426,11 @@ function filtrarTabela() {
   const busca  = (document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
   let vis = 0;
   document.querySelectorAll('#painel-tbody tr').forEach(tr => {
+    if (!tr.dataset.status) return; // pula linhas de detalhe
     let ok = true;
-    if (filtro==='green')  ok = tr.dataset.status?.includes('green');
+    if (filtro==='itemativo')   ok = tr.dataset.itemstatus === 'active';
+    else if (filtro==='itempausado') ok = ['paused','closed','under_review'].includes(tr.dataset.itemstatus);
+    else if (filtro==='green')  ok = tr.dataset.status?.includes('green');
     else if (filtro==='yellow') ok = tr.dataset.status?.includes('yellow');
     else if (filtro==='red')    ok = tr.dataset.status?.includes('red');
     else if (filtro==='blue')   ok = tr.dataset.status?.includes('blue');
